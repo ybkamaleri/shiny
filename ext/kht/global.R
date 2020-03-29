@@ -17,10 +17,10 @@ if (.Platform$OS.type == "windows"){
 } else {
   system("/bin/authenticate.sh")
   db_config <- list(
-    driver = Sys.getenv("DB_DRIVER", "MySQL"),
-    server = Sys.getenv("DB_SERVER", "db"),
-    db = Sys.getenv("DB_DB", "sykdomspuls"),
-    port = as.integer(Sys.getenv("DB_PORT", 3306)),
+    driver = Sys.getenv("DB_DRIVER", "Sql Server"),
+    server = Sys.getenv("DB_SERVER", "dm-prod"),
+    db = Sys.getenv("DB_DB", "Sykdomspulsen_surv"),
+    port = as.integer(Sys.getenv("DB_PORT", 1433)),
     user = Sys.getenv("DB_USER", "root"),
     password = Sys.getenv("DB_PASSWORD", "example")
   )
