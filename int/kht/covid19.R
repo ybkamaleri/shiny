@@ -1360,7 +1360,8 @@ covid19_norsyss_vs_msis <- function(
     q1,
     q2,
     ncol=1,
-    align = "v"
+    align = "v",
+    axis = "l"
   )
 }
 
