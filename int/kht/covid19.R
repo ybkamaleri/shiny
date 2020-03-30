@@ -138,6 +138,32 @@ covid19_ui <- function(id, config) {
               width=8, align="left",
 
               p(
+                "Kartet under viser det geografiske området du har valgt ",
+                "øverst på siden med andel konsultasjoner for R991 og R27 ")
+            ),
+            column(
+              width=2,
+              p("")
+            )
+          ),
+
+          fluidRow(
+            column(
+              width=12, align="center",
+              plotOutput(ns("overview_norsyss_vs_msis"), height = "700px"),
+              br(),br(),br()
+            )
+          ),
+
+          fluidRow(
+            column(
+              width=2,
+              p("")
+            ),
+            column(
+              width=8, align="left",
+
+              p(
                 "Grafen under viser fordelingen av konsultasjoner på lege/legevakt ",
                 "og telefon/e-konsultasjon/oppmøte ved hjelp av søyler som skal ",
                 "leses av på x-aksen til venstre på grafen. Den røde linjen viser ",
@@ -271,11 +297,10 @@ covid19_ui <- function(id, config) {
           fluidRow(
             column(
               width=12, align="center",
-              plotOutput(ns("overview_map_county_proportion"), height = "600px"),
-              br(),br(),br()
+              plotOutput(ns("overview_map_county_proportion"), height = "600px")
             )
           ),
-          
+
           fluidRow(
             column(
               width=2,
@@ -283,7 +308,7 @@ covid19_ui <- function(id, config) {
             ),
             column(
               width=8, align="left",
-              
+
               p(
                 "Kartet under viser det geografiske området du har valgt ",
                 "øverst på siden med andel konsultasjoner for R991 og R27 ")
@@ -293,7 +318,7 @@ covid19_ui <- function(id, config) {
               p("")
             )
           ),
-          
+
           fluidRow(
             column(
               width=12, align="center",
@@ -497,9 +522,9 @@ covid19_server <- function(input, output, session, config) {
   res = 72
   )
 
-  
+
   output$overview_map_county_proportion_2 <- renderCachedPlot({
-    
+
     covid19_overview_map_county_proportion_2(
       location_code = input$covid_location_code,
       config = config
@@ -510,14 +535,27 @@ covid19_server <- function(input, output, session, config) {
   )},
   res = 72
   )
-  
-  
+
+  output$overview_norsyss_vs_msis <- renderCachedPlot({
+
+    covid19_norsyss_vs_msis(
+      location_code = input$covid_location_code,
+      config = config
+    )
+  }, cacheKeyExpr={list(
+    input$covid_location_code,
+    dev_invalidate_cache
+  )},
+  res = 72
+  )
+
+
   outputOptions(output, "overview_plot_national_syndromes_proportion", priority = 10)
   outputOptions(output, "overview_plot_national_age_burden", priority = 9)
   outputOptions(output, "overview_plot_county_proportion", priority = 8)
   outputOptions(output, "overview_map_county_proportion", priority = 7)
   outputOptions(output, "overview_map_county_proportion_2", priority = 7)
-  
+
 }
 
 
@@ -1107,10 +1145,10 @@ covid19_overview_map_county_proportion_2 <- function(
   location_code,
   config
 ){
-  
+
   granularity_geo <- get_granularity_geo(location_code = location_code)
   location_codes <- get_dependent_location_codes(location_code = location_code)
-  
+
   if(granularity_geo == "nation"){
     d <- pool %>% dplyr::tbl("data_norsyss") %>%
       dplyr::filter(tag_outcome %in% c(
@@ -1138,7 +1176,7 @@ covid19_overview_map_county_proportion_2 <- function(
   d[,cum_n := cumsum(n), by=.(tag_outcome, location_code)] # summing the two outcomes
   d[,cum_w_flu := cumsum(consult_with_influenza), by=.(tag_outcome, location_code)] # summing the consults with influenza
   d <- d[date==max(date)]
-  
+
   # summary(d$cum_n)
   d[, category := fancycut::wafflecut(
     x = 100*cum_n/cum_w_flu,
@@ -1157,9 +1195,9 @@ covid19_overview_map_county_proportion_2 <- function(
       "15-100%"
     )
   )]
-  
+
   # xtabs(~d$category, addNA=T)
-  
+
   d[, name_outcome := factor(
     tag_outcome,
     levels = c(
@@ -1171,7 +1209,7 @@ covid19_overview_map_county_proportion_2 <- function(
       "Engstelig luftveissykdom IKA (R27)"
     )
   )]
-  
+
   if(granularity_geo == "nation"){
     pd <- merge(
       fhidata::norway_map_counties_with_insert_b2020,
@@ -1187,7 +1225,7 @@ covid19_overview_map_county_proportion_2 <- function(
       allow.cartesian = TRUE
     )
   }
-  
+
   q <- ggplot()
   q <- q + geom_polygon(
     data = pd,
@@ -1211,6 +1249,110 @@ covid19_overview_map_county_proportion_2 <- function(
   q <- q + fhiplot::scale_fill_fhi("Andel konsultasjoner",palette = "map_seq_missing_x2", direction = -1, drop=F)
   q <- q + labs(title = glue::glue("Andel konsultasjoner f.o.m {format(config$start_date,'%d.%m.%Y')} t.o.m {format(config$max_date_uncertain,'%d.%m.%Y')}\n\n"))
   q <- q + labs(caption = glue::glue(
+    "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
+  ))
+  q
+}
+
+covid19_norsyss_vs_msis <- function(
+  location_code,
+  config
+){
+
+  d_norsyss <- spulsconnect::tbl("data_norsyss") %>%
+    dplyr::filter(location_code== !!location_code) %>%
+    dplyr::filter(granularity_time=="day") %>%
+    dplyr::filter(tag_outcome %in% "covid19_lf_lte") %>%
+    dplyr::filter(age=="Totalt") %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::select(date, n, consult_with_influenza) %>%
+    dplyr::collect()
+  setDT(d_norsyss)
+  d_norsyss[, date:= as.Date(date)]
+  d_norsyss[, perc_norsyss := 100* n / consult_with_influenza]
+  d_norsyss[, n := NULL]
+  d_norsyss[, consult_with_influenza := NULL]
+
+  d_msis <- spulsconnect::tbl("data_covid19_msis") %>%
+    dplyr::filter(location_code== !!location_code) %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::select(date, n) %>%
+    dplyr::collect()
+  setDT(d_msis)
+  d_msis[, date:= as.Date(date)]
+
+  x_location_code <- location_code
+  x_pop <- fhidata::norway_population_b2020[
+    year==2020 & location_code==x_location_code,
+    .(
+      pop = sum(pop)
+    ),
+    keyby=.(location_code)
+  ]
+
+  d_msis[, pop := x_pop$pop]
+  d_msis[, per_100000_msis := 100000 * n / pop]
+  d_msis[, n:=NULL]
+  d_msis[, pop:=NULL]
+
+  pd <- merge(
+    d_msis,
+    d_norsyss,
+    by="date"
+  )
+
+  pd <- melt.data.table(
+    pd,
+    id.vars = "date"
+  )
+  pd[, scaled_value := value]
+  max_left <- max(pd[variable != "per_100000_msis"]$value)
+  max_right <- max(pd[variable == "per_100000_msis"]$value)
+  pd[variable == "per_100000_msis", scaled_value := value / max_right * max_left]
+
+  pd[, variable_pretty := factor(
+    variable,
+    levels = c(
+      "perc_norsyss",
+      "per_100000_msis"
+      ),
+    labels = c(
+      "Andel konsultasjoner",
+      "Antall tilfeller per 100.000 befolkning"
+    )
+  )]
+
+  q <- ggplot(pd, aes(x=date, y = scaled_value, color = variable_pretty))
+  q <- q + geom_line(lwd = 4)
+  q <- q + scale_y_continuous(
+    "Andel konsultasjoner",
+    breaks = fhiplot::pretty_breaks(6),
+    labels = fhiplot::format_nor_perc_0,
+    expand = expand_scale(mult = c(0, 0.1)),
+    sec.axis = sec_axis(
+      ~ . * max_right / max_left,
+      breaks = fhiplot::pretty_breaks(6),
+      name = "Antall bekreftet tilfeller per 100.000 befolkning\n"
+    )
+  )
+  q <- q + expand_limits(y = 0)
+  q <- q + scale_x_date(
+    NULL,
+    date_breaks = "2 days",
+    date_labels = "%d.%m"
+  )
+  q <- q + fhiplot::scale_color_fhi(NULL)
+  q <- q + fhiplot::theme_fhi_lines(
+    20, panel_on_top = T,
+    legend_position = "bottom"
+  )
+  q <- q + theme(legend.key.size = unit(1, "cm"))
+  q <- q + labs(title = glue::glue(
+    "{names(config$choices_location)[config$choices_location==location_code]}\n",
+    "Andel konsultasjoner som tilhører Covid-19 (mistenkt eller bekreftet) (R991) mot\n",
+    "Antall bekreftet tilfeller per 100.000 befolkning"
+  ))
+  q <- q + labs(caption=glue::glue(
     "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
   ))
   q
