@@ -1259,7 +1259,7 @@ covid19_norsyss_vs_msis <- function(
   config
 ){
 
-  d_norsyss <- spulsconnect::tbl("data_norsyss") %>%
+  d_norsyss <- pool %>% dplyr::tbl("data_norsyss") %>%
     dplyr::filter(location_code== !!location_code) %>%
     dplyr::filter(granularity_time=="day") %>%
     dplyr::filter(tag_outcome %in% "covid19_lf_lte") %>%
@@ -1273,7 +1273,7 @@ covid19_norsyss_vs_msis <- function(
   d_norsyss[, n := NULL]
   d_norsyss[, consult_with_influenza := NULL]
 
-  d_msis <- spulsconnect::tbl("data_covid19_msis") %>%
+  d_msis <- pool %>% dplyr::tbl("data_covid19_msis") %>%
     dplyr::filter(location_code== !!location_code) %>%
     dplyr::filter(date >= !!config$start_date) %>%
     dplyr::select(date, n) %>%
