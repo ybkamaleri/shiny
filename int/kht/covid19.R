@@ -274,6 +274,32 @@ covid19_ui <- function(id, config) {
               plotOutput(ns("overview_map_county_proportion"), height = "600px"),
               br(),br(),br()
             )
+          ),
+          
+          fluidRow(
+            column(
+              width=2,
+              p("")
+            ),
+            column(
+              width=8, align="left",
+              
+              p(
+                "Kartet under viser det geografiske området du har valgt ",
+                "øverst på siden med andel konsultasjoner for R991 og R27 ")
+            ),
+            column(
+              width=2,
+              p("")
+            )
+          ),
+          
+          fluidRow(
+            column(
+              width=12, align="center",
+              plotOutput(ns("overview_map_county_proportion_2"), height = "600px"),
+              br(),br(),br()
+            )
           )
         )
       ),
@@ -471,11 +497,27 @@ covid19_server <- function(input, output, session, config) {
   res = 72
   )
 
+  
+  output$overview_map_county_proportion_2 <- renderCachedPlot({
+    
+    covid19_overview_map_county_proportion_2(
+      location_code = input$covid_location_code,
+      config = config
+    )
+  }, cacheKeyExpr={list(
+    input$covid_location_code,
+    dev_invalidate_cache
+  )},
+  res = 72
+  )
+  
+  
   outputOptions(output, "overview_plot_national_syndromes_proportion", priority = 10)
   outputOptions(output, "overview_plot_national_age_burden", priority = 9)
   outputOptions(output, "overview_plot_county_proportion", priority = 8)
   outputOptions(output, "overview_map_county_proportion", priority = 7)
-
+  outputOptions(output, "overview_map_county_proportion_2", priority = 7)
+  
 }
 
 
@@ -1057,4 +1099,119 @@ covid19_overview_map_county_proportion <- function(
       "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
       ))
     q
+}
+
+
+
+covid19_overview_map_county_proportion_2 <- function(
+  location_code,
+  config
+){
+  
+  granularity_geo <- get_granularity_geo(location_code = location_code)
+  location_codes <- get_dependent_location_codes(location_code = location_code)
+  
+  if(granularity_geo == "nation"){
+    d <- pool %>% dplyr::tbl("data_norsyss") %>%
+      dplyr::filter(tag_outcome %in% c(
+        "covid19_lf_lte",
+        "engstelig_luftveissykdom_ika_lf_lte"
+      )) %>%
+      dplyr::filter(date >= !!config$start_date) %>%
+      dplyr::filter(granularity_geo == "county") %>%
+      dplyr::filter(age == "Totalt") %>%
+      dplyr::collect()
+  } else {
+    d <- pool %>% dplyr::tbl("data_norsyss") %>%
+      dplyr::filter(tag_outcome %in% c(
+        "covid19_lf_lte",
+        "engstelig_luftveissykdom_ika_lf_lte"
+      )) %>%
+      dplyr::filter(date >= !!config$start_date) %>%
+      dplyr::filter(granularity_geo == "municip") %>%
+      dplyr::filter(location_code %in% !!location_codes) %>%
+      dplyr::filter(age == "Totalt") %>%
+      dplyr::collect()
+  }
+  setDT(d)
+  setorder(d,tag_outcome, location_code, date)
+  d[,cum_n := cumsum(n), by=.(tag_outcome, location_code)] # summing the two outcomes
+  d[,cum_w_flu := cumsum(consult_with_influenza), by=.(tag_outcome, location_code)] # summing the consults with influenza
+  d <- d[date==max(date)]
+  
+  # summary(d$cum_n)
+  d[, category := fancycut::wafflecut(
+    x = 100*cum_n/cum_w_flu,
+    intervals = c(
+      "[0,2]",
+      "(2,5]",
+      "(5,10]",
+      "(10,15]",
+      "(15,100]"
+    ),
+    buckets = c(
+      "0-2%",
+      "2-5%",
+      "5-10%",
+      "10-15%",
+      "15-100%"
+    )
+  )]
+  
+  # xtabs(~d$category, addNA=T)
+  
+  d[, name_outcome := factor(
+    tag_outcome,
+    levels = c(
+      "covid19_lf_lte",
+      "engstelig_luftveissykdom_ika_lf_lte"
+    ),
+    labels = c(
+      "Covid-19 (mistenkt eller bekreftet) (R991)",
+      "Engstelig luftveissykdom IKA (R27)"
+    )
+  )]
+  
+  if(granularity_geo == "nation"){
+    pd <- merge(
+      fhidata::norway_map_counties_with_insert_b2020,
+      d,
+      on="location_code",
+      allow.cartesian = TRUE
+    )
+  } else {
+    pd <- merge(
+      fhidata::norway_map_municips_b2020,
+      d,
+      on="location_code",
+      allow.cartesian = TRUE
+    )
+  }
+  
+  q <- ggplot()
+  q <- q + geom_polygon(
+    data = pd,
+    aes( x = long, y = lat, group = group, fill=category),
+    color="black",
+    size=0.2
+  )
+  if(granularity_geo == "nation"){
+    q <- q + annotate(
+      "text",
+      x = fhidata::norway_map_insert_title_position_b2020$long,
+      y = fhidata::norway_map_insert_title_position_b2020$lat,
+      label = "Oslo",
+      size = 8
+    )
+  }
+  q <- q + lemon::facet_rep_wrap(~name_outcome, repeat.tick.labels = "y", ncol=4)
+  q <- q + theme_void(20)
+  q <- q + theme(legend.key.size = unit(1, "cm"))
+  q <- q + coord_quickmap()
+  q <- q + fhiplot::scale_fill_fhi("Andel konsultasjoner",palette = "map_seq_missing_x2", direction = -1, drop=F)
+  q <- q + labs(title = glue::glue("Andel konsultasjoner f.o.m {format(config$start_date,'%d.%m.%Y')} t.o.m {format(config$max_date_uncertain,'%d.%m.%Y')}\n\n"))
+  q <- q + labs(caption = glue::glue(
+    "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
+  ))
+  q
 }
