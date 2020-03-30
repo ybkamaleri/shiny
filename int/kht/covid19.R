@@ -1318,7 +1318,7 @@ covid19_norsyss_vs_msis <- function(
   q <- q + theme(legend.key.size = unit(1, "cm"))
   q <- q + labs(title = glue::glue(
     "{names(config$choices_location)[config$choices_location==location_code]}\n",
-    "Andel konsultasjoner som tilhører Covid-19 (mistenkt eller bekreftet) (R991) mot\n"
+    "Andel konsultasjoner som tilhører Covid-19 (mistenkt eller bekreftet) (R991)\n"
   ))
   q <- q + labs(caption=glue::glue(
     "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
@@ -1329,7 +1329,7 @@ covid19_norsyss_vs_msis <- function(
   q <- ggplot(d_msis, aes(x=date, y = per_100000_msis))
   q <- q + geom_col(fill = fhiplot::base_color)
   q <- q + scale_y_continuous(
-    "Antall bekreftet tilfeller per 100.000 befolkning",
+    "Antall per 100.000 befolkning",
     breaks = fhiplot::pretty_breaks(6),
     expand = expand_scale(mult = c(0, 0.1))
   )
@@ -1349,7 +1349,7 @@ covid19_norsyss_vs_msis <- function(
   q <- q + theme(legend.key.size = unit(1, "cm"))
   q <- q + labs(title = glue::glue(
     "{names(config$choices_location)[config$choices_location==location_code]}\n",
-    "Antall bekreftet tilfeller per 100.000 befolkning"
+    "Antall bekreftet Covid-19 tilfeller fra MSIS per 100.000 befolkning"
   ))
   q <- q + labs(caption=glue::glue(
     "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
