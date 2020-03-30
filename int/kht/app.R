@@ -21,7 +21,7 @@ source("norsyss.R")
 source("norsyss_overview.R")
 source("norsyss_weekly.R")
 source("norsyss_daily.R")
-source("norsyss_purpose.R")
+source("norsyss_information.R")
 
 ui <- tagList(
   useShinyjs(),

@@ -895,6 +895,7 @@ covid19_overview_plot_county_proportion <- function(
 
     labels[tag_outcome=="covid19_lf_lte",andel := max_val]
     labels[tag_outcome=="engstelig_luftveissykdom_ika_lf_lte",andel := max_val-5]
+    labels[, date:= min(pd$date)]
 
     q <- ggplot(pd, aes(x=date, y=andel))
     q <- q + geom_col(mapping = aes(fill=name_outcome), position = "dodge", width=1)
@@ -909,6 +910,7 @@ covid19_overview_plot_county_proportion <- function(
       hjust = 0,
       label.r=0,
       segment.size = 0,
+      segment.alpha = 0,
       label.size = 0.5,
       label.padding = 0.5,
       box.padding = 0.25,
