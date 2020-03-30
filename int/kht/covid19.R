@@ -1288,6 +1288,116 @@ covid19_norsyss_vs_msis <- function(
       pop = sum(pop)
     ),
     keyby=.(location_code)
+    ]
+
+  d_msis[, pop := x_pop$pop]
+  d_msis[, per_100000_msis := 100000 * n / pop]
+  d_msis[, n:=NULL]
+  d_msis[, pop:=NULL]
+
+  q <- ggplot(d_norsyss, aes(x=date, y = perc_norsyss))
+  q <- q + geom_col(fill = fhiplot::base_color)
+  q <- q + scale_y_continuous(
+    "Andel konsultasjoner",
+    breaks = fhiplot::pretty_breaks(6),
+    labels = fhiplot::format_nor_perc_0,
+    expand = expand_scale(mult = c(0, 0.1))
+  )
+  q <- q + expand_limits(y = 0)
+  q <- q + scale_x_date(
+    NULL,
+    date_breaks = "2 days",
+    date_labels = "%d.%m"
+  )
+  q <- q + fhiplot::theme_fhi_lines(
+    20, panel_on_top = T,
+    legend_position = "bottom",
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank()
+  )
+  q <- q + theme(legend.key.size = unit(1, "cm"))
+  q <- q + labs(title = glue::glue(
+    "{names(config$choices_location)[config$choices_location==location_code]}\n",
+    "Andel konsultasjoner som tilhører Covid-19 (mistenkt eller bekreftet) (R991) mot\n"
+  ))
+  q <- q + labs(caption=glue::glue(
+    "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
+  ))
+  q1 <- q
+
+
+  q <- ggplot(d_msis, aes(x=date, y = per_100000_msis))
+  q <- q + geom_col(fill = fhiplot::base_color)
+  q <- q + scale_y_continuous(
+    "Antall bekreftet tilfeller per 100.000 befolkning",
+    breaks = fhiplot::pretty_breaks(6),
+    expand = expand_scale(mult = c(0, 0.1))
+  )
+  q <- q + expand_limits(y = 0)
+  q <- q + scale_x_date(
+    NULL,
+    date_breaks = "2 days",
+    date_labels = "%d.%m"
+  )
+  q <- q + fhiplot::scale_color_fhi(NULL)
+  q <- q + fhiplot::theme_fhi_lines(
+    20, panel_on_top = T,
+    legend_position = "bottom",
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank()
+  )
+  q <- q + theme(legend.key.size = unit(1, "cm"))
+  q <- q + labs(title = glue::glue(
+    "{names(config$choices_location)[config$choices_location==location_code]}\n",
+    "Antall bekreftet tilfeller per 100.000 befolkning"
+  ))
+  q <- q + labs(caption=glue::glue(
+    "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
+  ))
+  q2 <- q
+
+  cowplot::plot_grid(
+    q1,
+    q2,
+    ncol=1
+  )
+}
+
+
+covid19_norsyss_vs_msis_one_graph <- function(
+  location_code,
+  config
+){
+
+  d_norsyss <- pool %>% dplyr::tbl("data_norsyss") %>%
+    dplyr::filter(location_code== !!location_code) %>%
+    dplyr::filter(granularity_time=="day") %>%
+    dplyr::filter(tag_outcome %in% "covid19_lf_lte") %>%
+    dplyr::filter(age=="Totalt") %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::select(date, n, consult_with_influenza) %>%
+    dplyr::collect()
+  setDT(d_norsyss)
+  d_norsyss[, date:= as.Date(date)]
+  d_norsyss[, perc_norsyss := 100* n / consult_with_influenza]
+  d_norsyss[, n := NULL]
+  d_norsyss[, consult_with_influenza := NULL]
+
+  d_msis <- pool %>% dplyr::tbl("data_covid19_msis") %>%
+    dplyr::filter(location_code== !!location_code) %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::select(date, n) %>%
+    dplyr::collect()
+  setDT(d_msis)
+  d_msis[, date:= as.Date(date)]
+
+  x_location_code <- location_code
+  x_pop <- fhidata::norway_population_b2020[
+    year==2020 & location_code==x_location_code,
+    .(
+      pop = sum(pop)
+    ),
+    keyby=.(location_code)
   ]
 
   d_msis[, pop := x_pop$pop]
