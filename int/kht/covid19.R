@@ -1359,7 +1359,8 @@ covid19_norsyss_vs_msis <- function(
   cowplot::plot_grid(
     q1,
     q2,
-    ncol=1
+    ncol=1,
+    align = "v"
   )
 }
 
