@@ -697,12 +697,12 @@ covid19_overview_plot_national_source_proportion <- function(
     pd[,cat := factor(
       cat,
       levels = c(
-        "Ekonsultasjon/Legekontor",
-        "Ekonsultasjon/Legevakt",
+        "e-konsultasjon/Legekontor",
+        "e-konsultasjon/Legevakt",
         "Telefon/Legekontor",
         "Telefon/Legevakt",
-        "Lege/Legekontor",
-        "Lege/Legevakt"
+        "Oppmøte/Legekontor",
+        "Oppmøte/Legevakt"
       )
     )]
 
@@ -1069,14 +1069,14 @@ covid19_overview_map_county_proportion <- function(
         "[0,0]",
         "(0,500]",
         "(500,1000]",
-        "(1000,2000]",
-        "(2000,10000000]"
+        "(1000,5000]",
+        "(5000,10000000]"
       ),
       buckets = c(
         "0",
         "1-500",
         "501-1000",
-        "1001-2000",
+        "1001-5000",
         max_cat
       )
     )]
