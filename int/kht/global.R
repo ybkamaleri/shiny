@@ -15,7 +15,7 @@ if (.Platform$OS.type == "windows"){
     password = Sys.getenv("DB_PASSWORD", "example")
   )
 } else {
-  system("/bin/authenticate.sh")
+  # system("/bin/authenticate.sh")
   db_config <- list(
     driver = Sys.getenv("DB_DRIVER", "ODBC Driver 17 for SQL Server"),
     server = Sys.getenv("DB_SERVER", "dm-prod"),
@@ -27,6 +27,7 @@ if (.Platform$OS.type == "windows"){
 }
 
 if(db_config$driver %in% c("ODBC Driver 17 for SQL Server")){
+  # linux
   pool <- dbPool(
     drv = odbc::odbc(),
     driver = db_config$driver,
@@ -34,10 +35,11 @@ if(db_config$driver %in% c("ODBC Driver 17 for SQL Server")){
     database = db_config$db,
     port = db_config$port,
     uid = db_config$user,
-    Pwd = db_config$password,
-    trusted_connection = "yes"
+    Pwd = db_config$password#,
+    #trusted_connection = "yes"
   )
 } else if(db_config$driver %in% c("Sql Server")){
+  # windows
   pool <- dbPool(
     drv = odbc::odbc(),
     driver = db_config$driver,
