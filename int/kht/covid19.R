@@ -683,9 +683,9 @@ covid19_overview_plot_national_source_proportion <- function(
 
     pd[,
        contact_type := dplyr::case_when(
-         stringr::str_detect(tag_outcome, "_e$") ~ "Ekonsultasjon",
+         stringr::str_detect(tag_outcome, "_e$") ~ "e-konsultasjon",
          stringr::str_detect(tag_outcome, "_t$") ~ "Telefon",
-         stringr::str_detect(tag_outcome, "_l$") ~ "Lege"
+         stringr::str_detect(tag_outcome, "_l$") ~ "Oppmøte"
        )]
 
     pd[,
