@@ -5,11 +5,11 @@ norsyss_purpose_ui <- function(id, config) {
   tagList(
     fluidRow(
       column(
-        width=2,
+        width=1,
         p("")
       ),
       column(
-        width=8, align="left",
+        width=10, align="left",
         p(
           "Vi får data til denne overvåkingen via Sykdomspulsen. ",
           "Diagnosekoder som registreres hos lege eller legevakt sendes ",
@@ -69,7 +69,7 @@ norsyss_purpose_ui <- function(id, config) {
         br()
       ),
       column(
-        width=2,
+        width=1,
         p("")
       )
     )

@@ -5,11 +5,11 @@ norsyss_daily_ui <- function(id, config) {
   tagList(
     fluidRow(
       column(
-        width=2,
+        width=1,
         p("")
       ),
       column(
-        width=8, align="center",
+        width=10, align="center",
 
         p("text text text text text text text text text text text text "),
         p("text text text text text text text text text text text text "),
@@ -18,7 +18,7 @@ norsyss_daily_ui <- function(id, config) {
         p("text text text text text text text text text text text text ")
       ),
       column(
-        width=2,
+        width=1,
         p("")
       )
     ),
