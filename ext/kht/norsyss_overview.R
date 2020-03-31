@@ -5,11 +5,11 @@ norsyss_overview_ui <- function(id, config) {
   tagList(
     fluidRow(
       column(
-        width=2,
+        width=1,
         p("")
       ),
       column(
-        width=8, align="left",
+        width=10, align="left",
 
         p(
           "Under vil du se en rekke grafer og tabeller som gir en ",
@@ -48,7 +48,7 @@ norsyss_overview_ui <- function(id, config) {
         )
       ),
       column(
-        width=2,
+        width=1,
         p("")
       )
     ),
@@ -82,11 +82,11 @@ norsyss_overview_ui <- function(id, config) {
 
    fluidRow(
      column(
-       width=2,
+       width=1,
        p("")
      ),
      column(
-       width=8, align="left",
+       width=10, align="left",
 
        p(
          "Under ser du to oversikter (bokser) med aldersgrupper ",
@@ -115,7 +115,7 @@ norsyss_overview_ui <- function(id, config) {
        )
      ),
      column(
-       width=2,
+       width=1,
        p("")
      )
    ),
@@ -129,11 +129,11 @@ norsyss_overview_ui <- function(id, config) {
 
    fluidRow(
      column(
-       width=2,
+       width=1,
        p("")
      ),
      column(
-       width=8, align="left",
+       width=10, align="left",
 
        p(
          "Under er same type grafer som beskrevet over ",
@@ -161,7 +161,7 @@ norsyss_overview_ui <- function(id, config) {
         )
      ),
      column(
-       width=2,
+       width=1,
        p("")
      )
    ),
@@ -176,11 +176,11 @@ norsyss_overview_ui <- function(id, config) {
 
    fluidRow(
      column(
-       width=2,
+       width=1,
        p("")
      ),
      column(
-       width=8, align="left",
+       width=10, align="left",
 
        p(
          "Under er en oversikt over antall og andel ukentlige konsultasjoner ",
@@ -198,7 +198,7 @@ norsyss_overview_ui <- function(id, config) {
        )
      ),
      column(
-       width=2,
+       width=1,
        p("")
      )
    ),

@@ -3,10 +3,15 @@ library(shiny)
 library(shinyjs)
 
 if (.Platform$OS.type == "windows"){
-  assign("dev_invalidate_cache", lubridate::now(), envir = .GlobalEnv)
+  makeActiveBinding('dev_invalidate_cache', function() {
+    lubridate::now()
+  }, .GlobalEnv)
 } else {
   shinyOptions(cache = diskCache("/tmp/", max_size = 50e6, max_age = 60*60)) # 1 hour
-  assign("dev_invalidate_cache", 1, envir = .GlobalEnv)
+
+  makeActiveBinding('dev_invalidate_cache', function() {
+    paste0(lubridate::today(), "/", lubridate::hour(lubridate::now()))
+  }, .GlobalEnv)
 }
 
 
@@ -16,7 +21,7 @@ source("norsyss.R")
 source("norsyss_overview.R")
 source("norsyss_weekly.R")
 source("norsyss_daily.R")
-source("norsyss_purpose.R")
+source("norsyss_information.R")
 
 ui <- tagList(
   useShinyjs(),
@@ -49,11 +54,8 @@ server <- function(input, output) {
   callModule(norsyss_purpose_server, "norsyss_purpose", config=config)
 }
 
-
 shinyApp(ui, server)
 
 #  shiny::runApp('inst/shiny/corona', port = 4989, host = "0.0.0.0")
-
-
 
 
