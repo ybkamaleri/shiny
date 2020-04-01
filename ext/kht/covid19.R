@@ -8,7 +8,7 @@ covid19_ui <- function(id, config) {
         width=12, align="left",
         p(
           id="toptext",
-          "Formålet med denne siden er å gi en ", strong("oversikt over Covid-19 epidemien "),
+          "Formålet med denne siden er å gi en ", strong("oversikt over covid-19 epidemien "),
           "til bruk i kommuneoverlegens daglige arbeid. ",
           "Gi gjerne tilbakemeldinger og ønskede endringer via sykdomspulsen@fhi.no", br(), br(),
           "Under kan du velge blant to faner som gir deg forskjellig informasjon:", br(),
@@ -26,7 +26,7 @@ covid19_ui <- function(id, config) {
             column(
               width=12, align="left",
               p(
-                "For å overvåke Covid-19 epidemien har vi valgt å følge ",
+                "For å overvåke covid-19 epidemien har vi valgt å følge ",
                 "ekstra nøye med på to ICPC-2 diagnosekoder i primærhelsetjenesten:", br(), br(),
 
                 strong("R991: Covid-19 (mistenkt eller bekreftet)"), " ble opprettet 06.03.2020. ",
@@ -37,14 +37,14 @@ covid19_ui <- function(id, config) {
                 "brukt av referansegruppen for primærmedisinsk kodeverk i ",
                 "Direktoratet for e-helse og Legeforeningen 13. mars. ",
                 "Denne koden skal brukes ved sykmelding/konsultasjon/kontakt ",
-                "vedrørende Covid-19, med unntak av bekreftet/mistenkt ",
+                "vedrørende covid-19, med unntak av bekreftet/mistenkt ",
                 "koronavirus-sykdom (https://fastlegen.no/artikkel/diagnosekoder-ved-Covid-19). ",
                 "Derfor følger vi også denne diagnosekoden i vår overvåkning av Covid-19.", br(), br(),
 
-                "De kliniske tegnene på Covid-19 er akutt luftveisinfeksjon med ",
+                "De kliniske tegnene på covid-19 er akutt luftveisinfeksjon med ",
                 "symptomer som feber, hoste og kortpustethet. Det er sesong ",
                 "for vanlig forkjølelse og influensa som også kan gi slike ",
-                "symptomer. Vi ønsker derfor å påpeke at Covid-19 diagnosen ",
+                "symptomer. Vi ønsker derfor å påpeke at covid-19 diagnosen ",
                 "i denne sammenheng ikke nødvendigvis er koronavirus, ",
                 "men overvåkningen kan gi en oversikt over utbredelse og ",
                 "hvor stort press det er på primærhelsetjenesten.", br(), br(),
@@ -62,11 +62,7 @@ covid19_ui <- function(id, config) {
                 strong("Kommune:"), " Gir en oversikt over den valgte kommunen i ",
                 "tillegg til en oversikt over nabokommunene.", br(), br(),
 
-                "Informasjon om dataene (se også i fanen 'informasjon'):", br(),
-                "- Telefon, legekontakt og e-konsultasjon er inkludert i grafene.", br(),
-                "- Geografisk område basert på stedet for legekonsultasjon, ikke pasientens bosted.", br(),
-                "- De kommunene som ikke har legevakt eller legekontor finner du ikke i listen over geografisk område da vi ikke har noe data over disse kommunene. De som bor i disse kommunene drar til legekontor i andre kommuner.", br(),
-                "- Det kan være 14 dager forsinkelse i dataene da de kommer fra KUHR systemet. Dersom det for noen datoer ikke er registrert noen konsultasjoner fra et geografisk område vil dette vises som røde stiplede linjer i grafene.", br(),
+                "Informasjon om dataene kan du se under fanen 'Informasjon'",
                 br(),br(),br()
               )
             )
@@ -90,11 +86,39 @@ covid19_ui <- function(id, config) {
           ),
 
           fluidRow(
+            fluidRow(
+              column(
+                width=12, align="left",
+                p(
+                  strong("Figur 1")," viser antall covid-19 meldinger ",
+                  "til MSIS sammenstilt med andel konsultasjoner ",
+                  "for covid-19 (mistenkt eller bekreftet) på ",
+                  "legekontor og legevakt. Denne grafen kan gi en ",
+                  "oversikt over trendene i MSIS og Sykdomspulsen i ",
+                  "forhold til hverandre. Det er noe forsinkelse ",
+                  "både i MSIS dataene og Sykdomspulsen, derfor ",
+                  "kan grafen endre seg etter hvert.")
+              )
+            ),
+
+            fluidRow(
+              column(
+                width=12, align="left",
+                br(),
+                p(
+                  strong("Figur 1.")," Antall covid-19 meldinger til MSIS og andel konsultasjoner for ",
+                  "covid-19 (mistenkte eller bekreftet) på legekontor og legevakt"
+                ),
+                plotOutput(ns("overview_norsyss_vs_msis"), height = "700px"),
+                br(),br(),br()
+              )
+            ),
+
             column(
               width=12, align="left",
 
               p(
-                strong("Figur 1")," gir en oversikt over trendene for forskjellige luftveisagens. ",
+                strong("Figur 2")," gir en oversikt over trendene for forskjellige luftveisagens. ",
                 "Vi har inkludert andel konsultasjoner av fire forskjellige enkeltstående ",
                 "ICPC-2 diagnosekoder og en kode der vi har samlet en rekke luftveis ",
                 "diagnoser (R01, R02, R03, R04, R05, R07, R08, R09, R21, R24, R25, ",
@@ -111,36 +135,8 @@ covid19_ui <- function(id, config) {
             column(
               width=12, align="left",
               br(),
-              p(strong("Figur 1.")," Andel konsultasjoner med forskjellig luftveisagens."),
+              p(strong("Figur 2.")," Andel konsultasjoner med forskjellig luftveisagens."),
               plotOutput(ns("overview_plot_national_syndromes_proportion"), height = "700px"),
-              br(),br(),br()
-            )
-          ),
-
-          fluidRow(
-            column(
-              width=12, align="left",
-              p(
-                strong("Figur 2")," viser antall covid-19 meldinger ",
-                "til MSIS sammenstilt med andel konsultasjoner ",
-                "for covid-19 (mistenkt eller bekreftet) på ",
-                "legekontor og legevakt. Denne grafen kan gi en ",
-                "oversikt over trendene i MSIS og Sykdomspulsen i ",
-                "forhold til hverandre. Det er noe forsinkelse ",
-                "både i MSIS dataene og Sykdomspulsen, derfor ",
-                "kan grafen endre seg etter hvert.")
-            )
-          ),
-
-          fluidRow(
-            column(
-              width=12, align="left",
-              br(),
-              p(
-                strong("Figur 2.")," Antall covid-19 meldinger til MSIS og andel konsultasjoner for ",
-                "covid-19 (mistenkte eller bekreftet) på legekontor og legevakt"
-              ),
-              plotOutput(ns("overview_norsyss_vs_msis"), height = "700px"),
               br(),br(),br()
             )
           ),
@@ -184,10 +180,10 @@ covid19_ui <- function(id, config) {
               p(
                 strong("Figur 4")," viser andel konsultasjoner med covid-19 ",
                 "(mistenkt eller bekreftet) diagnose per aldersgruppe. Vær ",
-                "oppmerksom på at aldersgruppene ikke like store og nevneren ",
-                "er totalt antall konsultasjoner per dag og per geografisk område. ",
+                "oppmerksom på at aldersgruppene ikke like store og ",
+                strong("nevneren er totalt antall konsultasjoner per dag og per geografisk område. "),
                 "Dette gir en oversikt over hvilke aldersgrupper som i hovedsak ",
-                "kontakter lege og legevakt for covid-19 (mistenkt eler bekreftet). ",
+                "kontakter lege og legevakt for covid-19 (mistenkt eller bekreftet). ",
                 "For å se mer på spesifikke aldersgrupper se på ", strong("Figur 5"), "."
               )
             )
@@ -198,8 +194,7 @@ covid19_ui <- function(id, config) {
               width=12, align="left",
               br(),
               p(
-                strong("Figur 4."), " Andel konsultasjoner med covid-19 (mistenkt eller bekreftet) ",
-                "fordelt på aldersgrupper"
+                strong("Figur 4."), "Andel konsultasjoner i Norge med covid-19 (mistenkt eller bekreftet)"
               ),
               plotOutput(ns("overview_plot_national_age_burden"), height = "700px"),
               br(),br(),br()
@@ -212,10 +207,10 @@ covid19_ui <- function(id, config) {
               p(
                 strong("Figur 5")," viser andel konsultasjoner med covid-19 ",
                 "(mistenkt eller bekreftet) diagnose per aldersgruppe. ",
-                "Vær oppmerksom på at nevneren er totalt antall konsultasjoner ",
-                "per aldersgruppe, per dag og per geografisk område. Dette ",
-                "gir en oversikt over hvordan trendene er for covid-19 ",
-                "(mistenkt eler bekreftet) per aldersgruppe."
+                "Vær oppmerksom på at ",
+                strong("nevneren er totalt antall konsultasjoner per aldersgruppe, per dag og per geografisk område. "),
+                "Dette gir en oversikt over hvordan trendene er for covid-19 ",
+                "(mistenkt eller bekreftet) per aldersgruppe."
               )
             )
           ),
@@ -254,7 +249,7 @@ covid19_ui <- function(id, config) {
               width=12, align="left",
               br(),
               p(
-                strong("Figur 6."), " Andel konsultasjoner av R991: covid-19 (mistenkt eller bekreftet) ",
+                strong("Figur 6."), " Andel konsultasjoner av R991: Covid-19 (mistenkt eller bekreftet) ",
                 "og R27: Engstelig luftveissykdom IKA diagnose per geografisk område."
               ),
               uiOutput(ns("overview_ui_county_proportion")),
@@ -321,7 +316,7 @@ covid19_ui <- function(id, config) {
               width=12, align="left",
 
               p(
-                strong("Vi får data til Covid-19 overvåkingen via Sykdomspulsen. "),
+                strong("Vi får data til covid-19 overvåkingen via Sykdomspulsen. "),
                 "Diagnosekoder som registreres hos lege eller legevakt sendes ",
                 "til Helsedirektoratet som en del av legenes refusjonskrav ",
                 "(KUHR-systemet). Folkehelseinstituttet mottar daglig ",
@@ -330,7 +325,7 @@ covid19_ui <- function(id, config) {
                 "men med informasjon om kjønn, aldersgruppe, konsultasjonsdato ",
                 "og sted for konsultasjon.", br(), br(),
 
-                strong("Informasjon om dataene i Covid-19 overvåkingen:"), br(),
+                strong("Informasjon om dataene i covid-19 overvåkingen:"), br(),
                 "- Telefon, legekontakt og e-konsultasjon er inkludert", br(),
                 "- Legekontor og legevakt er inkludert", br(),
                 "- Geografisk område basert på stedet for legekonsultasjon, ikke pasientens bosted", br(),
@@ -364,8 +359,8 @@ covid19_ui <- function(id, config) {
                 "- R99: Luftveissykdom IKA", br(),
                 "- R991: Covid-19 (mistenkt eller bekreftet)", br(), br(),
 
-                "Overvåkingen av Covid-19 er noe annerledes enn NorSySS ",
-                "overvåkingen i Sykdomspulsen. Siden diagnosekoden Covid-19 ",
+                "Overvåkingen av covid-19 er noe annerledes enn NorSySS ",
+                "overvåkingen i Sykdomspulsen. Siden diagnosekoden covid-19 ",
                 "(mistenkt eller bekreftet) ble implementert 06. mars har ",
                 "vi ikke mulighet til å gjøre regresjonsanalyser som for ",
                 "de andre diagnosekodene da vi ikke har data bakover i tid ",
@@ -706,6 +701,7 @@ covid19_overview_plot_national_source_proportion <- function(
     by=.(date)
     ]
     pd_line[, andel := n/consult_with_influenza]
+    pd_line[is.nan(andel), andel:=0]
     max_andel <- max(pd_line$andel, na.rm=T)
     pd_line[, andel := max_y * andel / max_andel]
 
@@ -826,13 +822,12 @@ covid19_overview_plot_national_age_burden <- function(
   q <- q + theme(legend.key.size = unit(1, "cm"))
   q <- q + labs(title = glue::glue(
     "{names(config$choices_location)[config$choices_location==location_code]}\n",
-    "Andel konsultasjoner med covid-19 (mistenkt eller bekreftet) fordelt på aldersgrupper\n",
+    "Andel konsultasjoner i Norge med covid-19 (mistenkt eller bekreftet)\n",
     "Data fra NorSySS"
   ))
   q <- q + labs(caption=glue::glue(
-    "Konsultasjoner er legekontakt, telefon, ekonsultasjoner til fastleger og legevakter\n",
-    "Nevneren til alle aldersgrupper er totalt antall konsultasjoner (alle aldersgrupper summert)\n",
-    "Røde stiplede vertikale linjer på grafen betyr at ingen data ble rapportert på disse dagene\n",
+    "For alle aldersgruppene er nevneren er totalt antall konsultasjoner (alle aldersgrupper summert)\n",
+    "Røde stiplede vertikale linjer på noen av datoene i grafen betyr at det ikke er innrapportert noen konsultasjoner i dette geografiske område på disse dagene\n",
     "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
   ))
   q
@@ -1015,7 +1010,7 @@ covid19_overview_plot_county_proportion <- function(
     q <- q + theme(legend.position="bottom")
     q <- q + labs(title=glue::glue(
       "Andel konsultasjoner av\n",
-      "R991: covid-19 (mistenkt eller bekreftet) og\n",
+      "R991: Covid-19 (mistenkt eller bekreftet) og\n",
       "R27: Engstelig luftveissykdom IKA diagnose per geografisk område\n",
       "Data fra NorSySS"
     ))
@@ -1061,26 +1056,13 @@ covid19_overview_map_county_proportion <- function(
     d[,cum_n := cumsum(n), by=.(tag_outcome, location_code)]
     d <- d[date==max(date)]
 
-    # summary(d$cum_n)
-    max_cat <- paste0("5001-",max(5000,max(d$cum_n)))
-    d[, category := fancycut::wafflecut(
-      x = cum_n,
-      intervals = c(
-        "[0,0]",
-        "(0,500]",
-        "(500,1000]",
-        "(1000,5000]",
-        "(5000,10000000]"
-      ),
-      buckets = c(
-        "0",
-        "1-500",
-        "501-1000",
-        "1001-5000",
-        max_cat
-      )
-    )]
+    cut_points <- unique(round(c(0, quantile(d$cum_n, probs = c(0.25, 0.5, 0.75, 1)))))
+    breaks <- c(-1, cut_points)
+    labels <- paste0(breaks[-length(breaks)]+1, "-", breaks[-1])
+    labels[labels=="0-0"] <- "0"
 
+    # summary(d$cum_n)
+    d[, category := cut(cum_n, breaks = breaks, labels = labels)]
     # xtabs(~d$category, addNA=T)
 
     d[, name_outcome := factor(
@@ -1180,23 +1162,28 @@ covid19_overview_map_county_proportion_2 <- function(
   d[,cum_n := cumsum(n), by=.(tag_outcome, location_code)] # summing the two outcomes
   d[,cum_w_flu := cumsum(consult_with_influenza), by=.(tag_outcome, location_code)] # summing the consults with influenza
   d <- d[date==max(date)]
+  d[, andel := 100*cum_n/cum_w_flu]
+  d[is.nan(andel), andel := 0]
+  d[, no_data := cum_w_flu == 0]
 
   # summary(d$cum_n)
   d[, category := fancycut::wafflecut(
-    x = 100*cum_n/cum_w_flu,
+    x = andel,
     intervals = c(
-      "[0,2]",
-      "(2,5]",
+      0,
+      "(0,2.5]",
+      "(2.5,5]",
       "(5,10]",
       "(10,15]",
       "(15,100]"
     ),
     buckets = c(
-      "0-2%",
-      "2-5%",
-      "5-10%",
-      "10-15%",
-      "15-100%"
+      "0",
+      "0.1-2.5%",
+      "2.6-5.0%",
+      "5.1-10.0%",
+      "10.1-15.0%",
+      "15.1%+"
     )
   )]
 
@@ -1235,6 +1222,13 @@ covid19_overview_map_county_proportion_2 <- function(
     data = pd,
     aes( x = long, y = lat, group = group, fill=category),
     color="black",
+    size=0.2
+  )
+  if(sum(pd$no_data)>0) q <- q + geom_polygon(
+    data = pd[no_data==TRUE],
+    aes( x = long, y = lat, group = group),
+    color="black",
+    fill = "white",
     size=0.2
   )
   if(granularity_geo == "nation"){
@@ -1326,7 +1320,7 @@ covid19_norsyss_vs_msis <- function(
   q <- q + theme(legend.key.size = unit(1, "cm"))
   q <- q + labs(title = glue::glue(
     "{names(config$choices_location)[config$choices_location==location_code]}\n",
-    "Andel konsultasjoner som tilhører Covid-19 (mistenkt eller bekreftet) (R991)\n"
+    "Andel konsultasjoner som tilhører covid-19 (mistenkt eller bekreftet) (R991)\n"
   ))
   q <- q + labs(caption=glue::glue(
     "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
@@ -1357,7 +1351,7 @@ covid19_norsyss_vs_msis <- function(
   q <- q + theme(legend.key.size = unit(1, "cm"))
   q <- q + labs(title = glue::glue(
     "{names(config$choices_location)[config$choices_location==location_code]}\n",
-    "Antall bekreftet Covid-19 tilfeller fra MSIS per 100.000 befolkning"
+    "Antall bekreftet covid-19 tilfeller fra MSIS per 100.000 befolkning"
   ))
   q <- q + labs(caption=glue::glue(
     "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
@@ -1407,7 +1401,8 @@ covid19_norsyss_vs_msis_one_graph <- function(
   pd <- merge(
     d_msis,
     d_norsyss,
-    by="date"
+    by="date",
+    all = T
   )
 
   pd <- melt.data.table(
@@ -1417,6 +1412,7 @@ covid19_norsyss_vs_msis_one_graph <- function(
       "no_data"
     )
   )
+  pd <- pd[!is.na(value)]
   pd[, scaled_value := value]
   max_left <- max(pd[variable != "perc_norsyss"]$value)+1
   max_right <- max(pd[variable == "perc_norsyss"]$value)
@@ -1459,14 +1455,14 @@ covid19_norsyss_vs_msis_one_graph <- function(
     arrow = arrow(length = unit(0.1, "inches"))
   )
   q <- q + scale_y_continuous(
-    "Antall covid-19 meldinger til MSIS",
+    "Antall tilfeller meldt til MSIS",
     breaks = fhiplot::pretty_breaks(6),
     expand = expand_scale(mult = c(0, 0.1)),
     sec.axis = sec_axis(
       ~ . * max_right / max_left,
       breaks = fhiplot::pretty_breaks(6),
       labels = fhiplot::format_nor_perc_0,
-      name = "Andel konsultasjoner\n"
+      name = "Andel NorSySS konsultasjoner\n"
     )
   )
   q <- q + expand_limits(y = 0)

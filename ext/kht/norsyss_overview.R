@@ -59,7 +59,7 @@ norsyss_overview_ui <- function(id, config) {
 
         radioButtons(
           inputId = ns("norsyss_tag"),
-          label = "Sykdom/syndrom",
+          label = "Symptom/syndrom",
           choices = config$choices_norsyss_tag,
           selected = config$choices_norsyss_tag[[1]],
           width = "400px"
@@ -82,11 +82,7 @@ norsyss_overview_ui <- function(id, config) {
 
    fluidRow(
      column(
-       width=1,
-       p("")
-     ),
-     column(
-       width=10, align="left",
+       width=12, align="left",
 
        p(
          "Under ser du to oversikter (bokser) med aldersgrupper ",
@@ -97,26 +93,26 @@ norsyss_overview_ui <- function(id, config) {
          strong("Boksen til venstre viser ukesoversikt. "),
          "Her ser du 16 uker og 7 aldersgrupper ('totalt' ",
          "er summen av alle aldersgrupper). ",
-         "Hver firkant i boksen står for en aldersgruppe og en uke.", br(), br(),
+         "Hver firkant i boksen står for en aldersgruppe og en uke.",
+         "x-aksen nederst i boksen viser år-ukenummer.", br(), br(),
 
          strong("Boksen til høyre viser en daglig oversikt. "),
          "Her ser du 14 dager og 7 aldersgrupper ('totalt' ",
          "er summen av alle aldersgrupper). ",
-         "Hver firkant i boksen står for en aldersgruppe og en dag.", br(), br(),
+         "Hver firkant i boksen står for en aldersgruppe og en dag.",
+         "x-aksen nederst i boksen viser år-måned-dag.", br(), br(),
 
          "Fargen i boksene er laget ut fra beregninger fra de ",
          "foregående 5 årene i samme geografiske område og ",
-         "samme sykdom/syndrom og aldersgruppe (for årene ",
+         "samme symptom/syndrom og aldersgruppe (for årene ",
          "2006-2010 er 2006-2010 brukt).", br(), br(),
 
-         strong("Blå "), "farge viser at antallet konsultasjoner er som forventet",br(),
-         strong("Gul "), "farge viser at antallet konsultasjoner er høyere enn forventet", br(),
-         strong("Rød "), "farge viser at antall konsultasjoner er betydelig høyere enn forventet"
+         strong("Blå "), "farge viser at antallet konsultasjoner er som ", strong("forventet"),br(),
+         strong("Gul "), "farge viser at antallet konsultasjoner er ", strong("høyere enn forventet"), br(),
+         strong("Rød "), "farge viser at antall konsultasjoner er ", strong("betydelig høyere enn forventet"), br(), br(),
+
+         strong("NB!"), "Boksen til høyre (daglig oversikt) vil ikke vises for de enkelte kommunene. "
        )
-     ),
-     column(
-       width=1,
-       p("")
      )
    ),
 
@@ -129,11 +125,7 @@ norsyss_overview_ui <- function(id, config) {
 
    fluidRow(
      column(
-       width=1,
-       p("")
-     ),
-     column(
-       width=10, align="left",
+       width=12, align="left",
 
        p(
          "Under er same type grafer som beskrevet over ",
@@ -143,26 +135,26 @@ norsyss_overview_ui <- function(id, config) {
          strong("Boksen til venstre viser ukesoversikt. "),
          "Her ser du 16 uker og 7 aldersgrupper ('totalt' ",
          "er summen av alle aldersgrupper). ",
-         "Hver firkant i boksen står for en aldersgruppe og en uke.", br(), br(),
+         "Hver firkant i boksen står for en aldersgruppe og en uke.",
+         "x-aksen nederst i boksen viser år-ukenummer.", br(), br(),
 
          strong("Boksen til høyre viser en daglig oversikt. "),
          "Her ser du 14 dager og 7 aldersgrupper ('totalt' ",
          "er summen av alle aldersgrupper). ",
-         "Hver firkant i boksen står for en aldersgruppe og en dag.", br(), br(),
+         "Hver firkant i boksen står for en aldersgruppe og en dag.",
+         "x-aksen nederst i boksen viser år-måned-dag.", br(), br(),
 
          "Fargen i boksene er laget ut fra beregninger fra de ",
          "foregående 5 årene i samme geografiske område og ",
-         "samme sykdom/syndrom og aldersgruppe (for årene ",
+         "samme symptom/syndrom og aldersgruppe (for årene ",
          "2006-2010 er 2006-2010 brukt).", br(), br(),
 
-         strong("Blå "), "farge viser at antallet konsultasjoner er som forventet",br(),
-         strong("Gul "), "farge viser at antallet konsultasjoner er høyere enn forventet", br(),
-         strong("Rød "), "farge viser at antall konsultasjoner er betydelig høyere enn forventet"
+         strong("Blå "), "farge viser at antallet konsultasjoner er som ", strong("forventet"),br(),
+         strong("Gul "), "farge viser at antallet konsultasjoner er ", strong("høyere enn forventet"), br(),
+         strong("Rød "), "farge viser at antall konsultasjoner er ", strong("betydelig høyere enn forventet"), br(), br(),
+
+         strong("NB!"), "Boksen til høyre (daglig oversikt) vil ikke vises for de enkelte kommunene. "
         )
-     ),
-     column(
-       width=1,
-       p("")
      )
    ),
 
@@ -176,30 +168,22 @@ norsyss_overview_ui <- function(id, config) {
 
    fluidRow(
      column(
-       width=1,
-       p("")
-     ),
-     column(
-       width=10, align="left",
+       width=12, align="left",
 
        p(
          "Under er en oversikt over antall og andel ukentlige konsultasjoner ",
          "for valgt geografisk område for forskjellige aldersgrupper.", br(), br(),
 
-         "- Den svarte streken viser antallet faktiske konsultasjoner det ",
+         "- Den ", strong("svarte streken"), " viser antallet faktiske konsultasjoner det ",
          "har vært på legekontor og legevakt. Dersom denne streken er ",
-         "i det blå feltet er antallet konsultasjoner er som forventet, ",
-         "om den er i det gule feltet er antallet konsultasjoner høyere ",
-         "enn forventet og om den er i det røde feltet er antallet konsultasjoner ",
+         "i det ", strong("blå feltet"), " er antallet konsultasjoner er som forventet, ",
+         "om den er i det ", strong("gule feltet"), " er antallet konsultasjoner høyere ",
+         "enn forventet og om den er i det ", strong("røde feltet"), " er antallet konsultasjoner ",
          "betydelig høyere enn forventet for gitt tidsrom, alder og geografisk område.", br(),
          "- Bakgrunnsfargen er laget ut fra beregninger fra de foregående 5 ",
-         "årene i samme geografiske område og samme sykdom/syndrom og aldersgruppe ",
+         "årene i samme geografiske område og samme symptom/syndrom og aldersgruppe ",
          "(for årene 2006-2010 er 5 fremtidige år brukt)."
        )
-     ),
-     column(
-       width=1,
-       p("")
      )
    ),
    fluidRow(
@@ -291,7 +275,11 @@ norsyss_overview_server <- function(input, output, session, config) {
 
 ### PLOTS
 
-plot_barometer_age <- function(tag_outcome = "respiratoryexternal_lt", location_code = "norge", config){
+plot_barometer_age <- function(
+  tag_outcome = "respiratoryexternal_lt",
+  location_code = "norge",
+  config
+  ){
 
   granularity_geo <- get_granularity_geo(location_code = location_code)
 
@@ -344,13 +332,10 @@ plot_barometer_age <- function(tag_outcome = "respiratoryexternal_lt", location_
   q <- q + geom_tile(color="black")
   q <- q + scale_y_discrete("Alder")
   q <- q + scale_x_discrete("Uke")
-  q <- q + scale_fill_manual(
+  q <- q + fhiplot::scale_fill_fhi(
     NULL,
-    values = c(
-      "Forventet" = fhiplot::warning_color[["low"]],
-      "Høyere enn\nforventet" = fhiplot::warning_color[["med"]],
-      "Betydelig høyere\nenn forventet" = fhiplot::warning_color[["hig"]]
-    )
+    palette = "warning",
+    drop = F
   )
   q <- q + fhiplot::theme_fhi_basic(20)
   q <- q + theme(legend.key.size = unit(1, "cm"))
@@ -372,13 +357,10 @@ plot_barometer_age <- function(tag_outcome = "respiratoryexternal_lt", location_
     date_breaks = "1 day",
     expand = expand_scale(mult = c(0, 0))
   )
-  q <- q + scale_fill_manual(
+  q <- q + fhiplot::scale_fill_fhi(
     NULL,
-    values = c(
-      "Forventet" = fhiplot::warning_color[["low"]],
-      "Høyere enn\nforventet" = fhiplot::warning_color[["med"]],
-      "Betydelig høyere\nenn forventet" = fhiplot::warning_color[["hig"]]
-    )
+    palette = "warning",
+    drop = F
   )
   q <- q + fhiplot::theme_fhi_basic(20)
   q <- q + theme(legend.key.size = unit(1, "cm"))
@@ -507,13 +489,10 @@ plot_barameter_location <- function(
   q <- q + scale_y_discrete(NULL)
   q <- q + scale_x_discrete(NULL)
   q <- q + lemon::facet_rep_wrap(~age, repeat.tick.labels = "y", scales="free", ncol=1)
-  q <- q + scale_fill_manual(
+  q <- q + fhiplot::scale_fill_fhi(
     NULL,
-    values = c(
-      "Forventet" = fhiplot::warning_color[["low"]],
-      "Høyere enn\nforventet" = fhiplot::warning_color[["med"]],
-      "Betydelig høyere\nenn forventet" = fhiplot::warning_color[["hig"]]
-    )
+    palette = "warning",
+    drop = F
   )
   q <- q + fhiplot::theme_fhi_basic(16)
   q <- q + theme(legend.key.size = unit(1, "cm"))
@@ -536,13 +515,10 @@ plot_barameter_location <- function(
     expand = expand_scale(mult = c(0, 0))
   )
   q <- q + lemon::facet_rep_wrap(~age, repeat.tick.labels = "y", scales="free", ncol=1)
-  q <- q + scale_fill_manual(
+  q <- q + fhiplot::scale_fill_fhi(
     NULL,
-    values = c(
-      "Forventet" = fhiplot::warning_color[["low"]],
-      "Høyere enn\nforventet" = fhiplot::warning_color[["med"]],
-      "Betydelig høyere\nenn forventet" = fhiplot::warning_color[["hig"]]
-    )
+    palette = "warning",
+    drop = F
   )
   q <- q + fhiplot::theme_fhi_basic(16)
   q <- q + theme(legend.key.size = unit(1, "cm"))

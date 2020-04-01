@@ -36,7 +36,7 @@ norsyss_ui <- function(id, config) {
         norsyss_overview_ui("norsyss_overview", config=config)
       ),
       tabPanel(
-        title="Dashboard",
+        title="Interaktiv graf",
         norsyss_weekly_ui("norsyss_weekly", config=config)
       ),
       # tabPanel(
