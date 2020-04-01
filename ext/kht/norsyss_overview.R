@@ -106,7 +106,7 @@ norsyss_overview_ui <- function(id, config) {
          strong("Figur 1."), "Ukentlig og daglig oversikt fordelt på aldersgrupper"
         ),
        plotOutput(ns("norsyss_plot_barometer_age"), height = "600px"),
-       br(), br(), br(),
+       br(), br(), br()
      )
    ),
 

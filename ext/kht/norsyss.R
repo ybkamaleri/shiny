@@ -26,15 +26,15 @@ norsyss_ui <- function(id, config) {
       tabPanel(
         title="Oversikt",
         norsyss_overview_ui("norsyss_overview", config=config)
-      )#,
-      # tabPanel(
-      #   title="Interaktiv graf",
-      #   norsyss_weekly_ui("norsyss_weekly", config=config)
-      # ),
-      # tabPanel(
-      #   title="Informasjon",
-      #   norsyss_purpose_ui("norsyss_purpose", config = config)
-      # )
+      ),
+      tabPanel(
+        title="Interaktiv graf",
+        norsyss_weekly_ui("norsyss_weekly", config=config)
+      ),
+      tabPanel(
+        title="Informasjon",
+        norsyss_purpose_ui("norsyss_purpose", config = config)
+      )
     )
   )
 }
