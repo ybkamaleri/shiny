@@ -11,10 +11,10 @@ norsyss_purpose_ui <- function(id, config) {
       column(
         width=10, align="left",
         p(
-          "Vi får data til denne overvåkingen via Sykdomspulsen. ",
+          "Vi får data til denne overvåkingen via NorSySS ",
           "Diagnosekoder som registreres hos lege eller legevakt sendes ",
           "til Helsedirektoratet som en del av legenes refusjonskrav (KUHR-systemet). ",
-          "Folkehelseinstituttet mottar daglig oppdatert KUHR-data til Sykdomspulsen. ",
+          "Folkehelseinstituttet mottar daglig oppdatert KUHR-data til NorSySS ",
           "Dataene er anonyme når vi mottar dem, uten pasientidentifikasjon, men med ",
           "informasjon om kjønn, aldersgruppe, konsultasjonsdato og sted for konsultasjon.", br(), br(),
 
@@ -22,9 +22,8 @@ norsyss_purpose_ui <- function(id, config) {
           "- Både telefon og legekontakt er inkludert", br(),
           "- Legekontor og legevakt er inkludert", br(),
           "- Geografisk område basert på stedet for legekonsultasjon, ikke pasientens bosted", br(),
-          "- De kommunene som ikke har legevakt eller legekontor er ikke med i listen ",
-          "der man velger geografisk område da vi ikke har noe data om disse. ",
-          "Personene som bor i kommuner uten lege og legevakt benytter legekontor ",
+          "- De kommunene som ikke har legevakt eller legekontor har vi ikke noe data for. De som bor i disse kommunene bruker legevakt og legekontor i andre kommuner. Dersom du har valgt en av kommunene uten legevakt eller legekontor vil det stå «error» for noen av grafene fordi vi ikke har data.", br(),
+          "- Personene som bor i kommuner uten lege og legevakt benytter legekontor ",
           "og legevakt i andre kommuner", br(),
           "- Antallet konsultasjoner er vanligvis lavere i ferier og på helligdager. ",
           "Dette er spesielt tydelig rundt jul/nyttår og påske, men også i ",
@@ -58,10 +57,10 @@ norsyss_purpose_ui <- function(id, config) {
           "Dette er av hensyn til personvern.", br(), br(),
 
           strong("Interkommunalt samarbeid om legekontor/legevakt: "),
-          "I Sykdomspulsen er geografisk område basert på stedet for legekonsultasjon, ",
+          "I NorSySS er geografisk område basert på stedet for legekonsultasjon, ",
           "ikke pasientens bosted. Derfor vil legekontorets/legevaktens postadresse ",
-          "si hvilken kommune som vises i Sykdomspulsen. De andre kommunene som er ",
-          "med på det interkommunale samarbeidet vil ikke vises i Sykdomspulsen.", br(), br(),
+          "si hvilken kommune som vises i NorSySS. De andre kommunene som er ",
+          "med på det interkommunale samarbeidet vil ikke vises i NorSySS", br(), br(),
 
           strong("Ved tekniske feil, spørsmål eller tilbakemeldinger "),
           "vennligst send en mail til sykdomspulsen@fhi.no"

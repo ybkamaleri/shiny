@@ -14,19 +14,10 @@ norsyss_ui <- function(id, config) {
           "Formålet med NorSySS er å se trender og utbredelse av smittsomme sykdommer slik at utbrudd oppdages så tidlig som mulig. ",
           "I tillegg kan overvåkningen brukes til å vurdere effekt av folkehelsetiltak.", br(), br(),
 
-          "Foreløpig er det mulig å se på to forskjellige symptomer/syndromer gjennom NorSySS, men ",
-          "dette vil utvides til å inkludere flere etter hvert.", br(), br(),
-
-          strong("Mage-tarminfeksjoner"), " som er en samlebetegnelse for ICPC-2 kodene Diare (D11), Tarminfeksjon (D70) ",
-          "og Gastroenteritt antatt infeksiøs (D73).", br(), br(),
-
-          strong("Luftveisinfeksjoner"), " som er en samlebetegnelse for Hoste (R05), Akutt øvre luftveisinfeksjon (R74), ",
-          "Akutt bronkitt/bronkiolitt (R78) og Luftveisinfeksjon IKA (R83).", br(), br(),
-
           "Under kan du velge blant tre faner som gir deg forskjellig informasjon:", br(),
-          "- Oversikt fanen vil gi deg en rekke grafer or tabeller hvor du kan velge det geografiske området du er interessert i", br(),
-          "- Dashboard fanen vil gi deg en interaktiv graf der du kan velge geografisk område og der du kan zoome inn på spesifikke områder av tidslinjen.", br(),
-          "- Informasjon fanen gir deg litt mer informasjon om dataene vi bruker", br()
+          "- ", strong("Oversikt"), " fanen vil gi deg en rekke grafer or tabeller hvor du kan velge det geografiske området du er interessert i", br(),
+          "- ", strong("Interaktiv graf"), " fanen vil gi deg en interaktiv graf der du kan velge geografisk område og der du kan zoome inn på spesifikke områder av tidslinjen.", br(),
+          "- ", strong("Informasjon"), " fanen gir deg litt mer informasjon om dataene vi bruker", br()
           )
       )
     ),

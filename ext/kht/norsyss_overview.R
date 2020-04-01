@@ -5,18 +5,14 @@ norsyss_overview_ui <- function(id, config) {
   tagList(
     fluidRow(
       column(
-        width=1,
-        p("")
-      ),
-      column(
-        width=10, align="left",
+        width=12, align="left",
 
         p(
-          "Under vil du se en rekke grafer og tabeller som gir en ",
+          strong("Under vil du se en rekke grafer og tabeller som gir en ",
           "oversikt over det symptomet/syndromet og geografiske ",
           "område du velger i under. For å velge geografisk område ",
           "kan du begynne å skrive navnet på ønsket fylke eller ",
-          "kommune så vil det automatisk komme opp alternativer.", br(), br(),
+          "kommune så vil det automatisk komme opp alternativer."), br(), br(),
 
           strong("Norge: "), "Gir en oversikt over Norge i tillegg ",
           "til oversikt over alle fylkene.", br(),
@@ -25,18 +21,7 @@ norsyss_overview_ui <- function(id, config) {
           strong("Kommune: "), "Gir en oversikt over den valgte kommunen ",
           "i tillegg til en oversikt over nabokommunene.", br(), br(),
 
-          "Informasjon om dataene (se også i fanen 'informasjon'):", br(),
-          "- Både telefon, legekontakt er inkludert i grafene.", br(),
-          "- Geografisk område basert på stedet for legekonsultasjon, ",
-          "ikke pasientens bosted.", br(),
-          "- De kommunene som ikke har legevakt eller legekontor finner ",
-          "du ikke i listen over geografisk område da vi ikke har noe ",
-          "data over disse kommunene. De som bor i disse kommunene drar ",
-          "til legekontor i andre kommuner.", br(),
-          "- Det kan være 14 dager forsinkelse i dataene da de kommer fra ",
-          "KUHR systemet. Dersom det for noen datoer ikke er registrert ",
-          "noen konsultasjoner fra et geografisk område vil dette vises ",
-          "som røde stiplede linjer i grafene.", br(), br(),
+          "Informasjon om dataene kan du se under fanen 'Informasjon'", br(), br(),
 
           strong("Mage-tarminfeksjoner"), " er en samlebetegnelse for ICPC-2 ",
           "kodene Diare (D11), Tarminfeksjon (D70) og Gastroenteritt ",
@@ -44,12 +29,9 @@ norsyss_overview_ui <- function(id, config) {
 
           strong("Luftveisinfeksjoner"), " er en samlebetegnelse for Hoste (R05), ",
           "Akutt øvre luftveisinfeksjon (R74), Akutt bronkitt/bronkiolitt (R78) ",
-          "og Luftveisinfeksjon IKA (R83)."
+          "og Luftveisinfeksjon IKA (R83).",
+          br(), br(), br()
         )
-      ),
-      column(
-        width=1,
-        p("")
       )
     ),
 
@@ -75,8 +57,8 @@ norsyss_overview_ui <- function(id, config) {
           multiple = FALSE,
           options = NULL,
           width = "400px"
-        )
-
+        ),
+        br(),br(),br()
       )
     ),
 
@@ -85,7 +67,7 @@ norsyss_overview_ui <- function(id, config) {
        width=12, align="left",
 
        p(
-         "Under ser du to oversikter (bokser) med aldersgrupper ",
+         strong("Figur 1"), " gir to oversikter (bokser) med aldersgrupper ",
          "vertikalt på venstre side og dato nede på x-aksen. ",
          "Ved å kombinere disse vil hver firkant i boksen stå ",
          "for en aldersgruppe og en tidsperiode.", br(), br(),
@@ -118,8 +100,13 @@ norsyss_overview_ui <- function(id, config) {
 
    fluidRow(
      column(
-       width=12, align="center",
-       plotOutput(ns("norsyss_plot_barometer_age"), height = "600px")
+       width=12, align="left",
+       br(),
+       p(
+         strong("Figur 1."), "Ukentlig og daglig oversikt fordelt på aldersgrupper"
+        ),
+       plotOutput(ns("norsyss_plot_barometer_age"), height = "600px"),
+       br(), br(), br(),
      )
    ),
 
@@ -128,7 +115,7 @@ norsyss_overview_ui <- function(id, config) {
        width=12, align="left",
 
        p(
-         "Under er same type grafer som beskrevet over ",
+         strong("Figur 2"), " gir same type grafer som ", strong("Figur 1 "),
          "men for fylker eller kommuner i det geografiske ",
          "området som er valgt.", br(), br(),
 
@@ -160,8 +147,13 @@ norsyss_overview_ui <- function(id, config) {
 
    fluidRow(
      column(
-       width=12, align="center",
-       uiOutput(ns("norsyss_ui_barometer_location"))
+       width=12, align="left",
+       br(),
+       p(
+         strong("Figur 2."), "Ukentlig og daglig oversikt fordelt på geografisk område per aldersgruppe"
+       ),
+       uiOutput(ns("norsyss_ui_barometer_location")),
+       br(), br(), br()
        #plotOutput(ns("norsyss_plot_barometer_location"), height = "5000px")
      )
    ),
@@ -171,8 +163,13 @@ norsyss_overview_ui <- function(id, config) {
        width=12, align="left",
 
        p(
-         "Under er en oversikt over antall og andel ukentlige konsultasjoner ",
-         "for valgt geografisk område for forskjellige aldersgrupper.", br(), br(),
+         strong("Figur 3"), " gir en oversikt over antall og andel ",
+         "ukentlige konsultasjoner og daglig og ukentlig ekcess for ",
+         "valgt geografisk område for forskjellige aldersgrupper. ",
+         strong("Eksess"), " betyr antallet som ligger over grensen mellom ",
+         "forventet antall konsultasjoner og høyere enn forventet antall konsultasjoner, ",
+         "og gir indikasjon på hvor stort avvik det er fra det vi ville forventet ",
+         "for samme tid, aldersgruppe og geografisk område.", br(), br(),
 
          "- Den ", strong("svarte streken"), " viser antallet faktiske konsultasjoner det ",
          "har vært på legekontor og legevakt. Dersom denne streken er ",
@@ -188,7 +185,12 @@ norsyss_overview_ui <- function(id, config) {
    ),
    fluidRow(
      column(
-       width=12, align="center",
+       width=12, align="left",
+       br(),
+       p(
+         strong("Figur 3."),
+         "Ukentlig andel, antall og eksess og daglig eksess fordelt på aldersgrupper"
+       ),
        plotOutput(ns("norsyss_plot_trends"), height = "2000px"),
        br(),br(),br()
      )

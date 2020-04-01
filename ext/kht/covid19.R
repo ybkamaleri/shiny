@@ -8,9 +8,20 @@ covid19_ui <- function(id, config) {
         width=12, align="left",
         p(
           id="toptext",
+          strong("NorSySS er forkortelsen for Norwegian Syndromic Surveillance System som er en del av Sykdomspulsen."), br(),
+          "Dette er et overvåkningssystem basert på diagnosekoder (ICPC-2 koder) satt på legekontor og legevakt i hele Norge.", br(), br(),
+
+          strong("MSIS er det nasjonale overvåkingssystemet for smittsomme sykdommer. "),
+          "Koronavirus med utbruddspotensiale ble definert som ny meldepliktig sykdom ",
+          "i MSIS fra 31.01.2020. Både leger og laboratorier som påviser sykdommen skal ",
+          "melde tilfellet til MSIS. Tallene gir en indikasjon på aktiviteten av covid-19, ",
+          "men angir ikke nøyaktig antall covid-19 smittede i befolkningen.", br(), br(),
+
           "Formålet med denne siden er å gi en ", strong("oversikt over covid-19 epidemien "),
-          "til bruk i kommuneoverlegens daglige arbeid. ",
+          "til bruk i kommuneoverlegens daglige arbeid. ",br(), br(),
+
           "Gi gjerne tilbakemeldinger og ønskede endringer via sykdomspulsen@fhi.no", br(), br(),
+
           "Under kan du velge blant to faner som gir deg forskjellig informasjon:", br(),
           "- ",strong("Oversikt")," fanen vil gi deg en rekke grafer, tabeller og kart hvor du kan velge det geografiske området du er interessert i", br(),
           "- ",strong("Informasjon")," fanen gir deg litt mer informasjon om dataene vi bruker", br()
@@ -32,7 +43,14 @@ covid19_ui <- function(id, config) {
                 strong("R991: Covid-19 (mistenkt eller bekreftet)"), " ble opprettet 06.03.2020. ",
                 "Ikke alle legekontor og legevakt kunne benytte seg av denne koden ",
                 "med en gang etter at den ble opprettet da de først ",
-                "måtte implementere denne i deres journalsystem.", br(),
+                "måtte implementere denne i deres journalsystem.",
+                "De kliniske tegnene på covid-19 er akutt luftveisinfeksjon med ",
+                "symptomer som feber, hoste og kortpustethet. Det er sesong ",
+                "for vanlig forkjølelse og influensa som også kan gi slike ",
+                "symptomer. Vi ønsker derfor å påpeke at covid-19 diagnosen ",
+                "i denne sammenheng ikke nødvendigvis er koronavirus, ",
+                "men overvåkningen kan gi en oversikt over utbredelse og ",
+                "hvor stort press det er på primærhelsetjenesten.",br(),
                 strong("R27: Engstelig for sykdom i luftveiene IKA"), " ble anbefalt ",
                 "brukt av referansegruppen for primærmedisinsk kodeverk i ",
                 "Direktoratet for e-helse og Legeforeningen 13. mars. ",
@@ -41,19 +59,11 @@ covid19_ui <- function(id, config) {
                 "koronavirus-sykdom (https://fastlegen.no/artikkel/diagnosekoder-ved-Covid-19). ",
                 "Derfor følger vi også denne diagnosekoden i vår overvåkning av Covid-19.", br(), br(),
 
-                "De kliniske tegnene på covid-19 er akutt luftveisinfeksjon med ",
-                "symptomer som feber, hoste og kortpustethet. Det er sesong ",
-                "for vanlig forkjølelse og influensa som også kan gi slike ",
-                "symptomer. Vi ønsker derfor å påpeke at covid-19 diagnosen ",
-                "i denne sammenheng ikke nødvendigvis er koronavirus, ",
-                "men overvåkningen kan gi en oversikt over utbredelse og ",
-                "hvor stort press det er på primærhelsetjenesten.", br(), br(),
-
-                "Under vil du se en rekke grafer, kart og tabeller som gir ",
+                strong("Under vil du se en rekke grafer, kart og tabeller som gir ",
                 "en oversikt over det geografiske området du velger i ",
                 "nedtrekksmenyen under. Du kan også begynne å skrive navnet ",
                 "på ønsket fylke eller kommune så vil det automatisk komme ",
-                "opp alternativer.", br(), br(),
+                "opp alternativer."), br(), br(),
 
                 strong("Norge:"), " Gir en oversikt over Norge i tillegg til oversikt ",
                 "over alle fylkene.", br(),
@@ -93,10 +103,10 @@ covid19_ui <- function(id, config) {
                   strong("Figur 1")," viser antall covid-19 meldinger ",
                   "til MSIS sammenstilt med andel konsultasjoner ",
                   "for covid-19 (mistenkt eller bekreftet) på ",
-                  "legekontor og legevakt. Denne grafen kan gi en ",
-                  "oversikt over trendene i MSIS og Sykdomspulsen i ",
+                  "legekontor og legevakt (NorSySS). Denne grafen kan gi en ",
+                  "oversikt over trendene i MSIS og NorSySS i ",
                   "forhold til hverandre. Det er noe forsinkelse ",
-                  "både i MSIS dataene og Sykdomspulsen, derfor ",
+                  "både i MSIS dataene og NorSySS, derfor ",
                   "kan grafen endre seg etter hvert.")
               )
             ),
@@ -123,7 +133,7 @@ covid19_ui <- function(id, config) {
                 "ICPC-2 diagnosekoder og en kode der vi har samlet en rekke luftveis ",
                 "diagnoser (R01, R02, R03, R04, R05, R07, R08, R09, R21, R24, R25, ",
                 "R27, R29, R74, R75, R76, R77, R79, R80, R81, R82, R83, R99). ",
-                "Se på fanen «informasjon» for å få navn på diagnosekodene som er med.", br(), br(),
+                "Se i fanen «informasjon» for å få navn på diagnosekodene som er med.", br(), br(),
 
                 "Nevneren i andelen er totalt antall konsultasjoner per dag i det ",
                 "samme geografisk område."
@@ -151,7 +161,7 @@ covid19_ui <- function(id, config) {
                 "leses av på x-aksen til venstre på grafen. Den røde linjen viser ",
                 "andel konsultasjoner per dag og skal leses av på høyre side av grafen.", br(), br(),
 
-                "Nevneren er totalt antall konsultasjoner per dagen i valgt geografiske område.", br(), br(),
+                "Nevneren er totalt antall konsultasjoner per dag i valgt geografiske område.", br(), br(),
 
                 "De røde pilene på x-aksen under grafen indikerer helger og helligdager. ",
                 "Det er som regel færre konsultasjoner hos lege og legevakt i helger og ",
@@ -180,11 +190,11 @@ covid19_ui <- function(id, config) {
               p(
                 strong("Figur 4")," viser andel konsultasjoner med covid-19 ",
                 "(mistenkt eller bekreftet) diagnose per aldersgruppe. Vær ",
-                "oppmerksom på at aldersgruppene ikke like store og ",
+                "oppmerksom på at aldersgruppene ikke er like store og ",
                 strong("nevneren er totalt antall konsultasjoner per dag og per geografisk område. "),
                 "Dette gir en oversikt over hvilke aldersgrupper som i hovedsak ",
                 "kontakter lege og legevakt for covid-19 (mistenkt eller bekreftet). ",
-                "For å se mer på spesifikke aldersgrupper se på ", strong("Figur 5"), "."
+                "For å se mer på spesifikke aldersgrupper se ", strong("Figur 5"), "."
               )
             )
           ),
@@ -194,7 +204,7 @@ covid19_ui <- function(id, config) {
               width=12, align="left",
               br(),
               p(
-                strong("Figur 4."), "Andel konsultasjoner i Norge med covid-19 (mistenkt eller bekreftet)"
+                strong("Figur 4."), "Andel konsultasjoner i Norge med covid-19 (mistenkt eller bekreftet) fordelt på aldersgruppe"
               ),
               plotOutput(ns("overview_plot_national_age_burden"), height = "700px"),
               br(),br(),br()
@@ -265,7 +275,12 @@ covid19_ui <- function(id, config) {
               p(
                 strong("Figur 7")," viser det geografiske området du har valgt ",
                 "øverst på siden med kumulativt antall konsultasjoner per ",
-                "geografisk område.")
+                "geografisk område.",
+                "De kommunene som ikke har legevakt eller legekontor vil ",
+                "bli hvite med røde 'X' i disse kartene da vi ikke har noe data over ",
+                "disse kommunene. De som bor i disse kommunene drar til ",
+                "legekontor i andre kommuner."
+                )
             )
           ),
 
@@ -287,9 +302,10 @@ covid19_ui <- function(id, config) {
                 strong("Figur 8")," viser det geografiske området du har valgt ",
                 "øverst på siden med andel konsultasjoner for R991 og R27.",
                 "De kommunene som ikke har legevakt eller legekontor vil ",
-                "bli hvite i disse kartene da vi ikke har noe data over ",
+                "bli hvite med røde 'X' i disse kartene da vi ikke har noe data over ",
                 "disse kommunene. De som bor i disse kommunene drar til ",
-                "legekontor i andre kommuner.")
+                "legekontor i andre kommuner."
+              )
             )
           ),
 
@@ -316,11 +332,11 @@ covid19_ui <- function(id, config) {
               width=12, align="left",
 
               p(
-                strong("Vi får data til covid-19 overvåkingen via Sykdomspulsen. "),
+                strong("Vi får data til covid-19 overvåkingen via NorSySS "),
                 "Diagnosekoder som registreres hos lege eller legevakt sendes ",
                 "til Helsedirektoratet som en del av legenes refusjonskrav ",
                 "(KUHR-systemet). Folkehelseinstituttet mottar daglig ",
-                "oppdatert KUHR-data til Sykdomspulsen. Dataene er ",
+                "oppdatert KUHR-data til NorSyss Dataene er ",
                 "anonyme når vi mottar dem, uten pasientidentifikasjon, ",
                 "men med informasjon om kjønn, aldersgruppe, konsultasjonsdato ",
                 "og sted for konsultasjon.", br(), br(),
@@ -329,9 +345,10 @@ covid19_ui <- function(id, config) {
                 "- Telefon, legekontakt og e-konsultasjon er inkludert", br(),
                 "- Legekontor og legevakt er inkludert", br(),
                 "- Geografisk område basert på stedet for legekonsultasjon, ikke pasientens bosted", br(),
-                "- De kommunene som ikke har legevakt eller legekontor er ikke med i listen der man velger geografisk område da vi ikke har noe data om disse. Personene som bor i kommuner uten lege og legevakt benytter legekontor og legevakt i andre kommuner.", br(),
+                "- De kommunene som ikke har legevakt eller legekontor har vi ikke noe data for. De som bor i disse kommunene bruker legevakt og legekontor i andre kommuner. Dersom du har valgt en av kommunene uten legevakt eller legekontor vil det stå «error» for noen av grafene fordi vi ikke har data.", br(),
+                "- Personene som bor i kommuner uten lege og legevakt benytter legekontor og legevakt i andre kommuner", br(),
                 "- Antallet konsultasjoner er vanligvis lavere i ferier og på helligdager. Dette er spesielt tydelig rundt jul/nyttår og påske, men også i sommerferieukene.", br(),
-                "- Det kan være 14 dager forsinkelse i dataene da de kommer fra KUHR systemet. Dersom det for noen datoer ikke er registrert noen konsultasjoner fra et geografisk område vil dette vises som røde stiplede linjer i grafene.", br(), br(),
+                "- Det kan være mer enn 14 dager forsinkelse i dataene da de kommer fra KUHR systemet. Dersom det for noen datoer ikke er registrert noen konsultasjoner fra et geografisk område vil dette vises som røde stiplede linjer i grafene.", br(), br(),
 
                 strong("Luftvei diagnosekoder (samlet) inneholder:"), br(),
                 "- R01: Smerte luftveier", br(),
@@ -378,11 +395,11 @@ covid19_ui <- function(id, config) {
                 "som får nytt kommunenavn.", br(), br(),
 
                 strong("Interkommunalt samarbeid om legekontor/legevakt: "),
-                "I Sykdomspulsen er geografisk område basert på stedet for ",
+                "I NorSyss er geografisk område basert på stedet for ",
                 "legekonsultasjon, ikke pasientens bosted. Derfor vil ",
                 "legekontorets/legevaktens postadresse si hvilken kommune ",
-                "som vises i Sykdomspulsen. De andre kommunene som er med på ",
-                "det interkommunale samarbeidet vil ikke vises i Sykdomspulsen.", br(), br(),
+                "som vises i NorSyss De andre kommunene som er med på ",
+                "det interkommunale samarbeidet vil ikke har noe data.", br(), br(),
 
                 strong("Ved tekniske feil, spørsmål eller tilbakemeldinger "),
                 "vennligst send en mail til sykdomspulsen@fhi.no."
@@ -632,7 +649,7 @@ covid19_overview_plot_national_syndromes_proportion <- function(
     q <- q + labs(caption=glue::glue(
       "Nevneren er totalt antall konsultasjoner\n",
       "*R01, R02, R03, R04, R05, R07, R08, R09, R21, R24, R25, R27, R29, R74, R75, R76, R77, R79, R80, R81, R82, R83, R99\n",
-      "Røde stiplede vertikale linjer på noen av datoene i grafen betyr at det ikke er innrapportert noen konsultasjoner i dette geografiske område på disse dagene \n",
+      "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
       "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
     ))
     q
@@ -756,6 +773,7 @@ covid19_overview_plot_national_source_proportion <- function(
       "Røde piler på x-aksen viser helger og helligdager\n",
       "Søylene skal leses av på venstre side, den røde linjen skal leses av på høyre side\n",
       "Nevneren på andelen er totalt antall konsultasjoner per dag i valgt geografisk område\n",
+      "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
       "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
     ))
     q
@@ -822,12 +840,12 @@ covid19_overview_plot_national_age_burden <- function(
   q <- q + theme(legend.key.size = unit(1, "cm"))
   q <- q + labs(title = glue::glue(
     "{names(config$choices_location)[config$choices_location==location_code]}\n",
-    "Andel konsultasjoner i Norge med covid-19 (mistenkt eller bekreftet)\n",
+    "Andel konsultasjoner i Norge med covid-19 (mistenkt eller bekreftet) fordelt på aldersgruppe\n",
     "Data fra NorSySS"
   ))
   q <- q + labs(caption=glue::glue(
-    "For alle aldersgruppene er nevneren er totalt antall konsultasjoner (alle aldersgrupper summert)\n",
-    "Røde stiplede vertikale linjer på noen av datoene i grafen betyr at det ikke er innrapportert noen konsultasjoner i dette geografiske område på disse dagene\n",
+    "For alle aldersgruppene er nevneren totalt antall konsultasjoner (alle aldersgrupper summert)\n",
+    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
     "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
   ))
   q
@@ -900,7 +918,7 @@ covid19_overview_plot_national_age_trends <- function(
   ))
   q <- q + labs(caption=glue::glue(
     "Nevneren er totalt antall konsultasjoner per dato, geografisk område og aldersgruppe\n",
-    "Røde stiplede vertikale linjer på grafen betyr at ingen data ble rapportert på disse dagene\n",
+    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
     "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
   ))
   q
@@ -1016,6 +1034,7 @@ covid19_overview_plot_county_proportion <- function(
     ))
     q <- q + labs(caption=glue::glue(
       "Nevneren er totalt antall konsultasjoner per dag i det viste geografiske området.\n",
+      "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
       "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
     ))
     q
@@ -1052,6 +1071,7 @@ covid19_overview_map_county_proportion <- function(
         dplyr::collect()
     }
     setDT(d)
+    d[, no_data := sum(consult_with_influenza) == 0, by=.(location_code)]
     setorder(d,tag_outcome, location_code, date)
     d[,cum_n := cumsum(n), by=.(tag_outcome, location_code)]
     d <- d[date==max(date)]
@@ -1100,6 +1120,27 @@ covid19_overview_map_county_proportion <- function(
       color="black",
       size=0.2
     )
+    if(sum(pd$no_data)>0){
+      q <- q + geom_polygon(
+        data = pd[no_data==TRUE],
+        aes( x = long, y = lat, group = group),
+        color="black",
+        fill = "white",
+        size=0.2
+      )
+      pd_mid <- pd[no_data==T,.(
+        long = mean(long),
+        lat = mean(lat)
+      ),
+      keyby=.(location_code)
+      ]
+      q <- q + geom_text(
+        data = pd_mid,
+        mapping = aes(x = long, y= lat, color = "Ingen data"),
+        label = "x",
+        size = 12
+      )
+    }
     if(granularity_geo == "nation"){
       q <- q + annotate(
         "text",
@@ -1114,6 +1155,8 @@ covid19_overview_map_county_proportion <- function(
     q <- q + theme(legend.key.size = unit(1, "cm"))
     q <- q + coord_quickmap()
     q <- q + fhiplot::scale_fill_fhi("Kumulativt\nantall",palette = "map_seq_missing_x2", direction = -1, drop=F)
+    q <- q + scale_color_manual(NULL, values="red")
+    q <- q + guides(fill = guide_legend(order=1), color = guide_legend(order=2))
     q <- q + labs(title = glue::glue(
       "{names(config$choices_location)[config$choices_location==location_code]}\n",
       "Kumulativt antall konsultasjoner f.o.m {format(config$start_date,'%d.%m.%Y')} t.o.m {format(config$max_date_uncertain,'%d.%m.%Y')}\n",
@@ -1158,13 +1201,13 @@ covid19_overview_map_county_proportion_2 <- function(
       dplyr::collect()
   }
   setDT(d)
+  d[, no_data := sum(consult_with_influenza) == 0, by=.(location_code)]
   setorder(d,tag_outcome, location_code, date)
   d[,cum_n := cumsum(n), by=.(tag_outcome, location_code)] # summing the two outcomes
   d[,cum_w_flu := cumsum(consult_with_influenza), by=.(tag_outcome, location_code)] # summing the consults with influenza
   d <- d[date==max(date)]
   d[, andel := 100*cum_n/cum_w_flu]
   d[is.nan(andel), andel := 0]
-  d[, no_data := cum_w_flu == 0]
 
   # summary(d$cum_n)
   d[, category := fancycut::wafflecut(
@@ -1224,13 +1267,27 @@ covid19_overview_map_county_proportion_2 <- function(
     color="black",
     size=0.2
   )
-  if(sum(pd$no_data)>0) q <- q + geom_polygon(
-    data = pd[no_data==TRUE],
-    aes( x = long, y = lat, group = group),
-    color="black",
-    fill = "white",
-    size=0.2
-  )
+  if(sum(pd$no_data)>0){
+    q <- q + geom_polygon(
+      data = pd[no_data==TRUE],
+      aes( x = long, y = lat, group = group),
+      color="black",
+      fill = "white",
+      size=0.2
+    )
+    pd_mid <- pd[no_data==T,.(
+      long = mean(long),
+      lat = mean(lat)
+      ),
+      keyby=.(location_code)
+      ]
+    q <- q + geom_text(
+      data = pd_mid,
+      mapping = aes(x = long, y= lat, color = "Ingen data"),
+      label = "x",
+      size = 12
+    )
+  }
   if(granularity_geo == "nation"){
     q <- q + annotate(
       "text",
@@ -1245,6 +1302,8 @@ covid19_overview_map_county_proportion_2 <- function(
   q <- q + theme(legend.key.size = unit(1, "cm"))
   q <- q + coord_quickmap()
   q <- q + fhiplot::scale_fill_fhi("Andel konsultasjoner",palette = "map_seq_missing_x2", direction = -1, drop=F)
+  q <- q + scale_color_manual(NULL, values="red")
+  q <- q + guides(fill = guide_legend(order=1), color = guide_legend(order=2))
   q <- q + labs(title = glue::glue(
     "{names(config$choices_location)[config$choices_location==location_code]}\n",
     "Andel konsultasjoner f.o.m {format(config$start_date,'%d.%m.%Y')} t.o.m {format(config$max_date_uncertain,'%d.%m.%Y')}\n",
@@ -1489,9 +1548,9 @@ covid19_norsyss_vs_msis_one_graph <- function(
   q <- q + labs(caption=glue::glue(
 
     "Røde piler på x-aksen viser helger og helligdager\n",
-    "Røde stiplede vertikale linjer på noen av datoene i grafen betyr at det ikke er innrapportert noen konsultasjoner i dette geografiske område på disse dagene \n",
     "Søylene skal leses av på venstre side, den røde linjen skal leses av på høyre side\n",
     "Nevneren på andelen er totalt antall konsultasjoner per dag i valgt geografisk område\n",
+    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
     "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
   ))
   q
