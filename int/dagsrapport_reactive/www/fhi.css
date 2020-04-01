@@ -19,6 +19,10 @@ body, li, a, p {
     font-size: 18px;
 }
 
+.control-label {
+  font-size: 27px;
+}
+
 .navbar-default {
     background-color: #e9f3f9;
     border-color: #e9f3f9;
@@ -39,6 +43,7 @@ body, li, a, p {
 }
 
 .navbar-brand {
+  width: 1000px;
   color: #393C61 !important;
   font-weight: 900;
   margin-top: 20px;
@@ -50,12 +55,19 @@ body, li, a, p {
     clear: left;
 }
 
+.navbar-default .navbar-nav>li>a {
+   font-size: 27px;
+   color: black !important;
+  padding-top: 20px;
+}
+
 .navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:focus, .navbar-default .navbar-nav>.active>a:hover {
   color: #04AB79 !important;
   background-color: #e9f3f9;
   border-top: 2px solid #04AB79;
-
   font-weight: 900;
+  font-size: 27px;
+  padding-top: 20px;
 }
 
 .nav-tabs {
