@@ -17,11 +17,11 @@ if (.Platform$OS.type == "windows"){
 
 source("global.R")
 source("covid19.R")
-#source("norsyss.R")
-#source("norsyss_overview.R")
-#source("norsyss_weekly.R")
-#source("norsyss_daily.R")
-#source("norsyss_information.R")
+source("norsyss.R")
+source("norsyss_overview.R")
+source("norsyss_weekly.R")
+source("norsyss_daily.R")
+source("norsyss_information.R")
 
 ui <- tagList(
   useShinyjs(),
