@@ -36,9 +36,9 @@ ui <- tagList(
              tabPanel("Covid-19",
                       covid19_ui("covid19", config=config)
              ),
-             #tabPanel("NorSySS",
-             #         norsyss_ui("norsyss", config=config)
-             #),
+             tabPanel("NorSySS",
+                      norsyss_ui("norsyss", config=config)
+             ),
              theme = "fhi.css"
            )
   )
