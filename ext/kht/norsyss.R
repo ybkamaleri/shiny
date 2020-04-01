@@ -17,10 +17,10 @@ norsyss_ui <- function(id, config) {
           "Foreløpig er det mulig å se på to forskjellige symptomer/syndromer gjennom NorSySS, men ",
           "dette vil utvides til å inkludere flere etter hvert.", br(), br(),
 
-          "Mage-tarminfeksjoner som er en samlebetegnelse for ICPC-2 kodene Diare (D11), Tarminfeksjon (D70) ",
+          strong("Mage-tarminfeksjoner"), " som er en samlebetegnelse for ICPC-2 kodene Diare (D11), Tarminfeksjon (D70) ",
           "og Gastroenteritt antatt infeksiøs (D73).", br(), br(),
 
-          "Luftveisinfeksjoner som er en samlebetegnelse for Hoste (R05), Akutt øvre luftveisinfeksjon (R74), ",
+          strong("Luftveisinfeksjoner"), " som er en samlebetegnelse for Hoste (R05), Akutt øvre luftveisinfeksjon (R74), ",
           "Akutt bronkitt/bronkiolitt (R78) og Luftveisinfeksjon IKA (R83).", br(), br(),
 
           "Under kan du velge blant tre faner som gir deg forskjellig informasjon:", br(),
