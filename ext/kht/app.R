@@ -47,11 +47,11 @@ ui <- tagList(
 server <- function(input, output) {
   callModule(covid19_server, "covid19", config=config)
 
-  #callModule(norsyss_server, "norsyss", config=config)
-  #callModule(norsyss_overview_server, "norsyss_overview", config=config)
-  #callModule(norsyss_weekly_server, "norsyss_weekly", config=config)
-  #callModule(norsyss_daily_server, "norsyss_daily", config=config)
-  #callModule(norsyss_purpose_server, "norsyss_purpose", config=config)
+  callModule(norsyss_server, "norsyss", config=config)
+  callModule(norsyss_overview_server, "norsyss_overview", config=config)
+  callModule(norsyss_weekly_server, "norsyss_weekly", config=config)
+  callModule(norsyss_daily_server, "norsyss_daily", config=config)
+  callModule(norsyss_purpose_server, "norsyss_purpose", config=config)
 }
 
 shinyApp(ui, server)
