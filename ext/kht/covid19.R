@@ -1221,7 +1221,7 @@ covid19_overview_map_county_proportion_2 <- function(
       "(15,100]"
     ),
     buckets = c(
-      "0",
+      "0.0%",
       "0.1-2.5%",
       "2.6-5.0%",
       "5.1-10.0%",
