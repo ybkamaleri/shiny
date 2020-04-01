@@ -40,7 +40,7 @@ norsyss_weekly_ui <- function(id, config) {
         width=12, align="center",
         radioButtons(
           inputId = ns("norsyss_weekly_tag"),
-          label = "Syndrome",
+          label = "Symptom/syndrom",
           choices = config$choices_norsyss_tag,
           selected = config$choices_norsyss_tag[[1]],
           width = "400px"
