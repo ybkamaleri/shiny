@@ -45,6 +45,14 @@ ui <- tagList(
 )
 
 server <- function(input, output) {
+  # we need to update the config dates
+  auto_invalidate_1h <- reactiveTimer(1000*60*60) # invalidates every hour
+  observe({
+    auto_invalidate_1h()
+    config_update_dates(config = config)
+  })
+
+
   callModule(covid19_server, "covid19", config=config)
 
   callModule(norsyss_server, "norsyss", config=config)

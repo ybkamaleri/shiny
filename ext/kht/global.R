@@ -49,7 +49,15 @@ if(db_config$driver %in% c("ODBC Driver 17 for SQL Server")){
 }
 DBI::dbExecute(pool, glue::glue({"USE {db_config$db};"}))
 
-
+config_update_dates <- function(config){
+  config$start_date_norsyss_standard_weekly <- as.Date("2018-01-01")
+  config$start_date <- as.Date("2020-03-06")
+  val <- pool %>% dplyr::tbl("data_norsyss") %>%
+    dplyr::summarize(date = max(date)) %>%
+    dplyr::collect()
+  config$max_date_uncertain <- as.Date(val$date[1])
+  config$min_date_uncertain <- config$max_date_uncertain-6
+}
 
 config <- new.env()
 config$ages <- list(
@@ -62,13 +70,7 @@ config$ages <- list(
   "65+"
 )
 
-config$start_date_norsyss_standard_weekly <- as.Date("2018-01-01")
-config$start_date <- as.Date("2020-03-06")
-val <- pool %>% dplyr::tbl("data_norsyss") %>%
-  dplyr::summarize(date = max(date)) %>%
-  dplyr::collect()
-config$max_date_uncertain <- as.Date(val$date[1])
-config$min_date_uncertain <- config$max_date_uncertain-6
+config_update_dates(config = config)
 
 x <- pool %>% dplyr::tbl("data_norsyss") %>%
   dplyr::distinct(tag_outcome) %>%
