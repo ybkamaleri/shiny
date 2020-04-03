@@ -25,6 +25,7 @@ source("norsyss_information.R")
 
 ui <- tagList(
   useShinyjs(),
+  tags$head(includeHTML(("google_analytics.html"))),
   tags$style("
   .container{
     width: 1200px;
