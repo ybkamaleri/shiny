@@ -564,11 +564,11 @@ covid19_overview_plot_national_syndromes_proportion <- function(
 
     pd <- pool %>% dplyr::tbl("data_norsyss") %>%
       dplyr::filter(tag_outcome %in% c(
-        "covid19_lf_lte",
-        "engstelig_luftveissykdom_ika_lf_lte",
-        "influensa_lf_lte",
-        "rxx_for_covid19_lf_lte",
-        "akkut_ovre_luftveisinfeksjon_lf_lte"
+        "covid19_vk_ote",
+        "engstelig_luftveissykdom_ika_vk_ote",
+        "influensa_vk_ote",
+        "rxx_for_covid19_vk_ote",
+        "akkut_ovre_luftveisinfeksjon_vk_ote"
       )) %>%
       dplyr::filter(date >= !!config$start_date) %>%
       dplyr::filter(age == "totalt") %>%
@@ -585,11 +585,11 @@ covid19_overview_plot_national_syndromes_proportion <- function(
     pd[, name_outcome := factor(
       tag_outcome,
       levels = c(
-        "covid19_lf_lte",
-        "engstelig_luftveissykdom_ika_lf_lte",
-        "influensa_lf_lte",
-        "akkut_ovre_luftveisinfeksjon_lf_lte",
-        "rxx_for_covid19_lf_lte"
+        "covid19_vk_ote",
+        "engstelig_luftveissykdom_ika_vk_ote",
+        "influensa_vk_ote",
+        "akkut_ovre_luftveisinfeksjon_vk_ote",
+        "rxx_for_covid19_vk_ote"
       ),
       labels = c(
         "Covid-19 (mistenkt\neller bekreftet) (R991)",
@@ -667,12 +667,12 @@ covid19_overview_plot_national_source_proportion <- function(
 
     pd <- pool %>% dplyr::tbl("data_norsyss") %>%
       dplyr::filter(tag_outcome %in% c(
-        "covid19_f_l",
-        "covid19_f_t",
-        "covid19_f_e",
-        "covid19_l_l",
-        "covid19_l_t",
-        "covid19_l_e"
+        "covid19_k_o",
+        "covid19_k_t",
+        "covid19_k_e",
+        "covid19_v_o",
+        "covid19_v_t",
+        "covid19_v_e"
       )) %>%
       dplyr::filter(date >= !!config$start_date) %>%
       dplyr::filter(age == "totalt") %>%
@@ -686,13 +686,13 @@ covid19_overview_plot_national_source_proportion <- function(
        contact_type := dplyr::case_when(
          stringr::str_detect(tag_outcome, "_e$") ~ "e-konsultasjon",
          stringr::str_detect(tag_outcome, "_t$") ~ "Telefon",
-         stringr::str_detect(tag_outcome, "_l$") ~ "Oppmøte"
+         stringr::str_detect(tag_outcome, "_o$") ~ "Oppmøte"
        )]
 
     pd[,
        practice_type := dplyr::case_when(
-         stringr::str_detect(tag_outcome, "_f_") ~ "Legekontor",
-         stringr::str_detect(tag_outcome, "_l_") ~ "Legevakt"
+         stringr::str_detect(tag_outcome, "_k_") ~ "Legekontor",
+         stringr::str_detect(tag_outcome, "_v_") ~ "Legevakt"
        )]
     pd[, cat:= paste0(contact_type,"/",practice_type)]
     pd[,cat := factor(
@@ -791,7 +791,7 @@ covid19_overview_plot_national_age_burden <- function(
 
   pd <- pool %>% dplyr::tbl("data_norsyss") %>%
     dplyr::filter(date >= !!config$start_date) %>%
-    dplyr::filter(tag_outcome == "covid19_lf_lte") %>%
+    dplyr::filter(tag_outcome == "covid19_vk_ote") %>%
     dplyr::filter(location_code== !!location_code) %>%
     dplyr::filter(age != "totalt") %>%
     dplyr::select(date, age, n, consult_with_influenza) %>%
@@ -863,7 +863,7 @@ covid19_overview_plot_national_age_trends <- function(
 
   pd <- pool %>% dplyr::tbl("data_norsyss") %>%
     dplyr::filter(date >= !!config$start_date) %>%
-    dplyr::filter(tag_outcome == "covid19_lf_lte") %>%
+    dplyr::filter(tag_outcome == "covid19_vk_ote") %>%
     dplyr::filter(location_code== !!location_code) %>%
     dplyr::select(date, age, n, consult_with_influenza) %>%
     dplyr::collect()
@@ -873,6 +873,15 @@ covid19_overview_plot_national_age_trends <- function(
   pd[,age:=factor(
     age,
     levels = c(
+      "totalt",
+      "0-4",
+      "5-14",
+      "15-19",
+      "20-29",
+      "30-64",
+      "65+"
+    ),
+    labels = c(
       "Totalt",
       "0-4",
       "5-14",
@@ -938,8 +947,8 @@ covid19_overview_plot_county_proportion <- function(
 
     pd <- pool %>% dplyr::tbl("data_norsyss") %>%
       dplyr::filter(tag_outcome %in% c(
-        "covid19_lf_lte",
-        "engstelig_luftveissykdom_ika_lf_lte"
+        "covid19_vk_ote",
+        "engstelig_luftveissykdom_ika_vk_ote"
       )) %>%
       dplyr::filter(date >= !!config$start_date) %>%
       dplyr::filter(age == "totalt") %>%
@@ -959,8 +968,8 @@ covid19_overview_plot_county_proportion <- function(
     pd[, name_outcome := factor(
       tag_outcome,
       levels = c(
-        "covid19_lf_lte",
-        "engstelig_luftveissykdom_ika_lf_lte"
+        "covid19_vk_ote",
+        "engstelig_luftveissykdom_ika_vk_ote"
       ),
       labels = c(
         "Covid-19 (mistenkt eller bekreftet) (R991)",
@@ -977,14 +986,14 @@ covid19_overview_plot_county_proportion <- function(
 
     max_val <- max(pd$andel,na.rm=T)
     labels <- pd[date == max(date)]
-    labels[tag_outcome=="covid19_lf_lte",lab := paste0("R991: ",format_nor_perc(andel))]
-    labels[tag_outcome=="engstelig_luftveissykdom_ika_lf_lte",lab := paste0("R27: ",format_nor_perc(andel))]
+    labels[tag_outcome=="covid19_vk_ote",lab := paste0("R991: ",format_nor_perc(andel))]
+    labels[tag_outcome=="engstelig_luftveissykdom_ika_vk_ote",lab := paste0("R27: ",format_nor_perc(andel))]
 
-    labels[tag_outcome=="covid19_lf_lte",lab := paste0("R991: ",format_nor_perc(andel))]
+    labels[tag_outcome=="covid19_vk_ote",lab := paste0("R991: ",format_nor_perc(andel))]
 
 
-    labels[tag_outcome=="covid19_lf_lte",andel := max_val]
-    labels[tag_outcome=="engstelig_luftveissykdom_ika_lf_lte",andel := max_val-5]
+    labels[tag_outcome=="covid19_vk_ote",andel := max_val]
+    labels[tag_outcome=="engstelig_luftveissykdom_ika_vk_ote",andel := max_val-5]
     labels[, date:= min(pd$date)]
 
     q <- ggplot(pd, aes(x=date, y=andel))
@@ -1056,8 +1065,8 @@ covid19_overview_map_county_proportion <- function(
     if(granularity_geo == "nation"){
       d <- pool %>% dplyr::tbl("data_norsyss") %>%
         dplyr::filter(tag_outcome %in% c(
-          "covid19_lf_lte",
-          "engstelig_luftveissykdom_ika_lf_lte"
+          "covid19_vk_ote",
+          "engstelig_luftveissykdom_ika_vk_ote"
         )) %>%
         dplyr::filter(date >= !!config$start_date) %>%
         dplyr::filter(granularity_geo == "county") %>%
@@ -1066,8 +1075,8 @@ covid19_overview_map_county_proportion <- function(
     } else {
       d <- pool %>% dplyr::tbl("data_norsyss") %>%
         dplyr::filter(tag_outcome %in% c(
-          "covid19_lf_lte",
-          "engstelig_luftveissykdom_ika_lf_lte"
+          "covid19_vk_ote",
+          "engstelig_luftveissykdom_ika_vk_ote"
         )) %>%
         dplyr::filter(date >= !!config$start_date) %>%
         dplyr::filter(granularity_geo == "municip") %>%
@@ -1093,8 +1102,8 @@ covid19_overview_map_county_proportion <- function(
     d[, name_outcome := factor(
       tag_outcome,
       levels = c(
-        "covid19_lf_lte",
-        "engstelig_luftveissykdom_ika_lf_lte"
+        "covid19_vk_ote",
+        "engstelig_luftveissykdom_ika_vk_ote"
       ),
       labels = c(
         "Covid-19 (mistenkt eller bekreftet) (R991)",
@@ -1186,8 +1195,8 @@ covid19_overview_map_county_proportion_2 <- function(
   if(granularity_geo == "nation"){
     d <- pool %>% dplyr::tbl("data_norsyss") %>%
       dplyr::filter(tag_outcome %in% c(
-        "covid19_lf_lte",
-        "engstelig_luftveissykdom_ika_lf_lte"
+        "covid19_vk_ote",
+        "engstelig_luftveissykdom_ika_vk_ote"
       )) %>%
       dplyr::filter(date >= !!config$start_date) %>%
       dplyr::filter(granularity_geo == "county") %>%
@@ -1196,8 +1205,8 @@ covid19_overview_map_county_proportion_2 <- function(
   } else {
     d <- pool %>% dplyr::tbl("data_norsyss") %>%
       dplyr::filter(tag_outcome %in% c(
-        "covid19_lf_lte",
-        "engstelig_luftveissykdom_ika_lf_lte"
+        "covid19_vk_ote",
+        "engstelig_luftveissykdom_ika_vk_ote"
       )) %>%
       dplyr::filter(date >= !!config$start_date) %>%
       dplyr::filter(granularity_geo == "municip") %>%
@@ -1240,8 +1249,8 @@ covid19_overview_map_county_proportion_2 <- function(
   d[, name_outcome := factor(
     tag_outcome,
     levels = c(
-      "covid19_lf_lte",
-      "engstelig_luftveissykdom_ika_lf_lte"
+      "covid19_vk_ote",
+      "engstelig_luftveissykdom_ika_vk_ote"
     ),
     labels = c(
       "Covid-19 (mistenkt eller bekreftet) (R991)",
@@ -1328,7 +1337,7 @@ covid19_norsyss_vs_msis <- function(
   d_norsyss <- pool %>% dplyr::tbl("data_norsyss") %>%
     dplyr::filter(location_code== !!location_code) %>%
     dplyr::filter(granularity_time=="day") %>%
-    dplyr::filter(tag_outcome %in% "covid19_lf_lte") %>%
+    dplyr::filter(tag_outcome %in% "covid19_vk_ote") %>%
     dplyr::filter(age=="totalt") %>%
     dplyr::filter(date >= !!config$start_date) %>%
     dplyr::select(date, n, consult_with_influenza) %>%
@@ -1440,7 +1449,7 @@ covid19_norsyss_vs_msis_one_graph <- function(
   d_norsyss <- pool %>% dplyr::tbl("data_norsyss") %>%
     dplyr::filter(location_code== !!location_code) %>%
     dplyr::filter(granularity_time=="day") %>%
-    dplyr::filter(tag_outcome %in% "covid19_lf_lte") %>%
+    dplyr::filter(tag_outcome %in% "covid19_vk_ote") %>%
     dplyr::filter(age=="totalt") %>%
     dplyr::filter(date >= !!config$start_date) %>%
     dplyr::select(date, n, consult_with_influenza) %>%
