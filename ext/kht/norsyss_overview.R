@@ -461,6 +461,15 @@ plot_barameter_location <- function(
   pd[, age := factor(
     age,
     levels = c(
+      "totalt",
+      "0-4",
+      "5-14",
+      "15-19",
+      "20-29",
+      "30-64",
+      "65+"
+    ),
+    labels = c(
       "Totalt",
       "0-4",
       "5-14",
