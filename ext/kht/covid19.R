@@ -653,7 +653,7 @@ covid19_overview_plot_national_syndromes_proportion <- function(
     ))
     q <- q + labs(caption=glue::glue(
       "Nevneren er totalt antall konsultasjoner\n",
-      "*R01, R02, R03, R04, R05, R07, R08, R09, R21, R24, R25, R27, R29, R74, R75, R76, R77, R79, R80, R81, R82, R83, R99\n",
+      "*R- 01, 02, 03, 04, 05, 06, 07, 08, 09, 21, 24, 25, 27, 29, 72, 74, 75, 76, 77, 78, 79, 81, 82, 83, 99, 991\n",
       "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
       "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
     ))
