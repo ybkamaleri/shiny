@@ -316,6 +316,14 @@ plot_barometer_age <- function(
       "15-19",
       "5-14",
       "0-4",
+      "totalt"
+    ), labels = c(
+      "65+",
+      "30-64",
+      "20-29",
+      "15-19",
+      "5-14",
+      "0-4",
       "Totalt"
     )
   )]
@@ -709,7 +717,7 @@ plot_trends_multiple <- function(tag_outcome, location_code, config){
 
   cowplot::plot_grid(
     title,
-    plot_trends_single(pd, "Totalt"),
+    plot_trends_single(pd, "totalt"),
     plot_trends_single(pd, "0-4"),
     plot_trends_single(pd, "5-14"),
     plot_trends_single(pd, "15-19"),

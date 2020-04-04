@@ -83,7 +83,7 @@ norsyss_daily_server <- function(input, output, session, config) {
       dplyr::filter(tag_outcome %in% !!input$norsyss_daily_tag) %>%
       dplyr::filter(date >= !!config$start_date_norsyss_standard_weekly) %>%
       dplyr::filter(granularity_time == "daily") %>%
-      dplyr::filter(age == "Totalt") %>%
+      dplyr::filter(age == "totalt") %>%
       dplyr::filter(location_code %in% !!input$norsyss_daily_location_code) %>%
       dplyr::select(date, yrwk, age, location_code, n, n_baseline_thresholdu0, n_baseline_thresholdu1) %>%
       dplyr::collect()

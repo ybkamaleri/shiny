@@ -61,7 +61,7 @@ config_update_dates <- function(config){
 
 config <- new.env()
 config$ages <- list(
-  "Totalt",
+  "totalt",
   "0-4",
   "5-14",
   "15-19",
@@ -104,8 +104,8 @@ names(choices_location_daily) <- x_choices[is.na(county_name)]$location_name
 config$choices_location_daily <- choices_location_daily
 
 config$choices_norsyss_tag <- list(
-  "Luftveisinfeksjoner (R05, R74, R78, R83)" = "respiratoryexternal_lf_lt",
-  "Magetarm (D11, D70, D73)" = "gastro_lf_lt"
+  "Luftveisinfeksjoner (R05, R74, R78, R83)" = "respiratoryexternal_vk_ot",
+  "Magetarm (D11, D70, D73)" = "gastro_vk_ot"
 )
 
 get_granularity_geo <- function(location_code){

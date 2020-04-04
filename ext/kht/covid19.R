@@ -571,7 +571,7 @@ covid19_overview_plot_national_syndromes_proportion <- function(
         "akkut_ovre_luftveisinfeksjon_lf_lte"
       )) %>%
       dplyr::filter(date >= !!config$start_date) %>%
-      dplyr::filter(age == "Totalt") %>%
+      dplyr::filter(age == "totalt") %>%
       dplyr::filter(location_code == !!location_code) %>%
       dplyr::select(tag_outcome, date, n, consult_with_influenza) %>%
       dplyr::collect()
@@ -675,7 +675,7 @@ covid19_overview_plot_national_source_proportion <- function(
         "covid19_l_e"
       )) %>%
       dplyr::filter(date >= !!config$start_date) %>%
-      dplyr::filter(age >= "Totalt") %>%
+      dplyr::filter(age == "totalt") %>%
       dplyr::filter(location_code == !!location_code) %>%
       dplyr::select(tag_outcome, date, n, consult_with_influenza) %>%
       dplyr::collect()
@@ -793,7 +793,7 @@ covid19_overview_plot_national_age_burden <- function(
     dplyr::filter(date >= !!config$start_date) %>%
     dplyr::filter(tag_outcome == "covid19_lf_lte") %>%
     dplyr::filter(location_code== !!location_code) %>%
-    dplyr::filter(age != "Totalt") %>%
+    dplyr::filter(age != "totalt") %>%
     dplyr::select(date, age, n, consult_with_influenza) %>%
     dplyr::collect()
   setDT(pd)
@@ -942,7 +942,7 @@ covid19_overview_plot_county_proportion <- function(
         "engstelig_luftveissykdom_ika_lf_lte"
       )) %>%
       dplyr::filter(date >= !!config$start_date) %>%
-      dplyr::filter(age >= "Totalt") %>%
+      dplyr::filter(age == "totalt") %>%
       dplyr::filter(location_code %in% !!location_codes) %>%
       dplyr::select(tag_outcome, location_code, date, n, consult_with_influenza) %>%
       dplyr::collect()
@@ -1061,7 +1061,7 @@ covid19_overview_map_county_proportion <- function(
         )) %>%
         dplyr::filter(date >= !!config$start_date) %>%
         dplyr::filter(granularity_geo == "county") %>%
-        dplyr::filter(age == "Totalt") %>%
+        dplyr::filter(age == "totalt") %>%
         dplyr::collect()
     } else {
       d <- pool %>% dplyr::tbl("data_norsyss") %>%
@@ -1072,7 +1072,7 @@ covid19_overview_map_county_proportion <- function(
         dplyr::filter(date >= !!config$start_date) %>%
         dplyr::filter(granularity_geo == "municip") %>%
         dplyr::filter(location_code %in% !!location_codes) %>%
-        dplyr::filter(age == "Totalt") %>%
+        dplyr::filter(age == "totalt") %>%
         dplyr::collect()
     }
     setDT(d)
@@ -1191,7 +1191,7 @@ covid19_overview_map_county_proportion_2 <- function(
       )) %>%
       dplyr::filter(date >= !!config$start_date) %>%
       dplyr::filter(granularity_geo == "county") %>%
-      dplyr::filter(age == "Totalt") %>%
+      dplyr::filter(age == "totalt") %>%
       dplyr::collect()
   } else {
     d <- pool %>% dplyr::tbl("data_norsyss") %>%
@@ -1202,7 +1202,7 @@ covid19_overview_map_county_proportion_2 <- function(
       dplyr::filter(date >= !!config$start_date) %>%
       dplyr::filter(granularity_geo == "municip") %>%
       dplyr::filter(location_code %in% !!location_codes) %>%
-      dplyr::filter(age == "Totalt") %>%
+      dplyr::filter(age == "totalt") %>%
       dplyr::collect()
   }
   setDT(d)
@@ -1329,7 +1329,7 @@ covid19_norsyss_vs_msis <- function(
     dplyr::filter(location_code== !!location_code) %>%
     dplyr::filter(granularity_time=="day") %>%
     dplyr::filter(tag_outcome %in% "covid19_lf_lte") %>%
-    dplyr::filter(age=="Totalt") %>%
+    dplyr::filter(age=="totalt") %>%
     dplyr::filter(date >= !!config$start_date) %>%
     dplyr::select(date, n, consult_with_influenza) %>%
     dplyr::collect()
@@ -1441,7 +1441,7 @@ covid19_norsyss_vs_msis_one_graph <- function(
     dplyr::filter(location_code== !!location_code) %>%
     dplyr::filter(granularity_time=="day") %>%
     dplyr::filter(tag_outcome %in% "covid19_lf_lte") %>%
-    dplyr::filter(age=="Totalt") %>%
+    dplyr::filter(age=="totalt") %>%
     dplyr::filter(date >= !!config$start_date) %>%
     dplyr::select(date, n, consult_with_influenza) %>%
     dplyr::collect()
