@@ -501,7 +501,7 @@ covid19_server <- function(input, output, session, config) {
     req(input$covid_location_code)
 
     location_codes <- get_dependent_location_codes(location_code = input$covid_location_code)
-    height <- round(250*ceiling(length(location_codes)/4))
+    height <- round(250 + 150*ceiling(length(location_codes)/3))
     height <- max(400, height)
     height <- paste0(height,"px")
     plotOutput(ns("overview_plot_county_proportion"), height = height)
@@ -644,6 +644,7 @@ covid19_overview_plot_national_syndromes_proportion <- function(
       panel.grid.minor.x = element_blank(),
       panel_on_top = F
     )
+    q <- q + fhiplot::set_x_axis_vertical()
     q <- q + theme(legend.key.size = unit(1, "cm"))
     q <- q + theme(legend.position="bottom")
     q <- q + labs(title = glue::glue(
@@ -767,6 +768,7 @@ covid19_overview_plot_national_source_proportion <- function(
       panel.grid.major.x = element_blank(),
       panel.grid.minor.x = element_blank()
     )
+    q <- q + fhiplot::set_x_axis_vertical()
     q <- q + theme(legend.key.size = unit(1, "cm"))
     q <- q + coord_cartesian(ylim=c(0, max_y), clip="off", expand = F)
     q <- q + labs(title = glue::glue(
@@ -812,7 +814,7 @@ covid19_overview_plot_national_age_burden <- function(
   )]
   pd[, consult_with_influenza_totalt := sum(consult_with_influenza), by=.(date)]
 
-  pd[, andel := 100*n/consult_with_influenza_totalt]
+  pd[, andel := 100*sum(n)/consult_with_influenza_totalt, by=.(date)]
   pd[, no_data := consult_with_influenza_totalt==0]
   pd[is.nan(andel), andel := 0]
 
@@ -842,6 +844,7 @@ covid19_overview_plot_national_age_burden <- function(
                                     panel.grid.major.x = element_blank(),
                                     panel.grid.minor.x = element_blank()
   )
+  q <- q + fhiplot::set_x_axis_vertical()
   q <- q + theme(legend.key.size = unit(1, "cm"))
   q <- q + labs(title = glue::glue(
     "{names(config$choices_location)[config$choices_location==location_code]}\n",
@@ -924,6 +927,7 @@ covid19_overview_plot_national_age_trends <- function(
                                     panel.grid.major.x = element_blank(),
                                     panel.grid.minor.x = element_blank()
   )
+  q <- q + fhiplot::set_x_axis_vertical()
   q <- q + theme(legend.key.size = unit(1, "cm"))
   q <- q + labs(title = glue::glue(
     "{names(config$choices_location)[config$choices_location==location_code]}\n",
@@ -1038,6 +1042,7 @@ covid19_overview_plot_county_proportion <- function(
                                       panel.grid.major.x = element_blank(),
                                       panel.grid.minor.x = element_blank()
     )
+    q <- q + fhiplot::set_x_axis_vertical()
     q <- q + theme(legend.key.size = unit(1, "cm"))
     q <- q + theme(legend.position="bottom")
     q <- q + labs(title=glue::glue(
@@ -1551,6 +1556,7 @@ covid19_norsyss_vs_msis_one_graph <- function(
     panel.grid.minor.x = element_blank(),
     legend_position = "bottom"
   )
+  q <- q + fhiplot::set_x_axis_vertical()
   q <- q + theme(legend.key.size = unit(1, "cm"))
   q <- q + coord_cartesian(ylim=c(0, max_y), clip="off", expand = F)
   q <- q + labs(title = glue::glue(
