@@ -25,7 +25,8 @@ source("norsyss_information.R")
 
 ui <- tagList(
   tags$head(
-    tags$meta(`http-equiv`="Content-Security-Policy", content="default-src 'self'; script-src 'unsafe-inline' https://www.googletagmanager.com https://sykdomspulsen2.fhi.no; connect-src wss://sykdomspulsen2.fhi.no"),
+    #tags$meta(`http-equiv`="Content-Security-Policy", content="default-src 'self'; script-src 'unsafe-inline' https://www.googletagmanager.com https://sykdomspulsen2.fhi.no; connect-src wss://sykdomspulsen2.fhi.no"),
+    tags$meta(`http-equiv`="Content-Security-Policy", content="default-src *"),
     includeHTML(("google_analytics.html"))
   ),
   useShinyjs(),
