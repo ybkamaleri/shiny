@@ -24,11 +24,11 @@ source("norsyss_daily.R")
 source("norsyss_information.R")
 
 ui <- tagList(
-  useShinyjs(),
   tags$head(
-    includeHTML(("google_analytics.html")),
-    tags$meta(`http-equiv`="Content-Security-Policy", content="script-src https://www.googletagmanager.com; connect-src sykdomspulsen2.fhi.no")
+    tags$meta(`http-equiv`="Content-Security-Policy", content="script-src https://www.googletagmanager.com https://sykdomspulsen2.fhi.no; connect-src wss://sykdomspulsen2.fhi.no"),
+    includeHTML(("google_analytics.html"))
   ),
+  useShinyjs(),
   tags$style("
   .container{
     width: 1200px;
