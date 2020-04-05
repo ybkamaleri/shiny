@@ -814,7 +814,7 @@ covid19_overview_plot_national_age_burden <- function(
   )]
   pd[, consult_with_influenza_totalt := sum(consult_with_influenza), by=.(date)]
 
-  pd[, andel := 100*sum(n)/consult_with_influenza_totalt, by=.(date)]
+  pd[, andel := 100*n/consult_with_influenza_totalt]
   pd[, no_data := consult_with_influenza_totalt==0]
   pd[is.nan(andel), andel := 0]
 

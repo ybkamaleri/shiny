@@ -25,7 +25,10 @@ source("norsyss_information.R")
 
 ui <- tagList(
   useShinyjs(),
-  tags$head(includeHTML(("google_analytics.html"))),
+  tags$head(
+    includeHTML(("google_analytics.html")),
+    tags$meta(`http-equiv`="Content-Security-Policy", content="script-src https://www.googletagmanager.com; connect-src sykdomspulsen2.fhi.no")
+  ),
   tags$style("
   .container{
     width: 1200px;
