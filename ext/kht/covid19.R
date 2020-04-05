@@ -714,8 +714,8 @@ covid19_overview_plot_national_source_proportion <- function(
     weekends <- data.frame(date = weekends)
 
     max_y <- max(pd[,.(n=sum(n)),by=.(date)]$n, na.rm=T)
-    min_y_start <- -0.085*max_y*1.01
-    min_y_end <- -0.05*max_y*1.01
+    min_y_end <- -0.125*max_y*1.01
+    min_y_start <- -0.160*max_y*1.01
 
     pd_line <- pd[,.(
       n=sum(n),
@@ -1513,8 +1513,8 @@ covid19_norsyss_vs_msis_one_graph <- function(
   weekends <- data.frame(date = weekends)
 
   max_y <- max(pd$scaled_value, na.rm=T)+3
-  min_y_start <- -0.085*max_y*1.01
-  min_y_end <- -0.05*max_y*1.01
+  min_y_end <- -0.125*max_y*1.01
+  min_y_start <- -0.160*max_y*1.01
 
   q <- ggplot(pd, aes(x=date, y = scaled_value))
   q <- q + geom_col(data=pd[variable=="n_msis"], fill=fhiplot::base_color, width=0.8)
