@@ -8,6 +8,8 @@ covid19_ui <- function(id, config) {
         width=12, align="left",
         p(
           id="toptext",
+          strong("Informasjonen som finnes på denne siden er anonym, men er ment for kommuneleger fordi det krever kunnskap for å tolke disse på riktig måte."),br(),br(),
+
           strong("NorSySS er forkortelsen for Norwegian Syndromic Surveillance System som er en del av Sykdomspulsen."), br(),
           "Dette er et overvåkningssystem basert på diagnosekoder (ICPC-2 koder) satt på legekontor og legevakt i hele Norge.", br(), br(),
 
@@ -426,6 +428,19 @@ covid19_ui <- function(id, config) {
 covid19_server <- function(input, output, session, config) {
   #width <-  as.numeric(input$dimension[1])
 
+  output$overview_norsyss_vs_msis <- renderCachedPlot({
+
+    covid19_norsyss_vs_msis(
+      location_code = input$covid_location_code,
+      config = config
+    )
+  }, cacheKeyExpr={list(
+    input$covid_location_code,
+    dev_invalidate_cache
+  )},
+  res = 72
+  )
+
   output$overview_plot_national_syndromes_proportion <- renderCachedPlot({
     req(input$covid_location_code)
 
@@ -534,19 +549,6 @@ covid19_server <- function(input, output, session, config) {
   res = 72
   )
 
-  output$overview_norsyss_vs_msis <- renderCachedPlot({
-
-    covid19_norsyss_vs_msis_one_graph(
-      location_code = input$covid_location_code,
-      config = config
-    )
-  }, cacheKeyExpr={list(
-    input$covid_location_code,
-    dev_invalidate_cache
-  )},
-  res = 72
-  )
-
 
   outputOptions(output, "overview_plot_national_syndromes_proportion", priority = 10)
   outputOptions(output, "overview_plot_national_age_burden", priority = 9)
@@ -556,237 +558,753 @@ covid19_server <- function(input, output, session, config) {
 
 }
 
+covid19_norsyss_vs_msis <- function(
+  location_code,
+  config
+){
+  if(get_granularity_geo(location_code) %in% c("nation", "county")){
+    covid19_norsyss_vs_msis_daily(
+      location_code = location_code,
+      config = config
+    )
+  } else {
+    covid19_norsyss_vs_msis_weekly(
+      location_code = location_code,
+      config = config
+    )
+  }
+}
+
+covid19_norsyss_vs_msis_daily <- function(
+  location_code,
+  config
+){
+
+  d_norsyss <- pool %>% dplyr::tbl("data_norsyss") %>%
+    dplyr::filter(location_code== !!location_code) %>%
+    dplyr::filter(granularity_time=="day") %>%
+    dplyr::filter(tag_outcome %in% "covid19_vk_ote") %>%
+    dplyr::filter(age=="totalt") %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::select(date, n, consult_with_influenza) %>%
+    dplyr::collect()
+  setDT(d_norsyss)
+  d_norsyss[, date:= as.Date(date)]
+  d_norsyss[, perc_norsyss := 100* n / consult_with_influenza]
+  d_norsyss[is.nan(perc_norsyss), perc_norsyss := 0]
+  d_norsyss[, n := NULL]
+  d_norsyss[, no_data := consult_with_influenza==0]
+  d_norsyss[,consult_with_influenza := NULL]
+
+  d_msis <- pool %>% dplyr::tbl("data_covid19_msis") %>%
+    dplyr::filter(location_code== !!location_code) %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::select(date, n) %>%
+    dplyr::collect()
+  setDT(d_msis)
+  d_msis[, date:= as.Date(date)]
+  setnames(d_msis, "n", "n_msis")
+
+  pd <- merge(
+    d_msis,
+    d_norsyss,
+    by="date",
+    all = T
+  )
+
+  pd <- melt.data.table(
+    pd,
+    id.vars = c(
+      "date",
+      "no_data"
+    )
+  )
+  pd <- pd[!is.na(value)]
+  pd[, scaled_value := value]
+  max_left <- max(pd[variable != "perc_norsyss"]$value)+1
+  max_right <- max(pd[variable == "perc_norsyss"]$value)
+  pd[variable == "perc_norsyss", scaled_value := value / max_right * max_left]
+
+  pd[, variable_pretty := factor(
+    variable,
+    levels = c(
+      "perc_norsyss",
+      "n_msis"
+    ),
+    labels = c(
+      "Andel konsultasjoner",
+      "Antall lab-bekreftet tilfeller"
+    )
+  )]
+
+  weekends <- unique(pd$date)
+  weekends <- weekends[lubridate::wday(weekends, week_start = 1) %in% c(6,7)]
+  weekends <- data.frame(date = weekends)
+
+  max_y <- max(pd$scaled_value, na.rm=T)+3
+  min_y_end <- -0.125*max_y*1.01
+  min_y_start <- -0.160*max_y*1.01
+
+  q <- ggplot(pd, aes(x=date, y = scaled_value))
+  q <- q + geom_col(data=pd[variable=="n_msis"], fill=fhiplot::base_color, width=0.8)
+  q <- q + geom_line(data=pd[variable=="perc_norsyss"],lwd = 4, color="red")
+  if(sum(pd$no_data)>0){
+    q <- q + geom_vline(data=pd[no_data==TRUE], mapping=aes(xintercept = date),color= "red", lty=3, lwd=1.5)
+  }
+  q <- q + geom_segment(
+    data = weekends,
+    mapping = aes(
+      x = date, xend=date,
+      y = min_y_start, yend = min_y_end
+    ),
+    color = "red",
+    size = 1,
+    arrow = arrow(length = unit(0.1, "inches"))
+  )
+  q <- q + scale_y_continuous(
+    "Antall tilfeller meldt til MSIS",
+    breaks = fhiplot::pretty_breaks(5),
+    expand = expand_scale(mult = c(0, 0.1)),
+    sec.axis = sec_axis(
+      ~ . * max_right / max_left,
+      breaks = fhiplot::pretty_breaks(5),
+      labels = fhiplot::format_nor_perc_0,
+      name = "Andel NorSySS konsultasjoner\n"
+    )
+  )
+  q <- q + expand_limits(y = 0)
+  q <- q + scale_x_date(
+    "",
+    date_breaks = "2 days",
+    date_labels = "%d.%m"
+  )
+  q <- q + fhiplot::scale_color_fhi(NULL)
+  q <- q + fhiplot::theme_fhi_lines(
+    20, panel_on_top = T,
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    legend_position = "bottom"
+  )
+  q <- q + fhiplot::set_x_axis_vertical()
+  q <- q + theme(legend.key.size = unit(1, "cm"))
+  q <- q + coord_cartesian(ylim=c(0, max_y), clip="off", expand = F)
+  q <- q + labs(title = glue::glue(
+    "{names(config$choices_location)[config$choices_location==location_code]}\n",
+    "Antall covid-19 meldinger til MSIS og andel konsultasjoner for covid-19 (mistenkte eller bekreftet)\n",
+    "på legekontor og legevakt\n",
+    "Data fra NorSySS og MSIS"
+  ))
+  q <- q + labs(caption=glue::glue(
+
+    "Røde piler på x-aksen viser helger og helligdager\n",
+    "Søylene skal leses av på venstre side, den røde linjen skal leses av på høyre side\n",
+    "Nevneren på andelen er totalt antall konsultasjoner per dag i valgt geografisk område\n",
+    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
+    "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
+  ))
+  q
+}
+
+covid19_norsyss_vs_msis_weekly <- function(
+  location_code,
+  config
+){
+
+  d_norsyss <- pool %>% dplyr::tbl("data_norsyss") %>%
+    dplyr::filter(location_code== !!location_code) %>%
+    dplyr::filter(granularity_time=="day") %>%
+    dplyr::filter(tag_outcome %in% "covid19_vk_ote") %>%
+    dplyr::filter(age=="totalt") %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::select(yrwk, n, consult_with_influenza) %>%
+    dplyr::group_by(yrwk) %>%
+    dplyr::summarize(n=sum(n), consult_with_influenza=sum(consult_with_influenza)) %>%
+    dplyr::collect()
+  setDT(d_norsyss)
+  d_norsyss[, perc_norsyss := 100* n / consult_with_influenza]
+  d_norsyss[is.nan(perc_norsyss), perc_norsyss := 0]
+  d_norsyss[, n := NULL]
+  d_norsyss[, no_data := consult_with_influenza==0]
+  d_norsyss[,consult_with_influenza := NULL]
+
+  d_msis <- pool %>% dplyr::tbl("data_covid19_msis") %>%
+    dplyr::filter(location_code== !!location_code) %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::select(yrwk, n) %>%
+    dplyr::group_by(yrwk) %>%
+    dplyr::summarize(n=sum(n)) %>%
+    dplyr::collect()
+  setDT(d_msis)
+  setnames(d_msis, "n", "n_msis")
+
+  pd <- merge(
+    d_msis,
+    d_norsyss,
+    by="yrwk",
+    all = T
+  )
+
+  pd <- melt.data.table(
+    pd,
+    id.vars = c(
+      "yrwk",
+      "no_data"
+    )
+  )
+  pd <- pd[!is.na(value)]
+  pd[, scaled_value := value]
+  max_left <- max(pd[variable != "perc_norsyss"]$value)+1
+  max_right <- max(pd[variable == "perc_norsyss"]$value)
+  pd[variable == "perc_norsyss", scaled_value := value / max_right * max_left]
+
+  pd[, variable_pretty := factor(
+    variable,
+    levels = c(
+      "perc_norsyss",
+      "n_msis"
+    ),
+    labels = c(
+      "Andel konsultasjoner",
+      "Antall lab-bekreftet tilfeller"
+    )
+  )]
+
+  max_y <- max(pd$scaled_value, na.rm=T)+3
+  min_y_end <- -0.125*max_y*1.01
+  min_y_start <- -0.160*max_y*1.01
+
+  q <- ggplot(pd, aes(x=yrwk, y = scaled_value))
+  q <- q + geom_col(data=pd[variable=="n_msis"], fill=fhiplot::base_color, width=0.8)
+  q <- q + geom_line(data=pd[variable=="perc_norsyss"], mapping=aes(group=1), lwd = 4, color="red")
+  if(sum(pd$no_data)>0){
+    q <- q + geom_vline(data=pd[no_data==TRUE], mapping=aes(xintercept = yrwk),color= "red", lty=3, lwd=1.5)
+  }
+  q <- q + scale_y_continuous(
+    "Antall tilfeller meldt til MSIS",
+    breaks = fhiplot::pretty_breaks(5),
+    expand = expand_scale(mult = c(0, 0.1)),
+    sec.axis = sec_axis(
+      ~ . * max_right / max_left,
+      breaks = fhiplot::pretty_breaks(5),
+      labels = fhiplot::format_nor_perc_0,
+      name = "Andel NorSySS konsultasjoner\n"
+    )
+  )
+  q <- q + expand_limits(y = 0)
+  q <- q + scale_x_discrete(NULL)
+  q <- q + fhiplot::scale_color_fhi(NULL)
+  q <- q + fhiplot::theme_fhi_lines(
+    20, panel_on_top = T,
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    legend_position = "bottom"
+  )
+  q <- q + fhiplot::set_x_axis_vertical()
+  q <- q + theme(legend.key.size = unit(1, "cm"))
+  q <- q + coord_cartesian(ylim=c(0, max_y), clip="off", expand = F)
+  q <- q + labs(title = glue::glue(
+    "{names(config$choices_location)[config$choices_location==location_code]}\n",
+    "Antall covid-19 meldinger til MSIS og andel konsultasjoner for covid-19 (mistenkte eller bekreftet)\n",
+    "på legekontor og legevakt\n",
+    "Data fra NorSySS og MSIS"
+  ))
+  q <- q + labs(caption=glue::glue(
+    "Søylene skal leses av på venstre side, den røde linjen skal leses av på høyre side\n",
+    "Nevneren på andelen er totalt antall konsultasjoner per dag i valgt geografisk område\n",
+    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
+    "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
+  ))
+  q
+}
+
 
 covid19_overview_plot_national_syndromes_proportion <- function(
   location_code,
   config
 ){
-
-    pd <- pool %>% dplyr::tbl("data_norsyss") %>%
-      dplyr::filter(tag_outcome %in% c(
-        "covid19_vk_ote",
-        "engstelig_luftveissykdom_ika_vk_ote",
-        "influensa_vk_ote",
-        "rxx_for_covid19_vk_ote",
-        "akkut_ovre_luftveisinfeksjon_vk_ote"
-      )) %>%
-      dplyr::filter(date >= !!config$start_date) %>%
-      dplyr::filter(age == "totalt") %>%
-      dplyr::filter(location_code == !!location_code) %>%
-      dplyr::select(tag_outcome, date, n, consult_with_influenza) %>%
-      dplyr::collect()
-    setDT(pd)
-    pd[, date:= as.Date(date)]
-
-    pd[, andel := 100*n/consult_with_influenza]
-    pd[, no_data := consult_with_influenza==0]
-    pd[is.nan(andel), andel := 0]
-
-    pd[, name_outcome := factor(
-      tag_outcome,
-      levels = c(
-        "covid19_vk_ote",
-        "engstelig_luftveissykdom_ika_vk_ote",
-        "influensa_vk_ote",
-        "akkut_ovre_luftveisinfeksjon_vk_ote",
-        "rxx_for_covid19_vk_ote"
-      ),
-      labels = c(
-        "Covid-19 (mistenkt\neller bekreftet) (R991)",
-        "Engstelig luftveissykdom\nIKA (R27)",
-        "Influensa (R80)",
-        "Akutt øvre\nluftveisinfeksjon (R74)",
-        "Luftvei diagnosekoder\n(samlet*)"
-      )
-    )]
-
-    labels <- pd[date == max(date)]
-    #labels[,]
-
-    q <- ggplot(pd, aes(x=date, y=andel, color=name_outcome))
-    q <- q + geom_line(size=4)
-    if(sum(pd$no_data)>0){
-      q <- q + geom_vline(data=pd[no_data==TRUE], mapping=aes(xintercept = date),color= "red", lty=3, lwd=1.5)
-    }
-    # q <- q + ggrepel::geom_label_repel(
-    #   data = labels,
-    #   mapping = aes(label = name_outcome),
-    #   nudge_y = 1,
-    #   nudge_x = 0.5,
-    #   direction = "y",
-    #   angle = 0,
-    #   vjust = 0,
-    #   hjust = 0,
-    #   label.r=0,
-    #   segment.size = 1,
-    #   label.size = 1,
-    #   label.padding = 1,
-    #   box.padding = 1,
-    #   size=8
-    # )
-    q <- q + scale_y_continuous(
-      "Andel",
-      breaks = fhiplot::pretty_breaks(6),
-      expand = expand_scale(mult = c(0, 0.1)),
-      labels = fhiplot::format_nor_perc_0
+  if(get_granularity_geo(location_code) %in% c("nation", "county")){
+    covid19_overview_plot_national_syndromes_proportion_daily(
+      location_code = location_code,
+      config = config
     )
-    q <- q + expand_limits(y = 0)
-    q <- q + scale_x_date(
-      NULL,
-      date_breaks = "2 days",
-      date_labels = "%d.%m",
-      expand = expand_scale(mult = c(0.02, 0.02))
+  } else {
+    covid19_overview_plot_national_syndromes_proportion_weekly(
+      location_code = location_code,
+      config = config
     )
-    q <- q + fhiplot::scale_color_fhi(NULL)
-    q <- q + fhiplot::theme_fhi_lines(
-      20,
-      panel.grid.major.x = element_blank(),
-      panel.grid.minor.x = element_blank(),
-      panel_on_top = F
+  }
+}
+
+covid19_overview_plot_national_syndromes_proportion_daily <- function(
+  location_code,
+  config
+){
+
+  pd <- pool %>% dplyr::tbl("data_norsyss") %>%
+    dplyr::filter(tag_outcome %in% c(
+      "covid19_vk_ote",
+      "engstelig_luftveissykdom_ika_vk_ote",
+      "influensa_vk_ote",
+      "rxx_for_covid19_vk_ote",
+      "akkut_ovre_luftveisinfeksjon_vk_ote"
+    )) %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::filter(age == "totalt") %>%
+    dplyr::filter(location_code == !!location_code) %>%
+    dplyr::select(tag_outcome, date, n, consult_with_influenza) %>%
+    dplyr::collect()
+  setDT(pd)
+  pd[, date:= as.Date(date)]
+
+  pd[, andel := 100*n/consult_with_influenza]
+  pd[, no_data := consult_with_influenza==0]
+  pd[is.nan(andel), andel := 0]
+
+  pd[, name_outcome := factor(
+    tag_outcome,
+    levels = c(
+      "covid19_vk_ote",
+      "engstelig_luftveissykdom_ika_vk_ote",
+      "influensa_vk_ote",
+      "akkut_ovre_luftveisinfeksjon_vk_ote",
+      "rxx_for_covid19_vk_ote"
+    ),
+    labels = c(
+      "Covid-19 (mistenkt\neller bekreftet) (R991)",
+      "Engstelig luftveissykdom\nIKA (R27)",
+      "Influensa (R80)",
+      "Akutt øvre\nluftveisinfeksjon (R74)",
+      "Luftvei diagnosekoder\n(samlet*)"
     )
-    q <- q + fhiplot::set_x_axis_vertical()
-    q <- q + theme(legend.key.size = unit(1, "cm"))
-    q <- q + theme(legend.position="bottom")
-    q <- q + labs(title = glue::glue(
-      "{names(config$choices_location)[config$choices_location==location_code]}\n",
-      "Andel konsultasjoner med forskjellig luftveisagens\n",
-      "Data fra NorSySS"
-    ))
-    q <- q + labs(caption=glue::glue(
-      "Nevneren er totalt antall konsultasjoner\n",
-      "*R- 01, 02, 03, 04, 05, 06, 07, 08, 09, 21, 24, 25, 27, 29, 72, 74, 75, 76, 77, 78, 79, 81, 82, 83, 99, 991\n",
-      "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
-      "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
-    ))
-    q
+  )]
+
+  labels <- pd[date == max(date)]
+  #labels[,]
+
+  q <- ggplot(pd, aes(x=date, y=andel, color=name_outcome))
+  q <- q + geom_line(size=4)
+  if(sum(pd$no_data)>0){
+    q <- q + geom_vline(data=pd[no_data==TRUE], mapping=aes(xintercept = date),color= "red", lty=3, lwd=1.5)
+  }
+  # q <- q + ggrepel::geom_label_repel(
+  #   data = labels,
+  #   mapping = aes(label = name_outcome),
+  #   nudge_y = 1,
+  #   nudge_x = 0.5,
+  #   direction = "y",
+  #   angle = 0,
+  #   vjust = 0,
+  #   hjust = 0,
+  #   label.r=0,
+  #   segment.size = 1,
+  #   label.size = 1,
+  #   label.padding = 1,
+  #   box.padding = 1,
+  #   size=8
+  # )
+  q <- q + scale_y_continuous(
+    "Andel",
+    breaks = fhiplot::pretty_breaks(5),
+    expand = expand_scale(mult = c(0, 0.1)),
+    labels = fhiplot::format_nor_perc_0
+  )
+  q <- q + expand_limits(y = 0)
+  q <- q + scale_x_date(
+    NULL,
+    date_breaks = "2 days",
+    date_labels = "%d.%m",
+    expand = expand_scale(mult = c(0.02, 0.02))
+  )
+  q <- q + fhiplot::scale_color_fhi(NULL)
+  q <- q + fhiplot::theme_fhi_lines(
+    20,
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel_on_top = F
+  )
+  q <- q + fhiplot::set_x_axis_vertical()
+  q <- q + theme(legend.key.size = unit(1, "cm"))
+  q <- q + theme(legend.position="bottom")
+  q <- q + labs(title = glue::glue(
+    "{names(config$choices_location)[config$choices_location==location_code]}\n",
+    "Andel konsultasjoner med forskjellig luftveisagens\n",
+    "Data fra NorSySS"
+  ))
+  q <- q + labs(caption=glue::glue(
+    "Nevneren er totalt antall konsultasjoner\n",
+    "*R- 01, 02, 03, 04, 05, 06, 07, 08, 09, 21, 24, 25, 27, 29, 72, 74, 75, 76, 77, 78, 79, 81, 82, 83, 99, 991\n",
+    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
+    "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
+  ))
+  q
+}
+
+covid19_overview_plot_national_syndromes_proportion_weekly <- function(
+  location_code,
+  config
+){
+
+  pd <- pool %>% dplyr::tbl("data_norsyss") %>%
+    dplyr::filter(tag_outcome %in% c(
+      "covid19_vk_ote",
+      "engstelig_luftveissykdom_ika_vk_ote",
+      "influensa_vk_ote",
+      "rxx_for_covid19_vk_ote",
+      "akkut_ovre_luftveisinfeksjon_vk_ote"
+    )) %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::filter(age == "totalt") %>%
+    dplyr::filter(location_code == !!location_code) %>%
+    dplyr::select(tag_outcome, yrwk, n, consult_with_influenza) %>%
+    dplyr::group_by(tag_outcome, yrwk) %>%
+    dplyr::summarize(n=sum(n), consult_with_influenza=sum(consult_with_influenza)) %>%
+    dplyr::collect()
+  setDT(pd)
+
+  pd[, andel := 100*n/consult_with_influenza]
+  pd[, no_data := consult_with_influenza==0]
+  pd[is.nan(andel), andel := 0]
+
+  pd[, name_outcome := factor(
+    tag_outcome,
+    levels = c(
+      "covid19_vk_ote",
+      "engstelig_luftveissykdom_ika_vk_ote",
+      "influensa_vk_ote",
+      "akkut_ovre_luftveisinfeksjon_vk_ote",
+      "rxx_for_covid19_vk_ote"
+    ),
+    labels = c(
+      "Covid-19 (mistenkt\neller bekreftet) (R991)",
+      "Engstelig luftveissykdom\nIKA (R27)",
+      "Influensa (R80)",
+      "Akutt øvre\nluftveisinfeksjon (R74)",
+      "Luftvei diagnosekoder\n(samlet*)"
+    )
+  )]
+
+  q <- ggplot(pd, aes(x=yrwk, y=andel, color=name_outcome, group=name_outcome))
+  q <- q + geom_line(size=4)
+  if(sum(pd$no_data)>0){
+    q <- q + geom_vline(data=pd[no_data==TRUE], mapping=aes(xintercept = yrwk),color= "red", lty=3, lwd=1.5)
+  }
+  # q <- q + ggrepel::geom_label_repel(
+  #   data = labels,
+  #   mapping = aes(label = name_outcome),
+  #   nudge_y = 1,
+  #   nudge_x = 0.5,
+  #   direction = "y",
+  #   angle = 0,
+  #   vjust = 0,
+  #   hjust = 0,
+  #   label.r=0,
+  #   segment.size = 1,
+  #   label.size = 1,
+  #   label.padding = 1,
+  #   box.padding = 1,
+  #   size=8
+  # )
+  q <- q + scale_y_continuous(
+    "Andel",
+    breaks = fhiplot::pretty_breaks(5),
+    expand = expand_scale(mult = c(0, 0.1)),
+    labels = fhiplot::format_nor_perc_0
+  )
+  q <- q + expand_limits(y = 0)
+  q <- q + scale_x_discrete(
+    NULL
+  )
+  q <- q + fhiplot::scale_color_fhi(NULL)
+  q <- q + fhiplot::theme_fhi_lines(
+    20,
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    panel_on_top = F
+  )
+  q <- q + fhiplot::set_x_axis_vertical()
+  q <- q + theme(legend.key.size = unit(1, "cm"))
+  q <- q + theme(legend.position="bottom")
+  q <- q + labs(title = glue::glue(
+    "{names(config$choices_location)[config$choices_location==location_code]}\n",
+    "Andel konsultasjoner med forskjellig luftveisagens\n",
+    "Data fra NorSySS"
+  ))
+  q <- q + labs(caption=glue::glue(
+    "Nevneren er totalt antall konsultasjoner\n",
+    "*R- 01, 02, 03, 04, 05, 06, 07, 08, 09, 21, 24, 25, 27, 29, 72, 74, 75, 76, 77, 78, 79, 81, 82, 83, 99, 991\n",
+    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
+    "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
+  ))
+  q
 }
 
 covid19_overview_plot_national_source_proportion <- function(
   location_code,
   config
 ){
+  if(get_granularity_geo(location_code) %in% c("nation", "county")){
+    covid19_overview_plot_national_source_proportion_daily(
+      location_code = location_code,
+      config = config
+    )
+  } else {
+    covid19_overview_plot_national_source_proportion_weekly(
+      location_code = location_code,
+      config = config
+    )
+  }
+}
 
-    pd <- pool %>% dplyr::tbl("data_norsyss") %>%
-      dplyr::filter(tag_outcome %in% c(
-        "covid19_k_o",
-        "covid19_k_t",
-        "covid19_k_e",
-        "covid19_v_o",
-        "covid19_v_t",
-        "covid19_v_e"
-      )) %>%
-      dplyr::filter(date >= !!config$start_date) %>%
-      dplyr::filter(age == "totalt") %>%
-      dplyr::filter(location_code == !!location_code) %>%
-      dplyr::select(tag_outcome, date, n, consult_with_influenza) %>%
-      dplyr::collect()
-    setDT(pd)
-    pd[, date:= as.Date(date)]
+covid19_overview_plot_national_source_proportion_daily <- function(
+  location_code,
+  config
+){
 
-    pd[,
-       contact_type := dplyr::case_when(
-         stringr::str_detect(tag_outcome, "_e$") ~ "e-konsultasjon",
-         stringr::str_detect(tag_outcome, "_t$") ~ "Telefon",
-         stringr::str_detect(tag_outcome, "_o$") ~ "Oppmøte"
-       )]
+  pd <- pool %>% dplyr::tbl("data_norsyss") %>%
+    dplyr::filter(tag_outcome %in% c(
+      "covid19_k_o",
+      "covid19_k_t",
+      "covid19_k_e",
+      "covid19_v_o",
+      "covid19_v_t",
+      "covid19_v_e"
+    )) %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::filter(age == "totalt") %>%
+    dplyr::filter(location_code == !!location_code) %>%
+    dplyr::select(tag_outcome, date, n, consult_with_influenza) %>%
+    dplyr::collect()
+  setDT(pd)
+  pd[, date:= as.Date(date)]
 
-    pd[,
-       practice_type := dplyr::case_when(
-         stringr::str_detect(tag_outcome, "_k_") ~ "Legekontor",
-         stringr::str_detect(tag_outcome, "_v_") ~ "Legevakt"
-       )]
-    pd[, cat:= paste0(contact_type,"/",practice_type)]
-    pd[,cat := factor(
-      cat,
-      levels = c(
-        "e-konsultasjon/Legekontor",
-        "e-konsultasjon/Legevakt",
-        "Telefon/Legekontor",
-        "Telefon/Legevakt",
-        "Oppmøte/Legekontor",
-        "Oppmøte/Legevakt"
-      )
-    )]
-    pd[,no_data := sum(consult_with_influenza)==0, by=date]
+  pd[,
+     contact_type := dplyr::case_when(
+       stringr::str_detect(tag_outcome, "_e$") ~ "e-konsultasjon",
+       stringr::str_detect(tag_outcome, "_t$") ~ "Telefon",
+       stringr::str_detect(tag_outcome, "_o$") ~ "Oppmøte"
+     )]
 
-    weekends <- unique(pd$date)
-    weekends <- weekends[lubridate::wday(weekends, week_start = 1) %in% c(6,7)]
-    weekends <- data.frame(date = weekends)
+  pd[,
+     practice_type := dplyr::case_when(
+       stringr::str_detect(tag_outcome, "_k_") ~ "Legekontor",
+       stringr::str_detect(tag_outcome, "_v_") ~ "Legevakt"
+     )]
+  pd[, cat:= paste0(contact_type,"/",practice_type)]
+  pd[,cat := factor(
+    cat,
+    levels = c(
+      "e-konsultasjon/Legekontor",
+      "e-konsultasjon/Legevakt",
+      "Telefon/Legekontor",
+      "Telefon/Legevakt",
+      "Oppmøte/Legekontor",
+      "Oppmøte/Legevakt"
+    )
+  )]
+  pd[,no_data := sum(consult_with_influenza)==0, by=date]
 
-    max_y <- max(pd[,.(n=sum(n)),by=.(date)]$n, na.rm=T)
-    min_y_end <- -0.125*max_y*1.01
-    min_y_start <- -0.160*max_y*1.01
+  weekends <- unique(pd$date)
+  weekends <- weekends[lubridate::wday(weekends, week_start = 1) %in% c(6,7)]
+  weekends <- data.frame(date = weekends)
 
-    pd_line <- pd[,.(
-      n=sum(n),
-      consult_with_influenza=sum(consult_with_influenza)
+  max_y <- max(pd[,.(n=sum(n)),by=.(date)]$n, na.rm=T)
+  min_y_end <- -0.125*max_y*1.01
+  min_y_start <- -0.160*max_y*1.01
+
+  pd_line <- pd[,.(
+    n=sum(n),
+    consult_with_influenza=sum(consult_with_influenza)
+  ),
+  by=.(date)
+  ]
+  pd_line[, andel := n/consult_with_influenza]
+  pd_line[is.nan(andel), andel:=0]
+  max_andel <- max(pd_line$andel, na.rm=T)
+  pd_line[, andel := max_y * andel / max_andel]
+
+  q <- ggplot(pd, aes(x=date, y=n))
+  q <- q + geom_col(mapping=aes(fill=cat))
+  q <- q + geom_line(data=pd_line, mapping=aes(y=andel),color="red", size = 3)
+  if(sum(pd$no_data)>0){
+    q <- q + geom_vline(data=pd[no_data==TRUE], mapping=aes(xintercept = date),color= "red", lty=3, lwd=1.5)
+  }
+  q <- q + geom_segment(
+    data = weekends,
+    mapping = aes(
+      x = date, xend=date,
+      y = min_y_start, yend = min_y_end
     ),
-    by=.(date)
-    ]
-    pd_line[, andel := n/consult_with_influenza]
-    pd_line[is.nan(andel), andel:=0]
-    max_andel <- max(pd_line$andel, na.rm=T)
-    pd_line[, andel := max_y * andel / max_andel]
+    color = "red",
+    size = 1,
+    arrow = arrow(length = unit(0.1, "inches"))
+  )
+  q <- q + fhiplot::scale_fill_fhi(NULL)
+  q <- q + scale_y_continuous(
+    "Antall",
+    breaks = fhiplot::pretty_breaks(5),
+    labels = fhiplot::format_nor,
+    sec.axis = sec_axis(
+      ~ . * 100 / max_y * max_andel,
+      breaks = fhiplot::pretty_breaks(5),
+      labels = fhiplot::format_nor_perc_0,
+      name = "Andel"
+    )
+  )
+  q <- q + scale_x_date(
+    "",
+    date_breaks = "2 days",
+    date_labels = "%d.%m"
+  )
+  q <- q + fhiplot::scale_color_fhi("Syndrome", guide = "none")
+  q <- q + fhiplot::theme_fhi_lines(
+    20,
+    panel_on_top = T,
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank()
+  )
+  q <- q + fhiplot::set_x_axis_vertical()
+  q <- q + theme(legend.key.size = unit(1, "cm"))
+  q <- q + coord_cartesian(ylim=c(0, max_y), clip="off", expand = F)
+  q <- q + labs(title = glue::glue(
+    "{names(config$choices_location)[config$choices_location==location_code]}\n",
+    "Antall konsultasjoner for covid-19 fordelt på type konsultasjon samt andel konsultasjoner for covid-19\n",
+    "Data fra NorSySS"
+  ))
+  q <- q + labs(caption=glue::glue(
+    "Røde piler på x-aksen viser helger og helligdager\n",
+    "Søylene skal leses av på venstre side, den røde linjen skal leses av på høyre side\n",
+    "Nevneren på andelen er totalt antall konsultasjoner per dag i valgt geografisk område\n",
+    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
+    "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
+  ))
+  q
+}
 
-    q <- ggplot(pd, aes(x=date, y=n))
-    q <- q + geom_col(mapping=aes(fill=cat))
-    q <- q + geom_line(data=pd_line, mapping=aes(y=andel),color="red", size = 3)
-    if(sum(pd$no_data)>0){
-      q <- q + geom_vline(data=pd[no_data==TRUE], mapping=aes(xintercept = date),color= "red", lty=3, lwd=1.5)
-    }
-    q <- q + geom_segment(
-      data = weekends,
-      mapping = aes(
-        x = date, xend=date,
-        y = min_y_start, yend = min_y_end
-      ),
-      color = "red",
-      size = 1,
-      arrow = arrow(length = unit(0.1, "inches"))
+covid19_overview_plot_national_source_proportion_weekly <- function(
+  location_code,
+  config
+){
+
+  pd <- pool %>% dplyr::tbl("data_norsyss") %>%
+    dplyr::filter(tag_outcome %in% c(
+      "covid19_k_o",
+      "covid19_k_t",
+      "covid19_k_e",
+      "covid19_v_o",
+      "covid19_v_t",
+      "covid19_v_e"
+    )) %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::filter(age == "totalt") %>%
+    dplyr::filter(location_code == !!location_code) %>%
+    dplyr::select(tag_outcome, yrwk, n, consult_with_influenza) %>%
+    dplyr::group_by(tag_outcome, yrwk) %>%
+    dplyr::summarize(n = sum(n), consult_with_influenza=sum(consult_with_influenza)) %>%
+    dplyr::collect()
+  setDT(pd)
+
+  pd[,
+     contact_type := dplyr::case_when(
+       stringr::str_detect(tag_outcome, "_e$") ~ "e-konsultasjon",
+       stringr::str_detect(tag_outcome, "_t$") ~ "Telefon",
+       stringr::str_detect(tag_outcome, "_o$") ~ "Oppmøte"
+     )]
+
+  pd[,
+     practice_type := dplyr::case_when(
+       stringr::str_detect(tag_outcome, "_k_") ~ "Legekontor",
+       stringr::str_detect(tag_outcome, "_v_") ~ "Legevakt"
+     )]
+  pd[, cat:= paste0(contact_type,"/",practice_type)]
+  pd[,cat := factor(
+    cat,
+    levels = c(
+      "e-konsultasjon/Legekontor",
+      "e-konsultasjon/Legevakt",
+      "Telefon/Legekontor",
+      "Telefon/Legevakt",
+      "Oppmøte/Legekontor",
+      "Oppmøte/Legevakt"
     )
-    q <- q + fhiplot::scale_fill_fhi(NULL)
-    q <- q + scale_y_continuous(
-      "Antall",
-      breaks = fhiplot::pretty_breaks(6),
-      labels = fhiplot::format_nor,
-      sec.axis = sec_axis(
-        ~ . * 100 / max_y * max_andel,
-        breaks = fhiplot::pretty_breaks(6),
-        labels = fhiplot::format_nor_perc_0,
-        name = "Andel"
-      )
+  )]
+  pd[,no_data := sum(consult_with_influenza)==0, by=yrwk]
+
+  max_y <- max(pd[,.(n=sum(n)),by=.(yrwk)]$n, na.rm=T)
+  min_y_end <- -0.125*max_y*1.01
+  min_y_start <- -0.160*max_y*1.01
+
+  pd_line <- pd[,.(
+    n=sum(n),
+    consult_with_influenza=sum(consult_with_influenza)
+  ),
+  by=.(yrwk)
+  ]
+  pd_line[, andel := n/consult_with_influenza]
+  pd_line[is.nan(andel), andel:=0]
+  max_andel <- max(pd_line$andel, na.rm=T)
+  pd_line[, andel := max_y * andel / max_andel]
+
+  q <- ggplot(pd, aes(x=yrwk, y=n))
+  q <- q + geom_col(mapping=aes(fill=cat))
+  q <- q + geom_line(data=pd_line, mapping=aes(y=andel, group=1),color="red", size = 3)
+  if(sum(pd$no_data)>0){
+    q <- q + geom_vline(data=pd[no_data==TRUE], mapping=aes(xintercept = yrwk),color= "red", lty=3, lwd=1.5)
+  }
+  q <- q + fhiplot::scale_fill_fhi(NULL)
+  q <- q + scale_y_continuous(
+    "Antall",
+    breaks = fhiplot::pretty_breaks(5),
+    labels = fhiplot::format_nor,
+    sec.axis = sec_axis(
+      ~ . * 100 / max_y * max_andel,
+      breaks = fhiplot::pretty_breaks(5),
+      labels = fhiplot::format_nor_perc_0,
+      name = "Andel"
     )
-    q <- q + scale_x_date(
-      "",
-      date_breaks = "2 days",
-      date_labels = "%d.%m"
-    )
-    q <- q + fhiplot::scale_color_fhi("Syndrome", guide = "none")
-    q <- q + fhiplot::theme_fhi_lines(
-      20,
-      panel_on_top = T,
-      panel.grid.major.x = element_blank(),
-      panel.grid.minor.x = element_blank()
-    )
-    q <- q + fhiplot::set_x_axis_vertical()
-    q <- q + theme(legend.key.size = unit(1, "cm"))
-    q <- q + coord_cartesian(ylim=c(0, max_y), clip="off", expand = F)
-    q <- q + labs(title = glue::glue(
-      "{names(config$choices_location)[config$choices_location==location_code]}\n",
-      "Antall konsultasjoner for covid-19 fordelt på type konsultasjon samt andel konsultasjoner for covid-19\n",
-      "Data fra NorSySS"
-    ))
-    q <- q + labs(caption=glue::glue(
-      "Røde piler på x-aksen viser helger og helligdager\n",
-      "Søylene skal leses av på venstre side, den røde linjen skal leses av på høyre side\n",
-      "Nevneren på andelen er totalt antall konsultasjoner per dag i valgt geografisk område\n",
-      "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
-      "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
-    ))
-    q
+  )
+  q <- q + scale_x_discrete(NULL)
+  q <- q + fhiplot::scale_color_fhi("Syndrome", guide = "none")
+  q <- q + fhiplot::theme_fhi_lines(
+    20,
+    panel_on_top = T,
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank()
+  )
+  q <- q + fhiplot::set_x_axis_vertical()
+  q <- q + theme(legend.key.size = unit(1, "cm"))
+  q <- q + coord_cartesian(ylim=c(0, max_y), clip="off", expand = F)
+  q <- q + labs(title = glue::glue(
+    "{names(config$choices_location)[config$choices_location==location_code]}\n",
+    "Antall konsultasjoner for covid-19 fordelt på type konsultasjon samt andel konsultasjoner for covid-19\n",
+    "Data fra NorSySS"
+  ))
+  q <- q + labs(caption=glue::glue(
+    "Søylene skal leses av på venstre side, den røde linjen skal leses av på høyre side\n",
+    "Nevneren på andelen er totalt antall konsultasjoner per dag i valgt geografisk område\n",
+    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
+    "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
+  ))
+  q
 }
 
 covid19_overview_plot_national_age_burden <- function(
+  location_code,
+  config
+){
+  if(get_granularity_geo(location_code) %in% c("nation", "county")){
+    covid19_overview_plot_national_age_burden_daily(
+      location_code = location_code,
+      config = config
+    )
+  } else {
+    covid19_overview_plot_national_age_burden_weekly(
+      location_code = location_code,
+      config = config
+    )
+  }
+}
+
+covid19_overview_plot_national_age_burden_daily <- function(
   location_code,
   config
 ){
@@ -829,7 +1347,7 @@ covid19_overview_plot_national_age_burden <- function(
   }
   q <- q + scale_y_continuous(
     "Andel",
-    breaks = fhiplot::pretty_breaks(6),
+    breaks = fhiplot::pretty_breaks(5),
     expand = expand_scale(mult = c(0, 0.1)),
     labels = fhiplot::format_nor_perc_0
   )
@@ -859,11 +1377,92 @@ covid19_overview_plot_national_age_burden <- function(
   q
 }
 
+covid19_overview_plot_national_age_burden_weekly <- function(
+  location_code,
+  config
+){
+  pd <- pool %>% dplyr::tbl("data_norsyss") %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::filter(tag_outcome == "covid19_vk_ote") %>%
+    dplyr::filter(location_code== !!location_code) %>%
+    dplyr::filter(age != "totalt") %>%
+    dplyr::select(yrwk, age, n, consult_with_influenza) %>%
+    dplyr::group_by(yrwk, age) %>%
+    dplyr::summarize(n=sum(n), consult_with_influenza=sum(consult_with_influenza)) %>%
+    dplyr::collect()
+  setDT(pd)
+
+  pd[,age:=factor(
+    age,
+    levels = c(
+      "0-4",
+      "5-14",
+      "15-19",
+      "20-29",
+      "30-64",
+      "65+"
+    )
+  )]
+  pd[, consult_with_influenza_totalt := sum(consult_with_influenza), by=.(yrwk)]
+
+  pd[, andel := 100*n/consult_with_influenza_totalt]
+  pd[, no_data := consult_with_influenza_totalt==0]
+  pd[is.nan(andel), andel := 0]
+
+  q <- ggplot(pd, aes(x=yrwk,y=andel))
+  q <- q + geom_col(mapping=aes(fill=age))
+  if(sum(pd$no_data)>0){
+    q <- q + geom_vline(data=pd[no_data==TRUE], mapping=aes(xintercept = yrwk),color= "red", lty=3, lwd=1.5)
+  }
+  q <- q + scale_y_continuous(
+    "Andel",
+    breaks = fhiplot::pretty_breaks(5),
+    expand = expand_scale(mult = c(0, 0.1)),
+    labels = fhiplot::format_nor_perc_0
+  )
+  q <- q + expand_limits(y = 0)
+  q <- q + scale_x_discrete(NULL)
+  q <- q + fhiplot::scale_fill_fhi("Aldersgruppe")
+  q <- q + fhiplot::theme_fhi_lines(20, panel_on_top = T,
+                                    panel.grid.major.x = element_blank(),
+                                    panel.grid.minor.x = element_blank()
+  )
+  q <- q + fhiplot::set_x_axis_vertical()
+  q <- q + theme(legend.key.size = unit(1, "cm"))
+  q <- q + labs(title = glue::glue(
+    "{names(config$choices_location)[config$choices_location==location_code]}\n",
+    "Andel konsultasjoner i Norge med covid-19 (mistenkt eller bekreftet) fordelt på aldersgruppe\n",
+    "Data fra NorSySS"
+  ))
+  q <- q + labs(caption=glue::glue(
+    "For alle aldersgruppene er nevneren totalt antall konsultasjoner (alle aldersgrupper summert)\n",
+    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
+    "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
+  ))
+  q
+}
+
 covid19_overview_plot_national_age_trends <- function(
   location_code,
   config
 ){
+  if(get_granularity_geo(location_code) %in% c("nation", "county")){
+    covid19_overview_plot_national_age_trends_daily(
+      location_code = location_code,
+      config = config
+    )
+  } else {
+    covid19_overview_plot_national_age_trends_weekly(
+      location_code = location_code,
+      config = config
+    )
+  }
+}
 
+covid19_overview_plot_national_age_trends_daily <- function(
+  location_code,
+  config
+){
   pd <- pool %>% dplyr::tbl("data_norsyss") %>%
     dplyr::filter(date >= !!config$start_date) %>%
     dplyr::filter(tag_outcome == "covid19_vk_ote") %>%
@@ -942,7 +1541,99 @@ covid19_overview_plot_national_age_trends <- function(
   q
 }
 
+covid19_overview_plot_national_age_trends_weekly <- function(
+  location_code,
+  config
+){
+  pd <- pool %>% dplyr::tbl("data_norsyss") %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::filter(tag_outcome == "covid19_vk_ote") %>%
+    dplyr::filter(location_code== !!location_code) %>%
+    dplyr::select(yrwk, age, n, consult_with_influenza) %>%
+    dplyr::group_by(yrwk, age) %>%
+    dplyr::summarize(n = sum(n), consult_with_influenza = sum(consult_with_influenza)) %>%
+    dplyr::collect()
+  setDT(pd)
+
+  pd[,age:=factor(
+    age,
+    levels = c(
+      "totalt",
+      "0-4",
+      "5-14",
+      "15-19",
+      "20-29",
+      "30-64",
+      "65+"
+    ),
+    labels = c(
+      "Totalt",
+      "0-4",
+      "5-14",
+      "15-19",
+      "20-29",
+      "30-64",
+      "65+"
+    )
+  )]
+
+  pd[, andel := 100*n/consult_with_influenza]
+
+  pd[, consult_with_influenza_totalt := sum(consult_with_influenza), by=.(yrwk)]
+  pd[, no_data := consult_with_influenza_totalt==0]
+  pd[is.nan(andel), andel := 0]
+
+  q <- ggplot(pd, aes(x=yrwk,y=andel))
+  q <- q + geom_col(fill = fhiplot::base_color, width=0.8)
+  if(sum(pd$no_data)>0){
+    q <- q + geom_vline(data=pd[no_data==TRUE], mapping=aes(xintercept = yrwk),color= "red", lty=3, lwd=1.5)
+  }
+  q <- q + scale_y_continuous(
+    "Andel",
+    breaks = fhiplot::pretty_breaks(5),
+    expand = expand_scale(mult = c(0, 0.1)),
+    labels = fhiplot::format_nor_perc_0
+  )
+  q <- q + expand_limits(y = 0)
+  q <- q + scale_x_discrete(NULL)
+  q <- q + lemon::facet_rep_wrap(~age, repeat.tick.labels = "all", ncol=3)
+  q <- q + fhiplot::theme_fhi_lines(20, panel_on_top = T,
+                                    panel.grid.major.x = element_blank(),
+                                    panel.grid.minor.x = element_blank()
+  )
+  q <- q + fhiplot::set_x_axis_vertical()
+  q <- q + theme(legend.key.size = unit(1, "cm"))
+  q <- q + labs(title = glue::glue(
+    "{names(config$choices_location)[config$choices_location==location_code]}\n",
+    "Andel konsultasjoner med covid-19 (mistenkt eller bekreftet) fordelt på aldersgrupper\n",
+    "Data fra NorSySS"
+  ))
+  q <- q + labs(caption=glue::glue(
+    "Nevneren er totalt antall konsultasjoner per dato, geografisk område og aldersgruppe\n",
+    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
+    "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
+  ))
+  q
+}
+
 covid19_overview_plot_county_proportion <- function(
+  location_code,
+  config
+){
+  if(get_granularity_geo(location_code) %in% c("nation", "county")){
+    covid19_overview_plot_county_proportion_weekly(
+      location_code = location_code,
+      config = config
+    )
+  } else {
+    covid19_overview_plot_county_proportion_weekly(
+      location_code = location_code,
+      config = config
+    )
+  }
+}
+
+covid19_overview_plot_county_proportion_daily <- function(
   location_code,
   config
 ){
@@ -1057,6 +1748,92 @@ covid19_overview_plot_county_proportion <- function(
       "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
     ))
     q
+}
+
+covid19_overview_plot_county_proportion_weekly <- function(
+  location_code,
+  config
+){
+
+  location_codes <- get_dependent_location_codes(location_code = location_code)
+
+  pd <- pool %>% dplyr::tbl("data_norsyss") %>%
+    dplyr::filter(tag_outcome %in% c(
+      "covid19_vk_ote",
+      "engstelig_luftveissykdom_ika_vk_ote"
+    )) %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::filter(age == "totalt") %>%
+    dplyr::filter(location_code %in% !!location_codes) %>%
+    dplyr::select(tag_outcome, location_code, yrwk, n, consult_with_influenza) %>%
+    dplyr::group_by(tag_outcome, location_code, yrwk) %>%
+    dplyr::summarize(n = sum(n), consult_with_influenza = sum(consult_with_influenza)) %>%
+    dplyr::collect()
+  setDT(pd)
+
+  pd[
+    fhidata::norway_locations_long_b2020,
+    on="location_code",
+    location_name:=location_name
+    ]
+
+  pd[, andel := 100*n/consult_with_influenza]
+  pd[, name_outcome := factor(
+    tag_outcome,
+    levels = c(
+      "covid19_vk_ote",
+      "engstelig_luftveissykdom_ika_vk_ote"
+    ),
+    labels = c(
+      "Covid-19 (mistenkt eller bekreftet) (R991)",
+      "Engstelig luftveissykdom IKA (R27)"
+    )
+  )]
+
+  pd[,location_code := factor(location_code, levels = location_codes)]
+  setorder(pd,location_code)
+  location_names <- unique(pd$location_name)
+  pd[,location_name := factor(location_name, levels = location_names)]
+
+  pd[,no_data := sum(consult_with_influenza)==0, by=.(location_code, yrwk)]
+
+  max_val <- max(pd$andel,na.rm=T)
+
+  q <- ggplot(pd, aes(x=yrwk, y=andel))
+  q <- q + geom_col(mapping = aes(fill=name_outcome), position = "dodge", width=0.8)
+  if(sum(pd$no_data)>0){
+    q <- q + geom_vline(data=pd[no_data==TRUE], mapping=aes(xintercept = yrwk),color= "red", lty=3, lwd=1.5)
+  }
+  q <- q + lemon::facet_rep_wrap(~location_name, repeat.tick.labels = "y", ncol=3)
+  q <- q + scale_y_continuous(
+    "Andel",
+    breaks = fhiplot::pretty_breaks(5),
+    expand = expand_scale(mult = c(0, 0.1)),
+    labels = fhiplot::format_nor_perc_0
+  )
+  q <- q + expand_limits(y = 0)
+  q <- q + scale_x_discrete(NULL)
+  q <- q + fhiplot::scale_fill_fhi(NULL)
+  q <- q + fhiplot::scale_color_fhi(NULL, guide="none")
+  q <- q + fhiplot::theme_fhi_lines(20, panel_on_top = F,
+                                    panel.grid.major.x = element_blank(),
+                                    panel.grid.minor.x = element_blank()
+  )
+  q <- q + fhiplot::set_x_axis_vertical()
+  q <- q + theme(legend.key.size = unit(1, "cm"))
+  q <- q + theme(legend.position="bottom")
+  q <- q + labs(title=glue::glue(
+    "Andel konsultasjoner av\n",
+    "R991: Covid-19 (mistenkt eller bekreftet) og\n",
+    "R27: Engstelig luftveissykdom IKA diagnose per geografisk område\n",
+    "Data fra NorSySS"
+  ))
+  q <- q + labs(caption=glue::glue(
+    "Nevneren er totalt antall konsultasjoner per dag i det viste geografiske området.\n",
+    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
+    "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
+  ))
+  q
 }
 
 covid19_overview_map_county_proportion <- function(
@@ -1334,244 +2111,3 @@ covid19_overview_map_county_proportion_2 <- function(
   q
 }
 
-covid19_norsyss_vs_msis <- function(
-  location_code,
-  config
-){
-
-  d_norsyss <- pool %>% dplyr::tbl("data_norsyss") %>%
-    dplyr::filter(location_code== !!location_code) %>%
-    dplyr::filter(granularity_time=="day") %>%
-    dplyr::filter(tag_outcome %in% "covid19_vk_ote") %>%
-    dplyr::filter(age=="totalt") %>%
-    dplyr::filter(date >= !!config$start_date) %>%
-    dplyr::select(date, n, consult_with_influenza) %>%
-    dplyr::collect()
-  setDT(d_norsyss)
-  d_norsyss[, date:= as.Date(date)]
-  d_norsyss[, perc_norsyss := 100* n / consult_with_influenza]
-  d_norsyss[, n := NULL]
-  d_norsyss[, consult_with_influenza := NULL]
-
-  d_msis <- pool %>% dplyr::tbl("data_covid19_msis") %>%
-    dplyr::filter(location_code== !!location_code) %>%
-    dplyr::filter(date >= !!config$start_date) %>%
-    dplyr::select(date, n) %>%
-    dplyr::collect()
-  setDT(d_msis)
-  d_msis[, date:= as.Date(date)]
-
-  x_location_code <- location_code
-  x_pop <- fhidata::norway_population_b2020[
-    year==2020 & location_code==x_location_code,
-    .(
-      pop = sum(pop)
-    ),
-    keyby=.(location_code)
-    ]
-
-  d_msis[, pop := x_pop$pop]
-  d_msis[, per_100000_msis := 100000 * n / pop]
-  d_msis[, n:=NULL]
-  d_msis[, pop:=NULL]
-
-  q <- ggplot(d_norsyss, aes(x=date, y = perc_norsyss))
-  q <- q + geom_col(fill = fhiplot::base_color)
-  q <- q + scale_y_continuous(
-    "Andel konsultasjoner",
-    breaks = fhiplot::pretty_breaks(6),
-    labels = fhiplot::format_nor_perc_0,
-    expand = expand_scale(mult = c(0, 0.1))
-  )
-  q <- q + expand_limits(y = 0)
-  q <- q + scale_x_date(
-    NULL,
-    date_breaks = "2 days",
-    date_labels = "%d.%m"
-  )
-  q <- q + fhiplot::theme_fhi_lines(
-    20, panel_on_top = T,
-    legend_position = "bottom",
-    panel.grid.major.x = element_blank(),
-    panel.grid.minor.x = element_blank()
-  )
-  q <- q + theme(legend.key.size = unit(1, "cm"))
-  q <- q + labs(title = glue::glue(
-    "{names(config$choices_location)[config$choices_location==location_code]}\n",
-    "Andel konsultasjoner som tilhører covid-19 (mistenkt eller bekreftet) (R991)\n"
-  ))
-  q <- q + labs(caption=glue::glue(
-    "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
-  ))
-  q1 <- q
-
-
-  q <- ggplot(d_msis, aes(x=date, y = per_100000_msis))
-  q <- q + geom_col(fill = fhiplot::base_color)
-  q <- q + scale_y_continuous(
-    "Antall per 100.000 befolkning",
-    breaks = fhiplot::pretty_breaks(6),
-    expand = expand_scale(mult = c(0, 0.1))
-  )
-  q <- q + expand_limits(y = 0)
-  q <- q + scale_x_date(
-    NULL,
-    date_breaks = "2 days",
-    date_labels = "%d.%m"
-  )
-  q <- q + fhiplot::scale_color_fhi(NULL)
-  q <- q + fhiplot::theme_fhi_lines(
-    20, panel_on_top = T,
-    legend_position = "bottom",
-    panel.grid.major.x = element_blank(),
-    panel.grid.minor.x = element_blank()
-  )
-  q <- q + theme(legend.key.size = unit(1, "cm"))
-  q <- q + labs(title = glue::glue(
-    "{names(config$choices_location)[config$choices_location==location_code]}\n",
-    "Antall bekreftet covid-19 tilfeller fra MSIS per 100.000 befolkning"
-  ))
-  q <- q + labs(caption=glue::glue(
-    "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
-  ))
-  q2 <- q
-
-  cowplot::plot_grid(
-    q1,
-    q2,
-    ncol=1,
-    align = "v",
-    axis = "l"
-  )
-}
-
-
-covid19_norsyss_vs_msis_one_graph <- function(
-  location_code,
-  config
-){
-
-  d_norsyss <- pool %>% dplyr::tbl("data_norsyss") %>%
-    dplyr::filter(location_code== !!location_code) %>%
-    dplyr::filter(granularity_time=="day") %>%
-    dplyr::filter(tag_outcome %in% "covid19_vk_ote") %>%
-    dplyr::filter(age=="totalt") %>%
-    dplyr::filter(date >= !!config$start_date) %>%
-    dplyr::select(date, n, consult_with_influenza) %>%
-    dplyr::collect()
-  setDT(d_norsyss)
-  d_norsyss[, date:= as.Date(date)]
-  d_norsyss[, perc_norsyss := 100* n / consult_with_influenza]
-  d_norsyss[is.nan(perc_norsyss), perc_norsyss := 0]
-  d_norsyss[, n := NULL]
-  d_norsyss[, no_data := consult_with_influenza==0]
-  d_norsyss[,consult_with_influenza := NULL]
-
-  d_msis <- pool %>% dplyr::tbl("data_covid19_msis") %>%
-    dplyr::filter(location_code== !!location_code) %>%
-    dplyr::filter(date >= !!config$start_date) %>%
-    dplyr::select(date, n) %>%
-    dplyr::collect()
-  setDT(d_msis)
-  d_msis[, date:= as.Date(date)]
-  setnames(d_msis, "n", "n_msis")
-
-  pd <- merge(
-    d_msis,
-    d_norsyss,
-    by="date",
-    all = T
-  )
-
-  pd <- melt.data.table(
-    pd,
-    id.vars = c(
-      "date",
-      "no_data"
-    )
-  )
-  pd <- pd[!is.na(value)]
-  pd[, scaled_value := value]
-  max_left <- max(pd[variable != "perc_norsyss"]$value)+1
-  max_right <- max(pd[variable == "perc_norsyss"]$value)
-  pd[variable == "perc_norsyss", scaled_value := value / max_right * max_left]
-
-  pd[, variable_pretty := factor(
-    variable,
-    levels = c(
-      "perc_norsyss",
-      "n_msis"
-      ),
-    labels = c(
-      "Andel konsultasjoner",
-      "Antall lab-bekreftet tilfeller"
-    )
-  )]
-
-  weekends <- unique(pd$date)
-  weekends <- weekends[lubridate::wday(weekends, week_start = 1) %in% c(6,7)]
-  weekends <- data.frame(date = weekends)
-
-  max_y <- max(pd$scaled_value, na.rm=T)+3
-  min_y_end <- -0.125*max_y*1.01
-  min_y_start <- -0.160*max_y*1.01
-
-  q <- ggplot(pd, aes(x=date, y = scaled_value))
-  q <- q + geom_col(data=pd[variable=="n_msis"], fill=fhiplot::base_color, width=0.8)
-  q <- q + geom_line(data=pd[variable=="perc_norsyss"],lwd = 4, color="red")
-  if(sum(pd$no_data)>0){
-    q <- q + geom_vline(data=pd[no_data==TRUE], mapping=aes(xintercept = date),color= "red", lty=3, lwd=1.5)
-  }
-  q <- q + geom_segment(
-    data = weekends,
-    mapping = aes(
-      x = date, xend=date,
-      y = min_y_start, yend = min_y_end
-    ),
-    color = "red",
-    size = 1,
-    arrow = arrow(length = unit(0.1, "inches"))
-  )
-  q <- q + scale_y_continuous(
-    "Antall tilfeller meldt til MSIS",
-    breaks = fhiplot::pretty_breaks(6),
-    expand = expand_scale(mult = c(0, 0.1)),
-    sec.axis = sec_axis(
-      ~ . * max_right / max_left,
-      breaks = fhiplot::pretty_breaks(6),
-      labels = fhiplot::format_nor_perc_0,
-      name = "Andel NorSySS konsultasjoner\n"
-    )
-  )
-  q <- q + expand_limits(y = 0)
-  q <- q + scale_x_date(
-    "",
-    date_breaks = "2 days",
-    date_labels = "%d.%m"
-  )
-  q <- q + fhiplot::scale_color_fhi(NULL)
-  q <- q + fhiplot::theme_fhi_lines(
-    20, panel_on_top = T,
-    panel.grid.major.x = element_blank(),
-    panel.grid.minor.x = element_blank(),
-    legend_position = "bottom"
-  )
-  q <- q + fhiplot::set_x_axis_vertical()
-  q <- q + theme(legend.key.size = unit(1, "cm"))
-  q <- q + coord_cartesian(ylim=c(0, max_y), clip="off", expand = F)
-  q <- q + labs(title = glue::glue(
-    "{names(config$choices_location)[config$choices_location==location_code]}\n",
-    "Antall covid-19 meldinger til MSIS og andel konsultasjoner for covid-19 (mistenkte eller bekreftet)\n",
-    "på legekontor og legevakt\n",
-    "Data fra NorSySS og MSIS"
-  ))
-  q <- q + labs(caption=glue::glue(
-
-    "Røde piler på x-aksen viser helger og helligdager\n",
-    "Søylene skal leses av på venstre side, den røde linjen skal leses av på høyre side\n",
-    "Nevneren på andelen er totalt antall konsultasjoner per dag i valgt geografisk område\n",
-    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
-    "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
-  ))
-  q
-}
