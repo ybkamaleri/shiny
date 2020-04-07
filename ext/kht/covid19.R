@@ -32,6 +32,7 @@ covid19_ui <- function(id, config) {
     ),
 
     tabsetPanel(
+      id="covid19",
       tabPanel(
         title="Oversikt",
         tagList(

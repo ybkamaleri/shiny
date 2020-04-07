@@ -25,6 +25,7 @@ norsyss_ui <- function(id, config) {
     )
     ,
     tabsetPanel(
+      id="norsyss",
       tabPanel(
         title="Oversikt",
         norsyss_overview_ui("norsyss_overview", config=config)
