@@ -1801,21 +1801,22 @@ covid19_overview_plot_county_proportion_weekly <- function(
   max_val <- max(pd$andel,na.rm=T)
 
   q <- ggplot(pd, aes(x=yrwk, y=andel))
-  q <- q + geom_col(mapping = aes(fill=name_outcome), position = "dodge", width=0.8)
+  #q <- q + geom_col(mapping = aes(fill=name_outcome), position = "dodge", width=0.8)
+  q <- q + geom_line(mapping = aes(color=name_outcome, group=name_outcome), lwd=2)
   if(sum(pd$no_data)>0){
     q <- q + geom_vline(data=pd[no_data==TRUE], mapping=aes(xintercept = yrwk),color= "red", lty=3, lwd=1.5)
   }
   q <- q + lemon::facet_rep_wrap(~location_name, repeat.tick.labels = "y", ncol=3)
   q <- q + scale_y_continuous(
     "Andel",
-    breaks = fhiplot::pretty_breaks(5),
+    breaks = fhiplot::pretty_breaks(4),
     expand = expand_scale(mult = c(0, 0.1)),
     labels = fhiplot::format_nor_perc_0
   )
   q <- q + expand_limits(y = 0)
   q <- q + scale_x_discrete(NULL)
-  q <- q + fhiplot::scale_fill_fhi(NULL)
-  q <- q + fhiplot::scale_color_fhi(NULL, guide="none")
+  q <- q + fhiplot::scale_fill_fhi(NULL, guide="none")
+  q <- q + fhiplot::scale_color_fhi(NULL)
   q <- q + fhiplot::theme_fhi_lines(20, panel_on_top = F,
                                     panel.grid.major.x = element_blank(),
                                     panel.grid.minor.x = element_blank()
