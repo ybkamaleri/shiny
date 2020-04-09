@@ -1957,7 +1957,11 @@ covid19_overview_plot_county_proportion_weekly <- function(
       color="red"
     )
   }
-  q <- q + lemon::facet_rep_wrap(~location_name, repeat.tick.labels = "y", ncol=3)
+  if(granularity_geo=="nation"){
+    q <- q + lemon::facet_rep_wrap(~location_name, repeat.tick.labels = "y", ncol=3)
+  } else {
+    q <- q + lemon::facet_rep_wrap(~location_name, repeat.tick.labels = "y", ncol=3, scales="free_y")
+  }
   q <- q + scale_y_continuous(
     "Andel",
     breaks = fhiplot::pretty_breaks(4),
