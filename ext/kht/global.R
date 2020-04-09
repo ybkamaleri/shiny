@@ -111,6 +111,7 @@ config$choices_norsyss_tag <- list(
 )
 
 get_granularity_geo <- function(location_code){
+  granularity_geo <- NULL
   if(location_code == "norge"){
     granularity_geo <- "nation"
   } else if(stringr::str_detect(location_code, "^county")){
@@ -118,6 +119,7 @@ get_granularity_geo <- function(location_code){
   } else if(stringr::str_detect(location_code, "^municip")){
     granularity_geo <- "municip"
   }
+  shiny::req(granularity_geo)
   return(granularity_geo)
 }
 

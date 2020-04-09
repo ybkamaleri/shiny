@@ -252,8 +252,12 @@ norsyss_overview_server <- function(input, output, session, config) {
     req(input$norsyss_tag)
     req(input$norsyss_location_code)
 
-
-    plotOutput(ns("norsyss_plot_trends"), height = "2000px")
+    if(input$norsyss_location_code %in% config$small_location_codes){
+      height <- "600px"
+    } else {
+      height <- "2000px"
+    }
+    plotOutput(ns("norsyss_plot_trends"), height = height)
   })
 
   output$norsyss_plot_trends <- renderCachedPlot({
@@ -737,7 +741,7 @@ plot_trends_multiple <- function(tag_outcome, location_code, config){
       title,
       plot_trends_single(pd, "totalt"),
       ncol=1,
-      rel_heights = c(0.1, 1),
+      rel_heights = c(0.2, 1),
       label_x = 0,
       hjust = 0,
       vjust = 1.4,
