@@ -70,6 +70,8 @@ config$ages <- list(
   "65+"
 )
 
+config$small_location_codes <- unique(fhidata::norway_population_b2020[,.(pop=sum(pop)),keyby=.(year,location_code)][pop<500]$location_code)
+
 config_update_dates(config = config)
 
 x <- pool %>% dplyr::tbl("data_norsyss") %>%

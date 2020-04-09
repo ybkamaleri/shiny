@@ -191,7 +191,7 @@ norsyss_overview_ui <- function(id, config) {
          strong("Figur 3."),
          "Ukentlig andel, antall og eksess og daglig eksess fordelt på aldersgrupper"
        ),
-       plotOutput(ns("norsyss_plot_trends"), height = "2000px"),
+       uiOutput(ns("norsyss_ui_trends")),
        br(),br(),br()
      )
    )
@@ -246,6 +246,15 @@ norsyss_overview_server <- function(input, output, session, config) {
   })
 
   #plotOutput(ns("norsyss_plot_barometer_location"), height = "5000px")
+
+  output$norsyss_ui_trends <- renderUI({
+    ns <- session$ns
+    req(input$norsyss_tag)
+    req(input$norsyss_location_code)
+
+
+    plotOutput(ns("norsyss_plot_trends"), height = "2000px")
+  })
 
   output$norsyss_plot_trends <- renderCachedPlot({
     req(input$norsyss_tag)
@@ -706,48 +715,77 @@ plot_trends_multiple <- function(tag_outcome, location_code, config){
     )]
   }
 
+  if(location_code %in% config$small_location_codes){
+    title <- cowplot::ggdraw() +
+      cowplot::draw_label(
+        glue::glue(
+          "{names(config$choices_location)[config$choices_location==location_code]}\n",
+          "{names(config$choices_norsyss_tag)[config$choices_norsyss_tag==tag_outcome]}"
+        ),
+        fontface = 'bold',
+        x = 0,
+        hjust = 0,
+        size=30
+      ) +
+      theme(
+        # add margin on the left of the drawing canvas,
+        # so title is aligned with left edge of first plot
+        plot.margin = margin(0, 0, 0, 0)
+      )
 
-  title <- cowplot::ggdraw() +
-    cowplot::draw_label(
-      glue::glue(
-        "{names(config$choices_location)[config$choices_location==location_code]}\n",
-        "{names(config$choices_norsyss_tag)[config$choices_norsyss_tag==tag_outcome]}"
-      ),
-      fontface = 'bold',
-      x = 0,
+    cowplot::plot_grid(
+      title,
+      plot_trends_single(pd, "totalt"),
+      ncol=1,
+      rel_heights = c(0.1, 1),
+      label_x = 0,
       hjust = 0,
-      size=30
-    ) +
-    theme(
-      # add margin on the left of the drawing canvas,
-      # so title is aligned with left edge of first plot
-      plot.margin = margin(0, 0, 0, 0)
+      vjust = 1.4,
+      label_size=26
     )
+  } else {
+    title <- cowplot::ggdraw() +
+      cowplot::draw_label(
+        glue::glue(
+          "{names(config$choices_location)[config$choices_location==location_code]}\n",
+          "{names(config$choices_norsyss_tag)[config$choices_norsyss_tag==tag_outcome]}"
+        ),
+        fontface = 'bold',
+        x = 0,
+        hjust = 0,
+        size=30
+      ) +
+      theme(
+        # add margin on the left of the drawing canvas,
+        # so title is aligned with left edge of first plot
+        plot.margin = margin(0, 0, 0, 0)
+      )
 
-  cowplot::plot_grid(
-    title,
-    plot_trends_single(pd, "totalt"),
-    plot_trends_single(pd, "0-4"),
-    plot_trends_single(pd, "5-14"),
-    plot_trends_single(pd, "15-19"),
-    plot_trends_single(pd, "20-29"),
-    plot_trends_single(pd, "30-64"),
-    plot_trends_single(pd, "65+"),
-    ncol=1,
-    rel_heights = c(0.3, rep(1,7)),
-    labels=c(
-      "",
-      "Totalt",
-      "0-4",
-      "5-14",
-      "15-19",
-      "20-29",
-      "30-64",
-      "65+"
-    ),
-    label_x = 0,
-    hjust = 0,
-    vjust = 1.4,
-    label_size=26
-  )
+    cowplot::plot_grid(
+      title,
+      plot_trends_single(pd, "totalt"),
+      plot_trends_single(pd, "0-4"),
+      plot_trends_single(pd, "5-14"),
+      plot_trends_single(pd, "15-19"),
+      plot_trends_single(pd, "20-29"),
+      plot_trends_single(pd, "30-64"),
+      plot_trends_single(pd, "65+"),
+      ncol=1,
+      rel_heights = c(0.3, rep(1,7)),
+      labels=c(
+        "",
+        "Totalt",
+        "0-4",
+        "5-14",
+        "15-19",
+        "20-29",
+        "30-64",
+        "65+"
+      ),
+      label_x = 0,
+      hjust = 0,
+      vjust = 1.4,
+      label_size=26
+    )
+  }
 }

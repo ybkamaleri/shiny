@@ -207,7 +207,7 @@ covid19_ui <- function(id, config) {
               width=12, align="left",
               br(),
               p(
-                strong("Figur 4."), "Andel konsultasjoner i Norge med covid-19 (mistenkt eller bekreftet) fordelt på aldersgruppe"
+                strong("Figur 4."), "Andel konsultasjoner med covid-19 (mistenkt eller bekreftet) fordelt på aldersgruppe"
               ),
               plotOutput(ns("overview_plot_national_age_burden"), height = "700px"),
               br(),br(),br()
@@ -1292,7 +1292,9 @@ covid19_overview_plot_national_age_burden <- function(
   location_code,
   config
 ){
-  if(get_granularity_geo(location_code) %in% c("nation", "county")){
+  if(location_code %in% config$small_location_codes){
+    no_data()
+  } else if(get_granularity_geo(location_code) %in% c("nation", "county")){
     covid19_overview_plot_national_age_burden_daily(
       location_code = location_code,
       config = config
@@ -1367,7 +1369,7 @@ covid19_overview_plot_national_age_burden_daily <- function(
   q <- q + theme(legend.key.size = unit(1, "cm"))
   q <- q + labs(title = glue::glue(
     "{names(config$choices_location)[config$choices_location==location_code]}\n",
-    "Andel konsultasjoner i Norge med covid-19 (mistenkt eller bekreftet) fordelt på aldersgruppe\n",
+    "Andel konsultasjoner med covid-19 (mistenkt eller bekreftet) fordelt på aldersgruppe\n",
     "Data fra NorSySS"
   ))
   q <- q + labs(caption=glue::glue(
@@ -1432,7 +1434,7 @@ covid19_overview_plot_national_age_burden_weekly <- function(
   q <- q + theme(legend.key.size = unit(1, "cm"))
   q <- q + labs(title = glue::glue(
     "{names(config$choices_location)[config$choices_location==location_code]}\n",
-    "Andel konsultasjoner i Norge med covid-19 (mistenkt eller bekreftet) fordelt på aldersgruppe\n",
+    "Andel konsultasjoner med covid-19 (mistenkt eller bekreftet) fordelt på aldersgruppe\n",
     "Data fra NorSySS"
   ))
   q <- q + labs(caption=glue::glue(
@@ -1447,7 +1449,9 @@ covid19_overview_plot_national_age_trends <- function(
   location_code,
   config
 ){
-  if(get_granularity_geo(location_code) %in% c("nation", "county")){
+  if(location_code %in% config$small_location_codes){
+    no_data()
+  } else if(get_granularity_geo(location_code) %in% c("nation", "county")){
     covid19_overview_plot_national_age_trends_daily(
       location_code = location_code,
       config = config
