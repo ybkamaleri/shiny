@@ -1448,7 +1448,7 @@ covid19_overview_plot_national_source_proportion_weekly <- function(
     breaks = fhiplot::pretty_breaks(5),
     labels = fhiplot::format_nor,
     sec.axis = sec_axis(
-      ~ . * 100 / max_y * max_andel,
+      ~ . * 100 / max_y * max_right,
       breaks = fhiplot::pretty_breaks(5),
       labels = fhiplot::format_nor_perc_0,
       name = "Andel"
