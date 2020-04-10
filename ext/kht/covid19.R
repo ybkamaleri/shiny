@@ -1364,12 +1364,14 @@ covid19_overview_plot_national_source_proportion_weekly <- function(
   ))[censor!=""]
 
 
-  max_y <- max(pd[,.(n=sum(n)),by=.(yrwk)]$n, na.rm=T)+5
+  max_y <- max(pd[,.(n=sum(n)),by=.(yrwk)]$n, na.rm=T)
+  max_y <- max(c(max_y,5))
   min_y_censor <- -0.18*max_y
   min_y_end <- -0.14*max_y*1.01
   min_y_start <- -0.175*max_y*1.01
 
-  max_right <- max(pd_line$andel,na.rm=T)+5
+  max_right <- max(pd_line$andel,na.rm=T)
+  max_right <- max(c(max_right,5))
   pd_line[, andel := max_y * andel / max_right]
 
   q <- ggplot(pd, aes(x=yrwk, y=n))
