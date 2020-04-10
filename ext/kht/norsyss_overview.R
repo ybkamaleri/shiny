@@ -19,7 +19,11 @@ norsyss_overview_ui <- function(id, config) {
           strong("Fylke: "), "Gir en oversikt over det valgte ",
           "fylket i tillegg til en oversikt over alle kommunene i dette fylket.", br(),
           strong("Kommune: "), "Gir en oversikt over den valgte kommunen ",
-          "i tillegg til en oversikt over nabokommunene.", br(), br(),
+          "i tillegg til en oversikt over nabokommunene.",
+          "Vær oppmerksom på at noen kommuner har veldig få konsultasjoner,",
+          "derfor vil ikke trendene kunne brukes på en god måte.",
+          "Kommuner med under 500 innbyggere vil mangle aldersdelte figurer pga anonymitet.",
+          br(), br(),
 
           "Informasjon om dataene kan du se under fanen 'Informasjon'", br(), br(),
 
