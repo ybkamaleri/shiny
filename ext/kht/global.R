@@ -137,3 +137,17 @@ get_dependent_location_codes <- function(location_code){
 
   return(location_codes)
 }
+
+get_free_days <- function(date_start, date_end){
+  dates <- seq.Date(
+    from = as.Date(date_start),
+    to = as.Date(date_end),
+    by = 1
+  )
+  weekends <- dates[lubridate::wday(dates, week_start = 1) %in% c(6,7)]
+  holidays <- fhidata::norway_dates_holidays[date %in% dates & is_holiday==TRUE]$date
+
+  free_days <- sort(unique(c(weekends,holidays)))
+
+  return(free_days)
+}

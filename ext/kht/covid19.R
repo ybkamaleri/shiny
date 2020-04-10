@@ -688,7 +688,6 @@ covid19_norsyss_vs_msis_daily <- function(
 
   d_norsyss[,censor := ""]
   d_norsyss[censor=="" & n>0 & n<5, censor := "N"]
-  d_norsyss[censor=="" & consult_with_influenza>0 & consult_with_influenza<5, censor := "T"]
   d_norsyss[censor != "", n := 0]
   d_norsyss[, value := 100* n / consult_with_influenza]
   d_norsyss[is.nan(value), value := 0]
@@ -711,8 +710,10 @@ covid19_norsyss_vs_msis_daily <- function(
   max_right <- max(d_norsyss$value)+1
   d_norsyss[, scaled_value := value / max_right * max_left]
 
-  weekends <- unique(d_norsyss$date)
-  weekends <- weekends[lubridate::wday(weekends, week_start = 1) %in% c(6,7)]
+  weekends <- get_free_days(
+    date_start = min(d_norsyss$date),
+    date_end = max(d_norsyss$date)
+  )
   weekends <- data.frame(date = weekends)
 
   censored <- d_norsyss[censor!=""]
@@ -820,7 +821,6 @@ covid19_norsyss_vs_msis_weekly <- function(
 
   d_norsyss[,censor := ""]
   d_norsyss[censor=="" & n>0 & n<5, censor := "N"]
-  d_norsyss[censor=="" & consult_with_influenza>0 & consult_with_influenza<5, censor := "T"]
   d_norsyss[censor != "", n := 0]
 
   d_norsyss[, value := 100* n / consult_with_influenza]
@@ -960,7 +960,6 @@ covid19_overview_plot_national_syndromes_proportion_daily <- function(
 
   pd[,censor := ""]
   pd[censor=="" & n>0 & n<5, censor := "N"]
-  pd[censor=="" & consult_with_influenza>0 & consult_with_influenza<5, censor := "T"]
   pd[censor != "", n := 0]
 
   pd[, andel := 100*n/consult_with_influenza]
@@ -1070,7 +1069,6 @@ covid19_overview_plot_national_syndromes_proportion_weekly <- function(
 
   pd[,censor := ""]
   pd[censor=="" & n>0 & n<5, censor := "N"]
-  pd[censor=="" & consult_with_influenza>0 & consult_with_influenza<5, censor := "T"]
   pd[censor != "", n := 0]
 
   pd[, andel := 100*n/consult_with_influenza]
@@ -1230,7 +1228,6 @@ covid19_overview_plot_national_source_proportion_daily <- function(
 
   pd_line[,censor := ""]
   pd_line[censor=="" & n>0 & n<5, censor := "N"]
-  pd_line[censor=="" & consult_with_influenza>0 & consult_with_influenza<5, censor := "T"]
   pd_line[censor != "", n := 0]
 
   pd_line[, andel := 100*n/consult_with_influenza]
@@ -1243,7 +1240,7 @@ covid19_overview_plot_national_source_proportion_daily <- function(
   pd[,total_n:=sum(n),by=.(date)]
   pd[censor=="" & total_n>0 & total_n<5, censor := "N"]
   pd[,total_n:=NULL]
-  pd[censor=="" & consult_with_influenza>0 & consult_with_influenza<5, censor := "T"]
+  pd[censor=="" & consult_with_influenza>0 & consult_with_influenza<5 & stringr::str_detect(tag_outcome, "_o$"), censor := "T"]
   pd[censor != "", n := 0]
 
   censored <- unique(rbind(
@@ -1251,8 +1248,10 @@ covid19_overview_plot_national_source_proportion_daily <- function(
     pd_line[,c("date","censor")]
   ))[censor!=""]
 
-  weekends <- unique(pd$date)
-  weekends <- weekends[lubridate::wday(weekends, week_start = 1) %in% c(6,7)]
+  weekends <- get_free_days(
+    date_start = min(pd$date),
+    date_end = max(pd$date)
+  )
   weekends <- data.frame(date = weekends)
 
   max_y <- max(pd[,.(n=sum(n)),by=.(date)]$n, na.rm=T)+5
@@ -1393,7 +1392,6 @@ covid19_overview_plot_national_source_proportion_weekly <- function(
 
   pd_line[,censor := ""]
   pd_line[censor=="" & n>0 & n<5, censor := "N"]
-  pd_line[censor=="" & consult_with_influenza>0 & consult_with_influenza<5, censor := "T"]
   pd_line[censor != "", n := 0]
 
   pd_line[, andel := 100*n/consult_with_influenza]
@@ -1406,7 +1404,7 @@ covid19_overview_plot_national_source_proportion_weekly <- function(
   pd[,total_n:=sum(n),by=.(yrwk)]
   pd[censor=="" & total_n>0 & total_n<5, censor := "N"]
   pd[,total_n:=NULL]
-  pd[censor=="" & consult_with_influenza>0 & consult_with_influenza<5, censor := "T"]
+  pd[censor=="" & consult_with_influenza>0 & consult_with_influenza<5 & stringr::str_detect(tag_outcome, "_o$"), censor := "T"]
   pd[censor != "", n := 0]
 
   censored <- unique(rbind(
@@ -1531,8 +1529,6 @@ covid19_overview_plot_national_age_burden_daily <- function(
   # sensoring
   pd[,censor := ""]
   pd[censor=="" & n>0 & n<5, censor := "N"]
-  pd[censor=="" & consult_with_influenza>0 & consult_with_influenza<5, censor := "T"]
-  pd[censor=="" & consult_with_influenza_totalt>0 & consult_with_influenza_totalt<5, censor := "T"]
   pd[censor != "", n := 0]
 
   pd[, andel := 100*n/consult_with_influenza_totalt]
@@ -1627,8 +1623,6 @@ covid19_overview_plot_national_age_burden_weekly <- function(
   # sensoring
   pd[,censor := ""]
   pd[censor=="" & n>0 & n<5, censor := "N"]
-  pd[censor=="" & consult_with_influenza>0 & consult_with_influenza<5, censor := "T"]
-  pd[censor=="" & consult_with_influenza_totalt>0 & consult_with_influenza_totalt<5, censor := "T"]
   pd[censor != "", n := 0]
 
   pd[, andel := 100*n/consult_with_influenza_totalt]
@@ -1747,7 +1741,6 @@ covid19_overview_plot_national_age_trends_daily <- function(
 
   pd[,censor := ""]
   pd[censor=="" & n>0 & n<5, censor := "N"]
-  pd[censor=="" & consult_with_influenza>0 & consult_with_influenza<5, censor := "T"]
   pd[censor != "", n := 0]
 
   pd[, andel := 100*n/consult_with_influenza]
@@ -1852,7 +1845,6 @@ covid19_overview_plot_national_age_trends_weekly <- function(
 
   pd[,censor := ""]
   pd[censor=="" & n>0 & n<5, censor := "N"]
-  pd[censor=="" & consult_with_influenza>0 & consult_with_influenza<5, censor := "T"]
   pd[censor != "", n := 0]
 
   pd[, andel := 100*n/consult_with_influenza]
@@ -1979,7 +1971,6 @@ covid19_overview_plot_county_proportion_weekly <- function(
 
   pd[,censor := ""]
   pd[censor=="" & n>0 & n<5, censor := "N"]
-  pd[censor=="" & consult_with_influenza>0 & consult_with_influenza<5, censor := "T"]
   pd[censor != "", n := 0]
 
   pd[, andel := 100*n/consult_with_influenza]
