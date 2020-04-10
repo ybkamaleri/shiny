@@ -25,7 +25,7 @@ covid19_ui <- function(id, config) {
           "Gi gjerne tilbakemeldinger og ønskede endringer via sykdomspulsen@fhi.no", br(), br(),
 
           "Under kan du velge blant to faner som gir deg forskjellig informasjon:", br(),
-          "- ",strong("Oversikt")," fanen vil gi deg en rekke grafer, tabeller og kart hvor du kan velge det geografiske området du er interessert i", br(),
+          "- ",strong("Oversikt")," fanen vil gi deg en rekke figurer, tabeller og kart hvor du kan velge det geografiske området du er interessert i", br(),
           "- ",strong("Informasjon")," fanen gir deg litt mer informasjon om dataene vi bruker", br()
         )
       )
@@ -62,7 +62,7 @@ covid19_ui <- function(id, config) {
                 "koronavirus-sykdom (https://fastlegen.no/artikkel/diagnosekoder-ved-Covid-19). ",
                 "Derfor følger vi også denne diagnosekoden i vår overvåkning av Covid-19.", br(), br(),
 
-                strong("Under vil du se en rekke grafer, kart og tabeller som gir ",
+                strong("Under vil du se en rekke figurer, kart og tabeller som gir ",
                 "en oversikt over det geografiske området du velger i ",
                 "nedtrekksmenyen under. Du kan også begynne å skrive navnet ",
                 "på ønsket fylke eller kommune så vil det automatisk komme ",
@@ -73,9 +73,12 @@ covid19_ui <- function(id, config) {
                 strong("Fylke:"), " Gir en oversikt over det valgte fylket i tillegg ",
                 "til en oversikt over alle kommunene i dette fylket. Fylkesdataene er aggregert på dagsnivå.", br(),
                 strong("Kommune:"), " Gir en oversikt over den valgte kommunen i ",
-                "tillegg til en oversikt over nabokommunene. Vær oppmerksom på at noen kommuner har veldig få konsultasjoner, derfor vil ikke trendene kunne brukes på en god måte. Kommunedataene er aggregert på ukesnivå.", br(), br(),
+                "tillegg til en oversikt over nabokommunene. Kommunedataene er aggregert på ukesnivå.",
+                "Vær oppmerksom på at noen kommuner har veldig få konsultasjoner,",
+                "derfor vil ikke trendene kunne brukes på en god måte.",
+                "Kommuner med under 500 innbyggere vil mangle aldersdelte figurer pga anonymitet.", br(), br(),
 
-                "Informasjon om dataene kan du se under fanen 'Informasjon'",
+                "For mer informasjon om dataene kan du gå til fanen 'Informasjon'",
                 br(),br(),br()
               )
             )
@@ -104,9 +107,9 @@ covid19_ui <- function(id, config) {
                 width=12, align="left",
                 p(
                   strong("Figur 1")," viser antall covid-19 meldinger ",
-                  "til MSIS sammenstilt med andel konsultasjoner ",
+                  "til MSIS (blå søyler) sammenstilt med andel konsultasjoner ",
                   "for covid-19 (mistenkt eller bekreftet) på ",
-                  "legekontor og legevakt (NorSySS). Denne grafen kan gi en ",
+                  "legekontor og legevakt gjennom NorSySS (rød linje). Denne figuren kan gi en ",
                   "oversikt over trendene i MSIS og NorSySS i ",
                   "forhold til hverandre.",
                   br(),
@@ -116,12 +119,16 @@ covid19_ui <- function(id, config) {
                   br(), br(),
                   "Det er noe forsinkelse ",
                   "både i MSIS dataene og NorSySS, derfor ",
-                  "kan grafen endre seg etter hvert."),
+                  "kan figuren endre seg etter hvert."),
                 br(),
 
-                "De røde pilene på x-aksen under grafen indikerer helger og helligdager. ",
+                "De røde pilene på x-aksen under figuren indikerer helger og helligdager. ",
                 "Det er som regel færre konsultasjoner hos lege og legevakt i helger og ",
-                "helligdager enn på hverdager."
+                "helligdager enn på hverdager.",br(),br(),
+
+                "En rød stjerne (*) på x-aksen under figuren indikerer at det er",
+                " mellom 1 og 4 konsultasjoner i nevneren for NorSySS.",
+                " Den røde linjen vil ligge på 0%."
               )
             ),
 
@@ -142,9 +149,10 @@ covid19_ui <- function(id, config) {
               width=12, align="left",
 
               p(
-                strong("Figur 2")," gir en oversikt over trendene for forskjellige luftveisagens. ",
-                "Vi har inkludert andel konsultasjoner av fire forskjellige enkeltstående ",
-                "ICPC-2 diagnosekoder og en kode der vi har samlet en rekke luftveis ",
+                strong("Figur 2")," gir en oversikt over trendene for forskjellige",
+                "luftveisagens. ",
+                "Vi har inkludert andel konsultasjoner av fire forskjellige enkeltstående",
+                " ICPC-2 diagnosekoder og en kode der vi har samlet en rekke luftveis ",
                 "diagnoser (R01, R02, R03, R04, R05, R07, R08, R09, R21, R24, R25, ",
                 "R27, R29, R74, R75, R76, R77, R79, R80, R81, R82, R83, R99). ",
                 "Se i fanen «informasjon» for å få navn på diagnosekodene som er med.",
@@ -158,9 +166,13 @@ covid19_ui <- function(id, config) {
                 "samme geografisk området.",
                 br(), br(),
 
-                "De røde pilene på x-aksen under grafen indikerer helger og helligdager. ",
+                "De røde pilene på x-aksen under figuren indikerer helger og helligdager. ",
                 "Det er som regel færre konsultasjoner hos lege og legevakt i helger og ",
-                "helligdager enn på hverdager."
+                "helligdager enn på hverdager.", br(),br(),
+
+                "En rød stjerne (*) på x-aksen under figuren indikerer at det er",
+                " mellom 1 og 4 konsultasjoner i nevneren.",
+                " Linjen som har mellom 1 og 4 konsultasjoenr vil ligge på 0% i figuren."
               )
             )
           ),
@@ -182,17 +194,23 @@ covid19_ui <- function(id, config) {
               p(
                 strong("Figur 3")," viser fordelingen av konsultasjoner på lege/legevakt ",
                 "og telefon/e-konsultasjon/oppmøte ved hjelp av søyler som skal ",
-                "leses av på x-aksen til venstre på grafen. Den røde linjen viser ",
-                "andel konsultasjoner per dag og skal leses av på høyre side av grafen.",  br(), br(),
+                "leses av på x-aksen til venstre på figuren. Den røde linjen viser ",
+                "andel konsultasjoner per dag og skal leses av på høyre side av figuren.",  br(), br(),
                 "På nasjonalt og fylkesnivå",
                 "vil figuren vise data per dag (dag.måned).",
                 "På kommunenivå vil figuren vise data per uke (år-ukenummer).",br(), br(),
 
                 "Nevneren er totalt antall konsultasjoner per dag i valgt geografiske område.", br(), br(),
 
-                "De røde pilene på x-aksen under grafen indikerer helger og helligdager. ",
+                "De røde pilene på x-aksen under figuren indikerer helger og helligdager. ",
                 "Det er som regel færre konsultasjoner hos lege og legevakt i helger og ",
-                "helligdager enn på hverdager."
+                "helligdager enn på hverdager.", br(),br(),
+
+                "En rød stjerne (*) på x-aksen under figuren indikerer at det er",
+                " mellom 1 og 4 konsultasjoner i enten telleren eller nevneren",
+                " i en av gruppene.",
+                " Den gruppen som har mellom 1 og 4 konsultasjoener",
+                " vil ikke vises i figuren."
               )
             )
           ),
@@ -228,9 +246,15 @@ covid19_ui <- function(id, config) {
                 "På kommunenivå vil figuren vise data per uke (år-ukenummer).",
                 br(), br(),
 
-                "De røde pilene på x-aksen under grafen indikerer helger og helligdager. ",
+                "De røde pilene på x-aksen under figuren indikerer helger og helligdager. ",
                 "Det er som regel færre konsultasjoner hos lege og legevakt i helger og ",
-                "helligdager enn på hverdager."
+                "helligdager enn på hverdager.", br(), br(),
+
+                "En rød stjerne (*) på x-aksen under figuren indikerer at det er",
+                " mellom 1 og 4 konsultasjoner i enten telleren eller nevneren",
+                " i en av gruppene.",
+                " Den gruppen som har mellom 1 og 4 konsultasjoener",
+                " vil ikke vises i figuren."
               )
             )
           ),
@@ -264,9 +288,13 @@ covid19_ui <- function(id, config) {
 
                 br(), br(),
 
-                "De røde pilene på x-aksen under grafen indikerer helger og helligdager. ",
+                "De røde pilene på x-aksen under figuren indikerer helger og helligdager. ",
                 "Det er som regel færre konsultasjoner hos lege og legevakt i helger og ",
-                "helligdager enn på hverdager."
+                "helligdager enn på hverdager.", br(), br(),
+
+                "En rød stjerne (*) istedenfor en søyle indikerer at det er",
+                " mellom 1 og 4 konsultasjoner i enten telleren eller nevneren",
+                " i en av gruppene."
               )
             )
           ),
@@ -291,9 +319,16 @@ covid19_ui <- function(id, config) {
               p(
                 strong("Figur 6")," viser andel konsultasjoner med R991: Covid-19 ",
                 "(mistenkt eller bekreftet) og R27: Engstelig luftveissykdom ",
-                "IKA diagnose per geografisk område.",
+                "IKA diagnose per geografisk område.",br(),
+
                 "Nevneren er totalt antall konsultasjoner per dag i det viste ",
-                "geografiske området."
+                "geografiske området.", br(), br(),
+
+                "En rød stjerne (*) i figuren indikerer at det er",
+                " mellom 1 og 4 konsultasjoner i nevneren",
+                " i en av diagnosekodene.",
+                " Den diagnosekoden som har mellom 1 og 4 konsultasjoener",
+                " vil vises som 0% i figuren."
               )
             )
           ),
@@ -319,11 +354,12 @@ covid19_ui <- function(id, config) {
               p(
                 strong("Figur 7")," viser det geografiske området du har valgt ",
                 "øverst på siden med kumulativt antall konsultasjoner per ",
-                "geografisk område.",
+                "geografisk område.", br(), br(),
+
                 "De kommunene som ikke har legevakt eller legekontor vil ",
-                "bli hvite med røde 'X' i disse kartene da vi ikke har noe data over ",
+                "bli hvite med rødt 'X' i kartet da vi ikke har noe data over ",
                 "disse kommunene. De som bor i disse kommunene drar til ",
-                "legekontor i andre kommuner."
+                "legekontor og legevakt i andre kommuner."
                 )
             )
           ),
@@ -344,11 +380,12 @@ covid19_ui <- function(id, config) {
 
               p(
                 strong("Figur 8")," viser det geografiske området du har valgt ",
-                "øverst på siden med andel konsultasjoner for R991 og R27.",
+                "øverst på siden med andel konsultasjoner for R991 og R27.", br(), br(),
+
                 "De kommunene som ikke har legevakt eller legekontor vil ",
-                "bli hvite med røde 'X' i disse kartene da vi ikke har noe data over ",
+                "bli hvite med rødt 'X' i kartet da vi ikke har noe data over ",
                 "disse kommunene. De som bor i disse kommunene drar til ",
-                "legekontor i andre kommuner."
+                "legekontor og legevakt i andre kommuner."
               )
             )
           ),
@@ -386,15 +423,29 @@ covid19_ui <- function(id, config) {
                 "og sted for konsultasjon.", br(), br(),
 
                 strong("Informasjon om dataene i covid-19 overvåkingen:"), br(),
-                "- Telefon, legekontakt og e-konsultasjon er inkludert", br(),
-                "- Legekontor og legevakt er inkludert", br(),
-                "- Geografisk område basert på stedet for legekonsultasjon, ikke pasientens bosted", br(),
-                 "Dersom du har valgt en av kommunene uten legevakt eller legekontor vil det stå «error» for noen av grafene fordi vi ikke har data.", br(),
-                "- Personene som bor i kommuner uten lege og legevakt benytter legekontor og legevakt i andre kommuner", br(),
-                  "- Det kan være mer enn 14 dager forsinkelse i dataene da de kommer fra KUHR systemet. Dersom det for noen datoer ikke er registrert noen konsultasjoner fra et geografisk område vil dette vises som røde stiplede linjer i grafene.", br(),
                 "- På nasjonalt og fylkesnivå",
                 "vil figuren vise data per dag (dag.måned).",
-                "På kommunenivå vil figuren vise data per uke (år-ukenummer).",br(),br(),
+                "På kommunenivå vil figuren vise data per uke (år-ukenummer).",br(),
+                 "- Geografisk område basert på stedet for legekonsultasjon, ikke pasientens bosted.", br(),
+                 "- Dersom du har valgt en av kommunene uten legevakt eller legekontor vil det stå",
+                 "«error» for noen av figurene fordi vi ikke har data.",
+                "Personene som bor i kommuner uten lege og legevakt benytter legekontor",
+                "og legevakt i andre kommuner.", br(),
+                 "- Kommuner med under 500 innbyggere vil mangle aldersdelte figurer pga anonymitet.", br(),
+                 "- Vær oppmerksom på at noen kommuner har veldig få konsultasjoner,",
+                "derfor vil ikke trendene kunne brukes på en god måte.",  br(),
+                "- Konsultasjoner med telefon, legekontakt og e-konsultasjon er samlet i alle figurene",
+                "bortsett fra figur 3 der de vises hver for seg.", br(),
+                "- Konsultasjoner på både legekontor og legevakt er samlet i alle figurene",
+                "bortsett fra figur 3 der de vises hver for seg.", br(),
+                 "- Ved 1-4 konsultasjoner enten i teller eller nevner vil dataene ikke bli vist,",
+                 "men merket med * i eller under figurene.",br(),
+                "- Den høyeste verdien for andel er 90+.",br(),
+                  "- Det kan være mer enn 14 dager forsinkelse i dataene da de kommer fra KUHR systemet.",
+                  "Dersom det for noen datoer ikke er registrert noen konsultasjoner fra et geografisk område",
+                  "vil dette vises som røde stiplede linjer i figurene.", br(),
+                br(),
+
 
                 strong("Luftvei diagnosekoder (samlet) inneholder:"), br(),
                 "- R01: Smerte luftveier", br(),
@@ -429,7 +480,7 @@ covid19_ui <- function(id, config) {
                 "de andre diagnosekodene da vi ikke har data bakover i tid ",
                 "(regresjonsanalysene i NorSySS inkluderer 5 år bakover i tid).", br(), br(),
 
-                "Antallet konsultasjoner er lavere i ferier og på helligdager. ",
+                "Antallet konsultasjoner er lavere i helger, ferier og på helligdager. ",
                 "Dette er spesielt tydelig rundt jul/nyttår og påske, men også i ",
                 "sommerferieukene.", br(), br(),
 
@@ -745,7 +796,7 @@ covid19_norsyss_vs_msis_daily <- function(
     "Røde piler på x-aksen viser helger og helligdager. Røde * på x-aksen viser sensurerte data\n",
     "Søylene skal leses av på venstre side, den røde linjen skal leses av på høyre side\n",
     "Nevneren på andelen er totalt antall konsultasjoner per dag i valgt geografisk område\n",
-    "R{fhi::nb$oe}de stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
+    "R{fhi::nb$oe}de stiplede vertikale linjer på figuren betyr at ingen konsultasjoner er rapportert på disse dagene\n",
     "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
   ))
   q
@@ -862,7 +913,7 @@ covid19_norsyss_vs_msis_weekly <- function(
     "\nRøde * på x-aksen viser sensurerte data\n",
     "Søylene skal leses av på venstre side, den røde linjen skal leses av på høyre side\n",
     "Nevneren på andelen er totalt antall konsultasjoner per dag i valgt geografisk område\n",
-    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
+    "Røde stiplede vertikale linjer på figuren betyr at ingen konsultasjoner er rapportert på disse dagene\n",
     "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
   ))
   q
@@ -989,7 +1040,7 @@ covid19_overview_plot_national_syndromes_proportion_daily <- function(
     "\nRøde * på x-aksen viser sensurerte data\n",
     "Nevneren er totalt antall konsultasjoner\n",
     "*R- 01, 02, 03, 04, 05, 06, 07, 08, 09, 21, 24, 25, 27, 29, 72, 74, 75, 76, 77, 78, 79, 81, 82, 83, 99, 991\n",
-    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
+    "Røde stiplede vertikale linjer på figuren betyr at ingen konsultasjoner er rapportert på disse dagene\n",
     "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
   ))
   q
@@ -1096,7 +1147,7 @@ covid19_overview_plot_national_syndromes_proportion_weekly <- function(
     "\nRøde * på x-aksen viser sensurerte data\n",
     "Nevneren er totalt antall konsultasjoner\n",
     "*R- 01, 02, 03, 04, 05, 06, 07, 08, 09, 21, 24, 25, 27, 29, 72, 74, 75, 76, 77, 78, 79, 81, 82, 83, 99, 991\n",
-    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
+    "Røde stiplede vertikale linjer på figuren betyr at ingen konsultasjoner er rapportert på disse dagene\n",
     "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
   ))
   q
@@ -1276,7 +1327,7 @@ covid19_overview_plot_national_source_proportion_daily <- function(
     "Røde piler på x-aksen viser helger og helligdager. Røde * på x-aksen viser sensurerte data\n",
     "Søylene skal leses av på venstre side, den røde linjen skal leses av på høyre side\n",
     "Nevneren på andelen er totalt antall konsultasjoner per dag i valgt geografisk område\n",
-    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
+    "Røde stiplede vertikale linjer på figuren betyr at ingen konsultasjoner er rapportert på disse dagene\n",
     "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
   ))
   q
@@ -1421,7 +1472,7 @@ covid19_overview_plot_national_source_proportion_weekly <- function(
     "Røde * på x-aksen viser sensurerte data\n",
     "Søylene skal leses av på venstre side, den røde linjen skal leses av på høyre side\n",
     "Nevneren på andelen er totalt antall konsultasjoner per dag i valgt geografisk område\n",
-    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
+    "Røde stiplede vertikale linjer på figuren betyr at ingen konsultasjoner er rapportert på disse dagene\n",
     "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
   ))
   q
@@ -1537,7 +1588,7 @@ covid19_overview_plot_national_age_burden_daily <- function(
   q <- q + labs(caption=glue::glue(
     "Røde * på x-aksen viser sensurerte data\n",
     "For alle aldersgruppene er nevneren totalt antall konsultasjoner (alle aldersgrupper summert)\n",
-    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
+    "Røde stiplede vertikale linjer på figuren betyr at ingen konsultasjoner er rapportert på disse dagene\n",
     "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
   ))
   q
@@ -1629,7 +1680,7 @@ covid19_overview_plot_national_age_burden_weekly <- function(
   q <- q + labs(caption=glue::glue(
     "Røde * på x-aksen viser sensurerte data\n",
     "For alle aldersgruppene er nevneren totalt antall konsultasjoner (alle aldersgrupper summert)\n",
-    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
+    "Røde stiplede vertikale linjer på figuren betyr at ingen konsultasjoner er rapportert på disse dagene\n",
     "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
   ))
   q
@@ -1752,7 +1803,7 @@ covid19_overview_plot_national_age_trends_daily <- function(
   q <- q + labs(caption=glue::glue(
     "Røde * på x-aksen viser sensurerte data\n",
     "Nevneren er totalt antall konsultasjoner per dato, geografisk område og aldersgruppe\n",
-    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
+    "Røde stiplede vertikale linjer på figuren betyr at ingen konsultasjoner er rapportert på disse dagene\n",
     "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
   ))
   q
@@ -1852,7 +1903,7 @@ covid19_overview_plot_national_age_trends_weekly <- function(
   q <- q + labs(caption=glue::glue(
     "Røde * på x-aksen viser sensurerte data\n",
     "Nevneren er totalt antall konsultasjoner per dato, geografisk område og aldersgruppe\n",
-    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
+    "Røde stiplede vertikale linjer på figuren betyr at ingen konsultasjoner er rapportert på disse dagene\n",
     "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
   ))
   q
@@ -1996,7 +2047,7 @@ covid19_overview_plot_county_proportion_weekly <- function(
   q <- q + labs(caption=glue::glue(
     "Røde * på x-aksen viser sensurerte data\n",
     "Nevneren er totalt antall konsultasjoner per dag i det viste geografiske området.\n",
-    "Røde stiplede vertikale linjer på grafen betyr at ingen konsultasjoner er rapportert på disse dagene\n",
+    "Røde stiplede vertikale linjer på figuren betyr at ingen konsultasjoner er rapportert på disse dagene\n",
     "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
   ))
   q
