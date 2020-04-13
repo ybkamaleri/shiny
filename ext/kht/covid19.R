@@ -736,8 +736,8 @@ covid19_norsyss_vs_msis_daily <- function(
     lwd = 4,
     color="red"
     )
-  if(sum(d_norsyss$no_data)>0){
-    q <- q + geom_vline(data=d_norsyss[no_data==TRUE], mapping=aes(xintercept = date),color= "red", lty=3, lwd=1.5)
+  if(sum(d_norsyss$no_data_norsyss)>0){
+    q <- q + geom_vline(data=d_norsyss[no_data_norsyss==TRUE], mapping=aes(xintercept = date),color= "red", lty=3, lwd=1.5)
   }
   if(nrow(censored)>0){
     q <- q + geom_label(
@@ -866,7 +866,7 @@ covid19_norsyss_vs_msis_weekly <- function(
     lwd = 4,
     color="red"
   )
-  if(sum(d_norsyss$no_data)>0){
+  if(sum(d_norsyss$no_data_norsyss)>0){
     q <- q + geom_vline(data=d_norsyss[no_data_norsyss==TRUE], mapping=aes(xintercept = yrwk),color= "red", lty=3, lwd=1.5)
   }
   if(nrow(censored)>0){
