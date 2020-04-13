@@ -128,7 +128,7 @@ covid19_ui <- function(id, config) {
 
                 "En rød stjerne (*) på x-aksen under figuren indikerer at det er",
                 " mellom 1 og 4 konsultasjoner i nevneren for NorSySS.",
-                " Den røde linjen vil ligge på 0%."
+                " Ved rød stjerne vil den røde linjen ligge på 0%."
               )
             ),
 
@@ -207,8 +207,8 @@ covid19_ui <- function(id, config) {
                 "helligdager enn på hverdager.", br(),br(),
 
                 "En rød stjerne (*) på x-aksen under figuren indikerer at det er",
-                " mellom 1 og 4 konsultasjoner i enten telleren eller nevneren",
-                " i en av gruppene.",
+                " mellom 1 og 4 konsultasjoner i nevneren",
+                " i en av gruppene eller i telleren for Oppmøte.",
                 " Den gruppen som har mellom 1 og 4 konsultasjoener",
                 " vil ikke vises i figuren."
               )
