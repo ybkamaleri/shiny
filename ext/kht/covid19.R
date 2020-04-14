@@ -494,7 +494,7 @@ covid19_ui <- function(id, config) {
                  "men merket med * i eller under figurene.",br(),
                 "- Ved 1-4 konsultasjoner i telleren for graf 3,4 eller 5 vil dataene ikke bli vist",
                 "men merket med * i eller under figurene. For graf 3 gjelder dette kun for oppmøte.",br(),
-                "- Den høyeste verdien for andel er 90+.",br(),
+                "- Den høyeste verdien for andel er 60+.",br(),
                   "- Det kan være mer enn 14 dager forsinkelse i dataene da de kommer fra KUHR systemet.",
                   "Dersom det for noen datoer ikke er registrert noen konsultasjoner fra et geografisk område",
                   "vil dette vises som røde stiplede linjer i figurene.", br(),
@@ -926,7 +926,7 @@ covid19_norsyss_vs_msis_daily <- function(
   d_right[censor != "", n := 0]
   d_right[, value := 100* n / consult_with_influenza]
   d_right[is.nan(value), value := 0]
-  d_right[value>90, value := 90]
+  d_right[value>60, value := 60]
   d_right[, n := NULL]
   d_right[, no_data := consult_with_influenza==0]
   d_right[,consult_with_influenza := NULL]
@@ -993,7 +993,7 @@ covid19_norsyss_vs_msis_weekly <- function(
 
   d_right[, value := 100* n / consult_with_influenza]
   d_right[is.nan(value), value := 0]
-  d_right[value>90, value := 90]
+  d_right[value>60, value := 60]
   d_right[, no_data := consult_with_influenza==0]
   d_right[,consult_with_influenza := NULL]
 
@@ -1075,7 +1075,7 @@ covid19_overview_plot_national_syndromes_proportion_daily <- function(
   pd[, andel := 100*n/consult_with_influenza]
   pd[, no_data := consult_with_influenza==0]
   pd[is.nan(andel), andel := 0]
-  pd[andel > 90, andel := 90]
+  pd[andel > 60, andel := 60]
 
   pd[, name_outcome := factor(
     tag_outcome,
@@ -1159,7 +1159,7 @@ covid19_overview_plot_national_syndromes_proportion_weekly <- function(
   pd[, andel := 100*n/consult_with_influenza]
   pd[, no_data := consult_with_influenza==0]
   pd[is.nan(andel), andel := 0]
-  pd[andel > 90, andel := 90]
+  pd[andel > 60, andel := 60]
 
   pd[, name_outcome := factor(
     tag_outcome,
@@ -1298,7 +1298,7 @@ covid19_overview_plot_national_source_proportion_daily <- function(
   d_right[, andel := 100*n/consult_with_influenza]
   d_right[, no_data := consult_with_influenza==0]
   d_right[is.nan(andel), andel := 0]
-  d_right[andel > 90, andel := 90]
+  d_right[andel > 60, andel := 60]
 
   setnames(d_right, "andel", "value")
 
@@ -1415,7 +1415,7 @@ covid19_overview_plot_national_source_proportion_weekly <- function(
   d_right[, andel := 100*n/consult_with_influenza]
   d_right[, no_data := consult_with_influenza==0]
   d_right[is.nan(andel), andel := 0]
-  d_right[andel > 90, andel := 90]
+  d_right[andel > 60, andel := 60]
 
   setnames(d_right, "andel", "value")
 
@@ -1524,7 +1524,7 @@ covid19_overview_plot_national_age_burden_daily <- function(
   pd[, andel := 100*n/consult_with_influenza_totalt]
   pd[, no_data := consult_with_influenza_totalt==0]
   pd[is.nan(andel), andel := 0]
-  pd[andel > 90, andel := 90]
+  pd[andel > 60, andel := 60]
 
   d_left <- pd
 
@@ -1599,7 +1599,7 @@ covid19_overview_plot_national_age_burden_weekly <- function(
   pd[, andel := 100*n/consult_with_influenza_totalt]
   pd[, no_data := consult_with_influenza_totalt==0]
   pd[is.nan(andel), andel := 0]
-  pd[andel > 90, andel := 90]
+  pd[andel > 60, andel := 60]
 
   d_left <- pd
 
@@ -1703,7 +1703,7 @@ covid19_overview_plot_national_age_trends_daily <- function(
   pd[, andel := 100*n/consult_with_influenza]
   pd[, no_data := consult_with_influenza_totalt==0]
   pd[is.nan(andel), andel := 0]
-  pd[andel > 90, andel := 90]
+  pd[andel > 60, andel := 60]
 
   censored <- unique(pd[,c("date","age","censor")])[censor!=""]
 
@@ -1807,7 +1807,7 @@ covid19_overview_plot_national_age_trends_weekly <- function(
   pd[, andel := 100*n/consult_with_influenza]
   pd[, no_data := consult_with_influenza_totalt==0]
   pd[is.nan(andel), andel := 0]
-  pd[andel > 90, andel := 90]
+  pd[andel > 60, andel := 60]
 
   censored <- unique(pd[,c("yrwk","age","censor")])[censor!=""]
 
@@ -1933,7 +1933,7 @@ covid19_overview_plot_county_proportion_weekly <- function(
   pd[, andel := 100*n/consult_with_influenza]
   pd[, no_data := consult_with_influenza==0]
   pd[is.nan(andel), andel := 0]
-  pd[andel > 90, andel := 90]
+  pd[andel > 60, andel := 60]
 
   censored <- unique(pd[,c("yrwk","location_name","censor")])[censor!=""]
 
@@ -2041,6 +2041,8 @@ covid19_overview_map_county_proportion <- function(
 
     cut_points <- unique(round(c(0, quantile(d$cum_n, probs = c(0.25, 0.5, 0.75, 1)))))
     breaks <- c(-1, cut_points)
+    breaks[breaks>0 & breaks<=5] <- 5
+    breaks <- unique(breaks)
     labels <- paste0(breaks[-length(breaks)]+1, "-", breaks[-1])
     labels[labels=="0-0"] <- "0"
 
