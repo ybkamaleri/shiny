@@ -901,7 +901,7 @@ covid19_norsyss_vs_msis_daily <- function(
 ){
 
   d_left <- pool %>% dplyr::tbl("data_covid19_msis") %>%
-    dplyr::filter(granularity_geo == "day") %>%
+    dplyr::filter(granularity_time == "day") %>%
     dplyr::filter(location_code== !!location_code) %>%
     dplyr::filter(date >= !!config$start_date) %>%
     dplyr::select(date, n) %>%
@@ -967,7 +967,7 @@ covid19_norsyss_vs_msis_weekly <- function(
   config
 ){
   d_left <- pool %>% dplyr::tbl("data_covid19_msis") %>%
-    dplyr::filter(granularity_geo == "week") %>%
+    dplyr::filter(granularity_time == "week") %>%
     dplyr::filter(location_code== !!location_code) %>%
     dplyr::filter(date >= !!config$start_date) %>%
     dplyr::select(yrwk, n) %>%
