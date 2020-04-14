@@ -1455,7 +1455,7 @@ covid19_overview_plot_national_source_proportion_weekly <- function(
       "Data fra NorSySS"
     ),
     labs_caption = glue::glue(
-      "Røde piler på x-aksen viser helger og helligdager. Røde * på x-aksen viser sensurerte data\n",
+      "Røde * på x-aksen viser sensurerte data\n",
       "Søylene skal leses av på venstre side, den røde linjen skal leses av på høyre side\n",
       "Nevneren på andelen er totalt antall konsultasjoner per dato i valgt geografisk område\n",
       "Røde stiplede vertikale linjer på figuren betyr at ingen konsultasjoner er rapportert på disse datoene\n",
