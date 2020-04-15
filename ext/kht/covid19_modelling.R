@@ -150,7 +150,7 @@ dt_covid19_modelling_main <- function(
     c(
       "Dato",
       "Daglig insidens",
-      "Antall smittsom",
+      "Antall smittsomme",
       "Antall i sykehus (ikke ICU)",
       "Antall i ICU"
     )
