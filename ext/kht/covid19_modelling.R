@@ -48,7 +48,7 @@ covid19_modelling_ui <- function(id, config) {
           "Tabellen under viser data for hver 7. dag i valgte geografiske område.", br(),
           "Dataene er basert på modellering og vil derfor ikke alltid passe med det vi ser fra overvåkning.",br(),
           strong("Dato"),
-          "viser datoen for hver tirsdag. Dataene du ser er for disse datoene, ikke aggregert på ukesnivå.", br(),
+          "viser datoen for hver 7. dag. Dataene du ser er for disse datoene, ikke aggregert på ukesnivå.", br(),
           strong("Daglig insidens"),
           "viser forventet antall smittede på den gitte datoen.", br(),
           strong("Antall smittsomme"),
@@ -165,7 +165,7 @@ dt_covid19_modelling_main <- function(
   # )
   tab <- formattable::formattable(
     pd,
-    align = c("l",rep("r", ncol(pd) - 1))
+    align = c("l",rep("c", ncol(pd) - 1))
   )
 
   tab
