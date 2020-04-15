@@ -9,8 +9,7 @@ covid19_modelling_ui <- function(id, config) {
 
         p(
           strong("Under vil du se beregninger fra FHIs spredningsmodell."), br(),
-          "En modell er baseres på beregninger og gir forventet spredning i et område.",
-    br(), br(),
+          "En modell er baseres på beregninger og gir forventet spredning i et område.", br(), br(),
 
            "Under vil du se en tabell som gir ",
            "en oversikt over det geografiske området du velger i ",
@@ -37,11 +36,16 @@ covid19_modelling_ui <- function(id, config) {
           options = NULL,
           width = "400px"
         ),
+        br(),br(),br()
+      )
+    ),
 
+    fluidRow(
+      column(
+        width=12, align="left",
 
-        br(),br(),br(),
         p(
-          "Tabellen under viser data for hver tirsdag i valgte geografiske område.", br(),
+          "Tabellen under viser data for hver 7. dag i valgte geografiske område.", br(),
           "Dataene er basert på modellering og vil derfor ikke alltid passe med det vi ser fra overvåkning.",br(),
           strong("Dato"),
           "viser datoen for hver tirsdag. Dataene du ser er for disse datoene, ikke aggregert på ukesnivå.", br(),
@@ -49,21 +53,22 @@ covid19_modelling_ui <- function(id, config) {
           "viser forventet antall smittede på den gitte datoen.", br(),
           strong("Antall smittsomme"),
           "viser forventet antall smittsomme på den gitte datoen.", br(),
-          strong("Antall i sykehus(ikke ICU)"),
+          strong("Antall i sykehus (ikke ICU)"),
           "viser antallet som er på sykehus på den gitte datoen, men disse tallene inkluderer ikke de som er på intensivavdelingen.",br(),
           strong("Antall i ICU"),
-          "viser antall på intensivavdelingen på den gitte datoen.",
-          br(),br()
-
-
+          "viser antall på intensivavdelingen på den gitte datoen."
         )
       )
     ),
 
    fluidRow(
      column(
-       width=12, align="center",
+       width=12, align="left",
        #DT::dataTableOutput(ns("covid19_modelling_main"), height = "800px"),
+       br(),
+       p(
+         strong("Tabell 1."), " beregninger fra FHIs spredningsmodell for covid-19."
+       ),
        formattable::formattableOutput(ns("covid19_modelling_main"), height="800px"),
        br(),
        br(),
@@ -159,7 +164,8 @@ dt_covid19_modelling_main <- function(
   #   )
   # )
   tab <- formattable::formattable(
-    pd
+    pd,
+    align = c("l",rep("r", ncol(pd) - 1))
   )
 
   tab
