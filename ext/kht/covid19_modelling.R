@@ -57,7 +57,8 @@ covid19_modelling_ui <- function(id, config) {
    fluidRow(
      column(
        width=12, align="center",
-       DT::dataTableOutput(ns("covid19_modelling_main"), height = "800px"),
+       #DT::dataTableOutput(ns("covid19_modelling_main"), height = "800px"),
+       formattable::formattableOutput(ns("covid19_modelling_main"), height="800px"),
        br(),
        br(),
        br(),
@@ -68,7 +69,8 @@ covid19_modelling_ui <- function(id, config) {
 }
 
 covid19_modelling_server <- function(input, output, session, config) {
-  output$covid19_modelling_main <- DT::renderDataTable({
+  #output$covid19_modelling_main <- DT::renderDataTable({
+  output$covid19_modelling_main <- formattable::renderFormattable({
     req(input$covid19_modelling_location_code)
 
     dt_covid19_modelling_main(
@@ -143,12 +145,15 @@ dt_covid19_modelling_main <- function(
     )
   )
 
-  tab <- DT::datatable(
-    pd,
-    rownames = F,
-    options = list(
-      pageLength = 20
-    )
+  # tab <- DT::datatable(
+  #   pd,
+  #   rownames = F,
+  #   options = list(
+  #     pageLength = 20
+  #   )
+  # )
+  tab <- formattable::formattable(
+    pd
   )
 
   tab
