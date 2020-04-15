@@ -47,7 +47,7 @@ covid19_modelling_ui <- function(id, config) {
           "viser antallet som er på sykehus, men ikke inkludert intensivavdelingen",
           strong("Antall i ICU"),
           "viser antall på intensivavdelingen",
-          br(),br(),
+          br(),br()
 
 
         ),
