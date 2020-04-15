@@ -8,7 +8,12 @@ covid19_modelling_ui <- function(id, config) {
         width=12, align="left",
 
         p(
-          "Under vil du se beregninger fra FHIs spredningsmodell.",
+          strong("Under vil du se beregninger fra FHIs spredningsmodell."),
+          "En modell er baseres på beregninger og gir forventet spredning i et område.",
+    br(), br(),
+          strong("Norge:"), " Gir en oversikt over Norge.", br(),
+          strong("Fylke:"), " Gir en oversikt over det valgte fylket.", br(),
+          strong("Kommune:"), " Gir en oversikt over den valgte kommunen.",
           br(),br(),br()
         )
       )
@@ -26,7 +31,26 @@ covid19_modelling_ui <- function(id, config) {
           options = NULL,
           width = "400px"
         ),
-        br(),br(),br()
+
+
+        br(),br(),br(),
+        p(
+          "Tabellen under viser data for hver tirsdag i valgte geografiske område.",
+          "Dataene er basert på modellering og vil derfor ikke alltid passe med det vi ser fra overvåkning.",
+          strong("Dato"),
+          "viser hver tirsdag",
+          strong("Daglig insidens"),
+          "viser forventet antall smittede per dag",
+          strong("Antall smittsomme"),
+          "viser forventet antall smittsomme",
+          strong("Antall i sykehus(ikke ICU)"),
+          "viser antallet som er på sykehus, men ikke inkludert intensivavdelingen",
+          strong("Antall i ICU"),
+          "viser antall på intensivavdelingen",
+          br(),br(),
+
+
+        ),
       )
     ),
 
