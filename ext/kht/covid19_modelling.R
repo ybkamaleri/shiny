@@ -50,7 +50,7 @@ covid19_modelling_ui <- function(id, config) {
           br(),br()
 
 
-        ),
+        )
       )
     ),
 
