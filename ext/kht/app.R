@@ -18,6 +18,7 @@ if (.Platform$OS.type == "windows"){
 source("global.R")
 source("no_data.R")
 source("covid19.R")
+source("covid19_modelling.R")
 source("norsyss.R")
 source("norsyss_overview.R")
 source("norsyss_weekly.R")
@@ -89,6 +90,7 @@ server <- function(input, output, session) {
   )
 
   callModule(covid19_server, "covid19", config=config)
+  callModule(covid19_modelling_server, "covid19_modelling", config=config)
 
   callModule(norsyss_server, "norsyss", config=config)
   callModule(norsyss_overview_server, "norsyss_overview", config=config)
