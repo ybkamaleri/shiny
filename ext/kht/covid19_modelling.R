@@ -8,9 +8,15 @@ covid19_modelling_ui <- function(id, config) {
         width=12, align="left",
 
         p(
-          strong("Under vil du se beregninger fra FHIs spredningsmodell."),
+          strong("Under vil du se beregninger fra FHIs spredningsmodell."), br(),
           "En modell er baseres på beregninger og gir forventet spredning i et område.",
     br(), br(),
+
+           "Under vil du se en tabell som gir ",
+           "en oversikt over det geografiske området du velger i ",
+           "nedtrekksmenyen under. Du kan også begynne å skrive navnet ",
+           "på ønsket fylke eller kommune så vil det automatisk komme ",
+           "opp alternativer.", br(), br(),
           strong("Norge:"), " Gir en oversikt over Norge.", br(),
           strong("Fylke:"), " Gir en oversikt over det valgte fylket.", br(),
           strong("Kommune:"), " Gir en oversikt over den valgte kommunen.",
@@ -35,18 +41,18 @@ covid19_modelling_ui <- function(id, config) {
 
         br(),br(),br(),
         p(
-          "Tabellen under viser data for hver tirsdag i valgte geografiske område.",
-          "Dataene er basert på modellering og vil derfor ikke alltid passe med det vi ser fra overvåkning.",
+          "Tabellen under viser data for hver tirsdag i valgte geografiske område.", br(),
+          "Dataene er basert på modellering og vil derfor ikke alltid passe med det vi ser fra overvåkning.",br(),
           strong("Dato"),
-          "viser hver tirsdag",
+          "viser datoen for hver tirsdag. Dataene du ser er for disse datoene, ikke aggregert på ukesnivå.", br(),
           strong("Daglig insidens"),
-          "viser forventet antall smittede per dag",
+          "viser forventet antall smittede på den gitte datoen.", br(),
           strong("Antall smittsomme"),
-          "viser forventet antall smittsomme",
+          "viser forventet antall smittsomme på den gitte datoen.", br(),
           strong("Antall i sykehus(ikke ICU)"),
-          "viser antallet som er på sykehus, men ikke inkludert intensivavdelingen",
+          "viser antallet som er på sykehus på den gitte datoen, men disse tallene inkluderer ikke de som er på intensivavdelingen.",br(),
           strong("Antall i ICU"),
-          "viser antall på intensivavdelingen",
+          "viser antall på intensivavdelingen på den gitte datoen.",
           br(),br()
 
 
