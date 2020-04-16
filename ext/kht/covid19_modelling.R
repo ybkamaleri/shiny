@@ -75,7 +75,27 @@ covid19_modelling_ui <- function(id, config) {
        br(),
        br()
      )
+   ),
+
+   fluidRow(
+    column(
+      width=12, align="left",
+
+      p(
+        strong("Figur 1")," This is my graph"
+     )
    )
+  ),
+
+  fluidRow(
+    column(
+      width=12, align="left",
+      br(),
+      p(strong("Figur 1.")," this is a figure"),
+      plotOutput(ns("covid19_modelling_plot_1"), height = "700px"),
+      br(),br(),br()
+    )
+  ),
  )
 }
 
@@ -89,6 +109,20 @@ covid19_modelling_server <- function(input, output, session, config) {
       config = config
     )
   })
+
+  output$covid19_modelling_plot_1 <- renderCachedPlot({
+    req(input$covid19_modelling_location_code)
+
+    plot_covid19_modelling_plot_1(
+      location_code = input$covid19_modelling_location_code,
+      config = config
+    )
+  }, cacheKeyExpr={list(
+    input$covid19_modelling_location_code,
+    dev_invalidate_cache
+  )},
+  res = 72
+  )
 }
 
 
@@ -170,3 +204,38 @@ dt_covid19_modelling_main <- function(
 
   tab
 }
+
+
+plot_covid19_modelling_plot_1 <- function(
+  location_code = "norge",
+  config
+){
+
+  location_codes <- get_dependent_location_codes(location_code = location_code)
+
+  # granularity_geo <- get_granularity_geo(location_code)
+
+  pd <- pool %>% dplyr::tbl("data_covid19_model") %>%
+    dplyr::filter(location_code %in% !! location_codes) %>%
+    dplyr::collect()
+  setDT(pd)
+  pd[,date:=as.Date(date)]
+  pd[]
+
+  # merge in the real names
+  pd[
+    fhidata::norway_locations_long_b2020,
+    on = "location_code",
+    location_name := location_name
+    ]
+
+  # only use ggplot2
+
+}
+
+
+
+
+
+
+
