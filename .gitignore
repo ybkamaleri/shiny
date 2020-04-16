@@ -2,3 +2,5 @@
 .Rhistory
 .RData
 .Ruserdata
+ext/kht/raw/norge.RDS
+/raw/*
