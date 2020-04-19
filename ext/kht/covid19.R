@@ -560,7 +560,8 @@ covid19_ui <- function(id, config) {
                 strong("Type konsultasjon:"),br(),
                 strong("Oppmøte"), " inkluderer takstkodene: 2ad, 2ak, 2fk, 11ak, 11ad", br(),
                 strong("Telefonkonsultasjon"), " inkluderer takstkodenene: 1ad, 1ak, 1bd, 1bk, 1h, 1g", br(),
-                strong("e-konsultasjon"), " inkluderer takstkodene: 1be, 2ae", br(), br(),
+                strong("e-konsultasjon"), " inkluderer takstkodene: 1be, 2ae", br(), br(),br(),
+
 
                 strong("Ved tekniske feil, spørsmål eller tilbakemeldinger "),
                 "vennligst send en mail til sykdomspulsen@fhi.no."
