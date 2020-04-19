@@ -89,7 +89,7 @@ covid19_modelling_ui <- function(id, config) {
       column(
         width=12, align="left",
         br(),
-        p(strong("Figur 1.")," this is a figure"),
+        p(strong("Figur 1."),"Daglig insidens"),
         uiOutput(ns("covid19_ui_modelling_incidence")),
         br(),br(),br()
       )
@@ -254,12 +254,26 @@ plot_covid19_modelling_incidence <- function(
   pd[,location_name := factor(location_name, levels = location_names)]
 
 
+
+  ## ## limit for y-axis according to granularity_geo
+  ## ## This is not dynamnic yet!!
+  ## pd[granularity_geo == 'nation', ymin := 0]
+  ## pd[granularity_geo == 'nation', ymax := max(incidence_est)]
+  ## pd[granularity_geo == 'county', ymin := 0]
+  ## pd[granularity_geo == 'county', ymax := max(incidence_thresholdu0)]
+
+
   ## Plotting
   p <- ggplot(pd, aes(date))
   p <- p + geom_ribbon(aes(ymin = incidence_thresholdl0, ymax = incidence_thresholdu0),
                        fill = fhiplot::base_color, alpha = 0.5)
   p <- p + geom_line(aes(y = incidence_est), color = fhiplot::base_color, size = 1.5)
-  p <- p + lemon::facet_rep_wrap( ~ location_name, repeat.tick.labels = "y", ncol = 3)
+  p <- p + lemon::facet_rep_wrap(vars(location_name),
+                                 repeat.tick.labels = "y",
+                                 scales = "free_y",
+                                 ncol = 3)
+  ## p <- p + geom_blank(aes(y = ymin))
+  ## p <- p + geom_blank(aes(y = ymax))
   p <- p + fhiplot::theme_fhi_lines(
     20, panel_on_top = T,
     panel.grid.major.x = element_blank(),
@@ -268,7 +282,6 @@ plot_covid19_modelling_incidence <- function(
   p <- p + geom_vline(xintercept = lubridate::today(), color="red")
   p <- p + fhiplot::set_x_axis_vertical()
 
-  p
-
+p
 
 }
