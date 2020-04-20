@@ -255,7 +255,7 @@ plot_covid19_modelling_incidence <- function(location_code,config){
   location_codes <- get_dependent_location_codes(location_code = location_code)
 
   ## Access DB
-  pd <- pool %>% dplyr::tbl("data_covid19_model") %>%
+pd <- pool %>% dplyr::tbl("data_covid19_model") %>%
     dplyr::filter(location_code %in% !! location_codes) %>%
     dplyr::select(location_code,
                   date, incidence_est,
@@ -293,6 +293,7 @@ plot_covid19_modelling_incidence <- function(location_code,config){
                                  repeat.tick.labels = "y",
                                  scales = "free_y",
                                  ncol = 3)
+
   q <- q + scale_y_continuous(
     "Daglig insidens",
     breaks = fhiplot::pretty_breaks(5),
