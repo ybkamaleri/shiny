@@ -125,7 +125,7 @@ covid19_modelling_ui <- function(id, config) {
       )
     )
 
-    )
+  )
 }
 
 covid19_modelling_server <- function(input, output, session, config) {
@@ -255,7 +255,7 @@ plot_covid19_modelling_incidence <- function(location_code,config){
   location_codes <- get_dependent_location_codes(location_code = location_code)
 
   ## Access DB
-pd <- pool %>% dplyr::tbl("data_covid19_model") %>%
+  pd <- pool %>% dplyr::tbl("data_covid19_model") %>%
     dplyr::filter(location_code %in% !! location_codes) %>%
     dplyr::select(location_code,
                   date, incidence_est,
