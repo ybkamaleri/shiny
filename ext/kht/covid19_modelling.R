@@ -11,19 +11,11 @@ covid19_modelling_ui <- function(id, config) {
           " Tallene som vises er forventet spredning i et område.",
           " Den faktiske spredningen i det gitte området vil kunne avvike fra det som ble beregnet i modellen.",
           br(),br(),
-<<<<<<< HEAD
-           "Under vil du se en tabell som gir ",
-           "en oversikt over det geografiske området du velger i ",
-           "nedtrekksmenyen under. Du kan også begynne å skrive navnet ",
-           "på ønsket fylke eller kommune så vil det automatisk komme ",
-           "opp alternativer.", br(), br(),
-=======
           "Under vil du se en tabell som gir ",
           "en oversikt over det geografiske området du velger i ",
           "nedtrekksmenyen under. Du kan også begynne å skrive navnet ",
           "på ønsket fylke eller kommune så vil det automatisk komme ",
           "opp alternativer.", br(), br(),
->>>>>>> ybk
           strong("Norge:"), " Gir en oversikt over Norge.", br(),
           strong("Fylke:"), " Gir en oversikt over det valgte fylket.", br(),
           strong("Kommune:"), " Gir en oversikt over den valgte kommunen.",
