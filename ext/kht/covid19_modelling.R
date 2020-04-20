@@ -98,6 +98,17 @@ covid19_modelling_ui <- function(id, config) {
       )
     ),
 
+    ## Daglig insidens plot
+    fluidRow(
+      column(
+        width=12, align="left",
+        br(),
+        p(strong("Figur 1."),"Daglig insidens"),
+        uiOutput(ns("covid19_ui_modelling_incidence")),
+        br(),br(),br()
+      )
+    ),
+
     fluidRow(
       column(
         width=12, align="left",
@@ -124,15 +135,6 @@ covid19_modelling_ui <- function(id, config) {
       )
     ),
 
-    fluidRow(
-      column(
-        width=12, align="left",
-        br(),
-        p(strong("Figur 1."),"Daglig insidens"),
-        uiOutput(ns("covid19_ui_modelling_incidence")),
-        br(),br(),br()
-      )
-    ),
     )
 }
 
@@ -265,41 +267,24 @@ plot_covid19_modelling_incidence <- function(
 
   location_codes <- get_dependent_location_codes(location_code = location_code)
 
-  # granularity_geo <- get_granularity_geo(location_code)
-
   pd <- pool %>% dplyr::tbl("data_covid19_model") %>%
     dplyr::filter(location_code %in% !! location_codes) %>%
     dplyr::collect()
   setDT(pd)
   pd[,date:=as.Date(date)]
 
-  # merge in the real names
+  ## merge in the real names
   pd[
     fhidata::norway_locations_long_b2020,
     on = "location_code",
     location_name := location_name
   ]
 
-  ## Sort to make the main appear first
-  ## counties <- pd[!duplicated(location_name) & location_name != "Norge", .(location_name)][[1]]
-
-  ## pd[, location_name := factor(location_name,
-  ##                              levels = c("Norge", counties))]
-
-
+  ## reorder location for facet viewing
   pd[,location_code := factor(location_code, levels = location_codes)]
   setorder(pd,location_code)
   location_names <- unique(pd$location_name)
   pd[,location_name := factor(location_name, levels = location_names)]
-
-
-
-  ## ## limit for y-axis according to granularity_geo
-  ## ## This is not dynamnic yet!!
-  ## pd[granularity_geo == 'nation', ymin := 0]
-  ## pd[granularity_geo == 'nation', ymax := max(incidence_est)]
-  ## pd[granularity_geo == 'county', ymin := 0]
-  ## pd[granularity_geo == 'county', ymax := max(incidence_thresholdu0)]
 
 
   ## Plotting
@@ -311,8 +296,7 @@ plot_covid19_modelling_incidence <- function(
                                  repeat.tick.labels = "y",
                                  scales = "free_y",
                                  ncol = 3)
-  ## p <- p + geom_blank(aes(y = ymin))
-  ## p <- p + geom_blank(aes(y = ymax))
+  p <- p + labs(y = "Daglig insidens", x = "")
   p <- p + fhiplot::theme_fhi_lines(
     20, panel_on_top = T,
     panel.grid.major.x = element_blank(),
