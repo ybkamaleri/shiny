@@ -260,10 +260,7 @@ dt_covid19_modelling_main <- function(
 }
 
 
-plot_covid19_modelling_incidence <- function(
-                                             location_code,
-                                             config
-                                             ){
+plot_covid19_modelling_incidence <- function(location_code,config){
 
   location_codes <- get_dependent_location_codes(location_code = location_code)
 
