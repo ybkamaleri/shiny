@@ -11,11 +11,11 @@ covid19_modelling_ui <- function(id, config) {
           " Tallene som vises er forventet spredning i et område.",
           " Den faktiske spredningen i det gitte området vil kunne avvike fra det som ble beregnet i modellen.",
           br(),br(),
-           "Under vil du se en tabell som gir ",
-           "en oversikt over det geografiske området du velger i ",
-           "nedtrekksmenyen under. Du kan også begynne å skrive navnet ",
-           "på ønsket fylke eller kommune så vil det automatisk komme ",
-           "opp alternativer.", br(), br(),
+          "Under vil du se en tabell som gir ",
+          "en oversikt over det geografiske området du velger i ",
+          "nedtrekksmenyen under. Du kan også begynne å skrive navnet ",
+          "på ønsket fylke eller kommune så vil det automatisk komme ",
+          "opp alternativer.", br(), br(),
           strong("Norge:"), " Gir en oversikt over Norge.", br(),
           strong("Fylke:"), " Gir en oversikt over det valgte fylket.", br(),
           strong("Kommune:"), " Gir en oversikt over den valgte kommunen.",
@@ -123,17 +123,7 @@ covid19_modelling_ui <- function(id, config) {
         br(),
         br()
       )
-    ),
-
-    fluidRow(
-      column(
-        width=12, align="left",
-
-        p(
-          strong("Figur 1")," This is my graph"
-        )
-      )
-    ),
+    )
 
     )
 }
@@ -264,11 +254,21 @@ plot_covid19_modelling_incidence <- function(location_code,config){
 
   location_codes <- get_dependent_location_codes(location_code = location_code)
 
+  ## Access DB
   pd <- pool %>% dplyr::tbl("data_covid19_model") %>%
     dplyr::filter(location_code %in% !! location_codes) %>%
+    dplyr::select(location_code,
+                  date, incidence_est,
+                  incidence_thresholdl0,
+                  incidence_thresholdu0) %>%
     dplyr::collect()
+
+  ## Edit DT
   setDT(pd)
   pd[,date:=as.Date(date)]
+  pd[, incidence_est := round(incidence_est)]
+  pd[, incidence_thresholdl0 := round(incidence_thresholdl0)]
+  pd[, incidence_thresholdu0 := round(incidence_thresholdu0)]
 
   ## merge in the real names
   pd[
@@ -285,23 +285,38 @@ plot_covid19_modelling_incidence <- function(location_code,config){
 
 
   ## Plotting
-  p <- ggplot(pd, aes(date))
-  p <- p + geom_ribbon(aes(ymin = incidence_thresholdl0, ymax = incidence_thresholdu0),
+  q <- ggplot(pd, aes(date))
+  q <- q + geom_ribbon(aes(ymin = incidence_thresholdl0, ymax = incidence_thresholdu0),
                        fill = fhiplot::base_color, alpha = 0.5)
-  p <- p + geom_line(aes(y = incidence_est), color = fhiplot::base_color, size = 1.5)
-  p <- p + lemon::facet_rep_wrap(vars(location_name),
+  q <- q + geom_line(aes(y = incidence_est), color = fhiplot::base_color, size = 1.5)
+  q <- q + lemon::facet_rep_wrap(vars(location_name),
                                  repeat.tick.labels = "y",
                                  scales = "free_y",
                                  ncol = 3)
-  p <- p + labs(y = "Daglig insidens", x = "")
-  p <- p + fhiplot::theme_fhi_lines(
+  q <- q + scale_y_continuous(
+    "Daglig insidens",
+    breaks = fhiplot::pretty_breaks(5),
+    labels = fhiplot::format_nor,
+    expand = expand_scale(mult = c(0, 0.1))
+  )
+  q <- q + scale_x_date(
+    NULL,
+    date_breaks = "2 months",
+    date_labels = "%d.%m"
+  )
+  q <- q + labs(
+    caption = glue::glue("Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}")
+  )
+
+
+  q <- q + fhiplot::theme_fhi_lines(
     20, panel_on_top = T,
     panel.grid.major.x = element_blank(),
     panel.grid.minor.x = element_blank()
   )
-  p <- p + geom_vline(xintercept = lubridate::today(), color="red")
-  p <- p + fhiplot::set_x_axis_vertical()
+  q <- q + geom_vline(xintercept = lubridate::today(), color="red")
+  q <- q + fhiplot::set_x_axis_vertical()
 
-p
+  q
 
 }
