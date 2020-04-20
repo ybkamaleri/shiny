@@ -98,8 +98,11 @@ server <- function(input, output, session) {
   callModule(norsyss_daily_server, "norsyss_daily", config=config)
   callModule(norsyss_purpose_server, "norsyss_purpose", config=config)
 
-
-  session$onSessionEnded(stopApp)
+  
+  if (.Platform$OS.type == "windows"){
+    session$onSessionEnded(stopApp)
+  }
+ 
 }
 
 shinyApp(ui, server, enableBookmarking = "url")
