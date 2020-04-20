@@ -672,7 +672,7 @@ covid19_server <- function(input, output, session, config) {
 
     location_codes <- get_dependent_location_codes(location_code = input$covid_location_code)
     height <- round(250 + 150*ceiling(length(location_codes)/3))
-    height <- max(400, height)
+    height <- max(600, height)
     height <- paste0(height,"px")
     plotOutput(ns("overview_plot_county_proportion"), height = height)
   })
