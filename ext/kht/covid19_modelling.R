@@ -284,6 +284,8 @@ dt_covid19_modelling_main <- function(
 }
 
 
+
+
 plot_covid19_modelling_incidence <- function(location_code,
                                              config,
                                              pd){
@@ -301,18 +303,39 @@ plot_covid19_modelling_incidence <- function(location_code,
   for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
 
 
+  plot_covid19_modelling_generic(incidence_est,
+                                 incidence_thresholdl0,
+                                 incidence_thresholdu0,
+                                 y_title = "Daily incidence")
+
+}
+
+
+
+plot_covid19_modelling_generic <- function(est,
+                                           lower,
+                                           upper,
+                                           y_title){
+
+  pd <- parent.frame()$pd
+
+  est_value <- as.character(substitute(est))
+  est_lower <- as.character(substitute(lower))
+  est_upper <- as.character(substitute(upper))
+
+
   ## Plotting
   q <- ggplot(pd, aes(date))
-  q <- q + geom_ribbon(aes(ymin = incidence_thresholdl0, ymax = incidence_thresholdu0),
+  q <- q + geom_ribbon(aes_string(ymin = est_lower, ymax = est_upper),
                        fill = fhiplot::base_color, alpha = 0.5)
-  q <- q + geom_line(aes(y = incidence_est), color = fhiplot::base_color, size = 1.5)
+  q <- q + geom_line(aes_string(y = est_value), color = fhiplot::base_color, size = 1.5)
   q <- q + lemon::facet_rep_wrap(vars(location_name),
                                  repeat.tick.labels = "y",
                                  scales = "free_y",
                                  ncol = 3)
 
   q <- q + scale_y_continuous(
-    "Daglig insidens",
+    name = y_title,
     breaks = fhiplot::pretty_breaks(5),
     labels = fhiplot::format_nor,
     expand = expand_scale(mult = c(0, 0.1))
