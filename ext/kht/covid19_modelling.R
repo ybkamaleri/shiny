@@ -106,6 +106,17 @@ covid19_modelling_ui <- function(id, config) {
       )
     ),
 
+    ## Infection
+    fluidRow(
+      column(
+        width=12, align="left",
+        br(),
+        p(strong("Figur 2."),"Antall smittsomme"),
+        uiOutput(ns("covid19_ui_modelling_infectious")),
+        br(),br(),br()
+      )
+    ),
+
     fluidRow(
       column(
         width=12, align="left",
@@ -171,7 +182,7 @@ covid19_modelling_server <- function(input, output, session, config) {
   })
 
 
-
+  ## Incidence
   output$covid19_ui_modelling_incidence <- renderUI({
     ns <- session$ns
     req(input$covid19_modelling_location_code)
@@ -201,6 +212,39 @@ covid19_modelling_server <- function(input, output, session, config) {
   )},
   res = 72
   )
+
+  ## Infection
+  output$covid19_ui_modelling_infectious <- renderUI({
+    ns <- session$ns
+    req(input$covid19_modelling_location_code)
+
+
+    location_codes <- get_dependent_location_codes(location_code = input$covid19_modelling_location_code)
+    height <- round(250 + 150*ceiling(length(location_codes)/3))
+    height <- max(400, height)
+    height <- paste0(height,"px")
+
+    plotOutput(ns("covid19_modelling_plot_infectious"), height = height)
+
+  })
+
+
+  output$covid19_modelling_plot_infectious <- renderCachedPlot({
+    req(input$covid19_modelling_location_code)
+
+    plot_covid19_modelling_infectious(
+      location_code = input$covid19_modelling_location_code,
+      config = config,
+      pd = dataModel()
+    )
+  }, cacheKeyExpr={list(
+    input$covid19_modelling_location_code,
+    dev_invalidate_cache
+  )},
+  res = 72
+  )
+
+
 }
 
 
@@ -285,7 +329,7 @@ dt_covid19_modelling_main <- function(
 
 
 
-
+## Incidence
 plot_covid19_modelling_incidence <- function(location_code,
                                              config,
                                              pd){
@@ -306,12 +350,41 @@ plot_covid19_modelling_incidence <- function(location_code,
   plot_covid19_modelling_generic(incidence_est,
                                  incidence_thresholdl0,
                                  incidence_thresholdu0,
+                                 y_title = "Antall smittsomme")
+
+}
+
+
+## Infection
+plot_covid19_modelling_infectious <- function(location_code,
+                                             config,
+                                             pd){
+
+  location_codes <- get_dependent_location_codes(location_code = location_code)
+
+  selectVar <- c("location_code",
+                 "date",
+                 "location_name",
+                 "infectious_prev_est",
+                 "infectious_prev_thresholdl0",
+                 "infectious_prev_thresholdu0")
+
+  pd <- pd[, ..selectVar]
+  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
+
+
+  plot_covid19_modelling_generic(infectious_prev_est,
+                                 infectious_prev_thresholdl0,
+                                 infectious_prev_thresholdu0,
                                  y_title = "Daily incidence")
 
 }
 
 
 
+
+
+## Generic function for plotting
 plot_covid19_modelling_generic <- function(est,
                                            lower,
                                            upper,
