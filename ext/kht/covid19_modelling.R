@@ -45,10 +45,6 @@ covid19_modelling_ui <- function(id, config) {
         width=12, align="left",
 
         p(
-          strong("Tabell 1"),
-          "viser data for hver 7. dag i det valgte geografiske området",
-          " med et estimert tall og 95% konfidens intervall i parentes.",
-          br(), br(),
 
           " Vi benytter en matematisk modell som simulerer spredningen av",
           "covid-19 i Norge over tid og sted. Modellen tar hensyn til",
@@ -80,8 +76,9 @@ covid19_modelling_ui <- function(id, config) {
           " Spredningsmodellen oppdateres foreløpig en gang i uken.",
           " Oppdateringen kan endre tallene da variablene tilpasses ny kunnskap og endringer som skjer i samfunnet.",
           br(),br(),
-          "Mer informasjon om variablene som brukes i modellen kommer i fanen 'Informasjon'.",
-          "Dersom du trenger informasjon før dette blir oppdatert vennligst send oss en e-post til sykdomspulsen@fhi.no.",
+          "Mer informasjon om variablene som brukes i modellen kan du",
+          "finne ",
+          tags$a(href="https://www.fhi.no/sv/smittsomme-sykdommer/corona/koronavirus-modellering/", "her."),
           br(),br(),
 
           strong("Dato"),
@@ -103,7 +100,7 @@ covid19_modelling_ui <- function(id, config) {
       column(
         width=12, align="left",
         br(),
-        p(strong("Figur 1."),"Daglig insidens"),
+        p(strong("Figur 1."),"Daglig insidens med 95% konfidens intervall. Vær oppmerksom på at y-skalaen er forskjellig for de forskjellige geografiske områdene."),
         uiOutput(ns("covid19_ui_modelling_incidence")),
         br(),br(),br()
       )
@@ -115,7 +112,13 @@ covid19_modelling_ui <- function(id, config) {
         #DT::dataTableOutput(ns("covid19_modelling_main"), height = "800px"),
         br(),
         p(
-          strong("Tabell 1."), " beregninger fra FHIs spredningsmodell for covid-19."
+
+          strong("Tabell 1"),
+          "viser beregninger fra FHIs spredningsmodell for covid-19 for hver 7. dag",
+          "i det valgte geografiske området",
+          " med et estimert tall og 95% konfidens intervall i parentes.",
+          br(), br()
+
         ),
         formattable::formattableOutput(ns("covid19_modelling_main"), height="800px"),
         br(),
