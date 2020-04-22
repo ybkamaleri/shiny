@@ -143,6 +143,19 @@ covid19_modelling_server <- function(input, output, session, config) {
   })
 
 
+  ## get modelling data
+  dataModel <- eventReactive(input$covid19_modelling_location_code, {
+
+    location_codes <- get_dependent_location_codes(location_code = input$covid19_modelling_location_code)
+    pd <- pool %>% dplyr::tbl("data_covid19_model") %>%
+      dplyr::filter(location_code %in% !! location_codes) %>%
+      dplyr::collect()
+
+    setDT(pd)
+    pd[,date:=as.Date(date)]
+
+  })
+
   output$covid19_ui_modelling_incidence <- renderUI({
     ns <- session$ns
     req(input$covid19_modelling_location_code)
@@ -162,7 +175,8 @@ covid19_modelling_server <- function(input, output, session, config) {
 
     plot_covid19_modelling_incidence(
       location_code = input$covid19_modelling_location_code,
-      config = config
+      config = config,
+      pd = dataModel()
     )
   }, cacheKeyExpr={list(
     input$covid19_modelling_location_code,
@@ -253,22 +267,26 @@ dt_covid19_modelling_main <- function(
 }
 
 
-plot_covid19_modelling_incidence <- function(location_code,config){
+plot_covid19_modelling_incidence <- function(location_code,
+                                             config,
+                                             pd = dataModel()){
 
   location_codes <- get_dependent_location_codes(location_code = location_code)
 
-  ## Access DB
-  pd <- pool %>% dplyr::tbl("data_covid19_model") %>%
-    dplyr::filter(location_code %in% !! location_codes) %>%
-    dplyr::select(location_code,
-                  date, incidence_est,
-                  incidence_thresholdl0,
-                  incidence_thresholdu0) %>%
-    dplyr::collect()
+  ## ## Access DB
+  ## pd <- pool %>% dplyr::tbl("data_covid19_model") %>%
+  ##   dplyr::filter(location_code %in% !! location_codes) %>%
+  ##   dplyr::select(location_code,
+  ##                 date, incidence_est,
+  ##                 incidence_thresholdl0,
+  ##                 incidence_thresholdu0) %>%
+  ##   dplyr::collect()
 
-  ## Edit DT
-  setDT(pd)
-  pd[,date:=as.Date(date)]
+  ## ## Edit DT
+  ## setDT(pd)
+  ## pd[,date:=as.Date(date)]
+
+
   pd[, incidence_est := round(incidence_est)]
   pd[, incidence_thresholdl0 := round(incidence_thresholdl0)]
   pd[, incidence_thresholdu0 := round(incidence_thresholdu0)]
