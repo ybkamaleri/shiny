@@ -143,7 +143,7 @@ covid19_modelling_server <- function(input, output, session, config) {
   })
 
 
-  ## get modelling data
+  ## get modelling data for estimates
   dataModel <- eventReactive(input$covid19_modelling_location_code, {
 
     location_codes <- get_dependent_location_codes(location_code = input$covid19_modelling_location_code)
@@ -155,6 +155,7 @@ covid19_modelling_server <- function(input, output, session, config) {
     pd[,date:=as.Date(date)]
 
   })
+
 
   output$covid19_ui_modelling_incidence <- renderUI({
     ns <- session$ns
@@ -269,7 +270,7 @@ dt_covid19_modelling_main <- function(
 
 plot_covid19_modelling_incidence <- function(location_code,
                                              config,
-                                             pd = dataModel()){
+                                             pd){
 
   location_codes <- get_dependent_location_codes(location_code = location_code)
 
@@ -286,10 +287,18 @@ plot_covid19_modelling_incidence <- function(location_code,
   ## setDT(pd)
   ## pd[,date:=as.Date(date)]
 
+  selectVar <- c("location_code",
+                 "date",
+                 "incidence_est",
+                 "incidence_thresholdl0",
+                 "incidence_thresholdu0")
 
-  pd[, incidence_est := round(incidence_est)]
-  pd[, incidence_thresholdl0 := round(incidence_thresholdl0)]
-  pd[, incidence_thresholdu0 := round(incidence_thresholdu0)]
+  pd <- pd[, ..selectVar]
+  for (j in selectVar[3:5]) set(pd, j = j, value = round(pd[[j]]))
+
+  ## pd[, incidence_est := round(incidence_est)]
+  ## pd[, incidence_thresholdl0 := round(incidence_thresholdl0)]
+  ## pd[, incidence_thresholdu0 := round(incidence_thresholdu0)]
 
   ## merge in the real names
   pd[
