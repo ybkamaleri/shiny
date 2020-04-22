@@ -76,8 +76,9 @@ covid19_modelling_ui <- function(id, config) {
           " Spredningsmodellen oppdateres foreløpig en gang i uken.",
           " Oppdateringen kan endre tallene da variablene tilpasses ny kunnskap og endringer som skjer i samfunnet.",
           br(),br(),
-          "Mer informasjon om variablene som brukes i modellen kommer i fanen 'Informasjon'.",
-          "Dersom du trenger informasjon før dette blir oppdatert vennligst send oss en e-post til sykdomspulsen@fhi.no.",
+          "Mer informasjon om variablene som brukes i modellen kan du",
+          "finne ",
+          tags$a(href="https://www.fhi.no/sv/smittsomme-sykdommer/corona/koronavirus-modellering/", "her."),
           br(),br(),
 
           strong("Dato"),
@@ -116,7 +117,7 @@ covid19_modelling_ui <- function(id, config) {
           "viser beregninger fra FHIs spredningsmodell for covid-19 for hver 7. dag",
           "i det valgte geografiske området",
           " med et estimert tall og 95% konfidens intervall i parentes.",
-          br(), br(),
+          br(), br()
 
         ),
         formattable::formattableOutput(ns("covid19_modelling_main"), height="800px"),
