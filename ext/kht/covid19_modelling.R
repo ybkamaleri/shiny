@@ -147,6 +147,7 @@ covid19_modelling_server <- function(input, output, session, config) {
   dataModel <- eventReactive(input$covid19_modelling_location_code, {
 
     location_codes <- get_dependent_location_codes(location_code = input$covid19_modelling_location_code)
+
     pd <- pool %>% dplyr::tbl("data_covid19_model") %>%
       dplyr::filter(location_code %in% !! location_codes) %>%
       dplyr::collect()
@@ -157,9 +158,11 @@ covid19_modelling_server <- function(input, output, session, config) {
   })
 
 
+
   output$covid19_ui_modelling_incidence <- renderUI({
     ns <- session$ns
     req(input$covid19_modelling_location_code)
+
 
     location_codes <- get_dependent_location_codes(location_code = input$covid19_modelling_location_code)
     height <- round(250 + 150*ceiling(length(location_codes)/3))
@@ -274,19 +277,6 @@ plot_covid19_modelling_incidence <- function(location_code,
 
   location_codes <- get_dependent_location_codes(location_code = location_code)
 
-  ## ## Access DB
-  ## pd <- pool %>% dplyr::tbl("data_covid19_model") %>%
-  ##   dplyr::filter(location_code %in% !! location_codes) %>%
-  ##   dplyr::select(location_code,
-  ##                 date, incidence_est,
-  ##                 incidence_thresholdl0,
-  ##                 incidence_thresholdu0) %>%
-  ##   dplyr::collect()
-
-  ## ## Edit DT
-  ## setDT(pd)
-  ## pd[,date:=as.Date(date)]
-
   selectVar <- c("location_code",
                  "date",
                  "incidence_est",
@@ -295,10 +285,6 @@ plot_covid19_modelling_incidence <- function(location_code,
 
   pd <- pd[, ..selectVar]
   for (j in selectVar[3:5]) set(pd, j = j, value = round(pd[[j]]))
-
-  ## pd[, incidence_est := round(incidence_est)]
-  ## pd[, incidence_thresholdl0 := round(incidence_thresholdl0)]
-  ## pd[, incidence_thresholdu0 := round(incidence_thresholdu0)]
 
   ## merge in the real names
   pd[
