@@ -155,6 +155,19 @@ covid19_modelling_server <- function(input, output, session, config) {
     setDT(pd)
     pd[,date:=as.Date(date)]
 
+    ## merge in the real names
+    pd[
+      fhidata::norway_locations_long_b2020,
+      on = "location_code",
+      location_name := location_name
+    ]
+
+    ## reorder location for facet viewing
+    pd[,location_code := factor(location_code, levels = location_codes)]
+    setorder(pd,location_code)
+    location_names <- unique(pd$location_name)
+    pd[,location_name := factor(location_name, levels = location_names)]
+
   })
 
 
@@ -279,25 +292,13 @@ plot_covid19_modelling_incidence <- function(location_code,
 
   selectVar <- c("location_code",
                  "date",
+                 "location_name",
                  "incidence_est",
                  "incidence_thresholdl0",
                  "incidence_thresholdu0")
 
   pd <- pd[, ..selectVar]
-  for (j in selectVar[3:5]) set(pd, j = j, value = round(pd[[j]]))
-
-  ## merge in the real names
-  pd[
-    fhidata::norway_locations_long_b2020,
-    on = "location_code",
-    location_name := location_name
-  ]
-
-  ## reorder location for facet viewing
-  pd[,location_code := factor(location_code, levels = location_codes)]
-  setorder(pd,location_code)
-  location_names <- unique(pd$location_name)
-  pd[,location_name := factor(location_name, levels = location_names)]
+  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
 
 
   ## Plotting
