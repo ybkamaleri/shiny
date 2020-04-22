@@ -117,6 +117,30 @@ covid19_modelling_ui <- function(id, config) {
       )
     ),
 
+
+    ## Hospital
+    fluidRow(
+      column(
+        width=12, align="left",
+        br(),
+        p(strong("Figur 3."),"Antall sykehus innleggelse"),
+        uiOutput(ns("covid19_ui_modelling_hosp")),
+        br(),br(),br()
+      )
+    ),
+
+
+    ## ICU
+    fluidRow(
+      column(
+        width=12, align="left",
+        br(),
+        p(strong("Figur 4."),"Antall ICU"),
+        uiOutput(ns("covid19_ui_modelling_icu")),
+        br(),br(),br()
+      )
+    ),
+
     fluidRow(
       column(
         width=12, align="left",
@@ -228,11 +252,74 @@ covid19_modelling_server <- function(input, output, session, config) {
 
   })
 
-
   output$covid19_modelling_plot_infectious <- renderCachedPlot({
     req(input$covid19_modelling_location_code)
 
-    plot_covid19_modelling_infectious(
+    plot_covid19_modelling_hosp(
+      location_code = input$covid19_modelling_location_code,
+      config = config,
+      pd = dataModel()
+    )
+  }, cacheKeyExpr={list(
+    input$covid19_modelling_location_code,
+    dev_invalidate_cache
+  )},
+  res = 72
+  )
+
+
+  ## Hospital
+  output$covid19_ui_modelling_hosp <- renderUI({
+    ns <- session$ns
+    req(input$covid19_modelling_location_code)
+
+
+    location_codes <- get_dependent_location_codes(location_code = input$covid19_modelling_location_code)
+    height <- round(250 + 150*ceiling(length(location_codes)/3))
+    height <- max(400, height)
+    height <- paste0(height,"px")
+
+    plotOutput(ns("covid19_modelling_plot_hosp"), height = height)
+
+  })
+
+
+  output$covid19_modelling_plot_hosp <- renderCachedPlot({
+    req(input$covid19_modelling_location_code)
+
+    plot_covid19_modelling_hosp(
+      location_code = input$covid19_modelling_location_code,
+      config = config,
+      pd = dataModel()
+    )
+  }, cacheKeyExpr={list(
+    input$covid19_modelling_location_code,
+    dev_invalidate_cache
+  )},
+  res = 72
+  )
+
+
+  ## ICU
+  output$covid19_ui_modelling_icu <- renderUI({
+    ns <- session$ns
+    req(input$covid19_modelling_location_code)
+
+
+    location_codes <- get_dependent_location_codes(location_code = input$covid19_modelling_location_code)
+    height <- round(250 + 150*ceiling(length(location_codes)/3))
+    height <- max(400, height)
+    height <- paste0(height,"px")
+
+    plotOutput(ns("covid19_modelling_plot_icu"), height = height)
+
+  })
+
+
+  output$covid19_modelling_plot_icu <- renderCachedPlot({
+    req(input$covid19_modelling_location_code)
+
+    plot_covid19_modelling_icu(
       location_code = input$covid19_modelling_location_code,
       config = config,
       pd = dataModel()
@@ -350,7 +437,7 @@ plot_covid19_modelling_incidence <- function(location_code,
   plot_covid19_modelling_generic(incidence_est,
                                  incidence_thresholdl0,
                                  incidence_thresholdu0,
-                                 y_title = "Antall smittsomme")
+                                 y_title = "Daglig insidens")
 
 }
 
@@ -376,7 +463,62 @@ plot_covid19_modelling_infectious <- function(location_code,
   plot_covid19_modelling_generic(infectious_prev_est,
                                  infectious_prev_thresholdl0,
                                  infectious_prev_thresholdu0,
-                                 y_title = "Daily incidence")
+                                 y_title = "Antall smittsomme")
+
+}
+
+
+
+## Hospital
+plot_covid19_modelling_hosp <- function(location_code,
+                                             config,
+                                             pd){
+
+  location_codes <- get_dependent_location_codes(location_code = location_code)
+
+  selectVar <- c("location_code",
+                 "date",
+                 "location_name",
+                 "hosp_prev_est",
+                 "hosp_prev_thresholdl0",
+                 "hosp_prev_thresholdu0")
+
+  pd <- pd[, ..selectVar]
+  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
+
+
+  plot_covid19_modelling_generic(hosp_prev_est,
+                                 hosp_prev_thresholdl0,
+                                 hosp_prev_thresholdu0,
+                                 y_title = "Antall innleggelse")
+
+}
+
+
+
+
+## ICU
+plot_covid19_modelling_icu <- function(location_code,
+                                             config,
+                                             pd){
+
+  location_codes <- get_dependent_location_codes(location_code = location_code)
+
+  selectVar <- c("location_code",
+                 "date",
+                 "location_name",
+                 "icu_prev_est",
+                 "icu_prev_thresholdl0",
+                 "icu_prev_thresholdu0")
+
+  pd <- pd[, ..selectVar]
+  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
+
+
+  plot_covid19_modelling_generic(icu_prev_est,
+                                 icu_prev_thresholdl0,
+                                 icu_prev_thresholdu0,
+                                 y_title = "Antall ICU")
 
 }
 
