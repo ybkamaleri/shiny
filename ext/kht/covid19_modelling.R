@@ -207,6 +207,7 @@ covid19_modelling_server <- function(input, output, session, config) {
 
 
   ## Incidence
+  ## -----------
   output$covid19_ui_modelling_incidence <- renderUI({
     ns <- session$ns
     req(input$covid19_modelling_location_code)
@@ -238,6 +239,7 @@ covid19_modelling_server <- function(input, output, session, config) {
   )
 
   ## Infection
+  ## ----------
   output$covid19_ui_modelling_infectious <- renderUI({
     ns <- session$ns
     req(input$covid19_modelling_location_code)
@@ -255,7 +257,7 @@ covid19_modelling_server <- function(input, output, session, config) {
   output$covid19_modelling_plot_infectious <- renderCachedPlot({
     req(input$covid19_modelling_location_code)
 
-    plot_covid19_modelling_hosp(
+    plot_covid19_modelling_infectious(
       location_code = input$covid19_modelling_location_code,
       config = config,
       pd = dataModel()
@@ -269,6 +271,7 @@ covid19_modelling_server <- function(input, output, session, config) {
 
 
   ## Hospital
+  ## ---------
   output$covid19_ui_modelling_hosp <- renderUI({
     ns <- session$ns
     req(input$covid19_modelling_location_code)
@@ -301,6 +304,7 @@ covid19_modelling_server <- function(input, output, session, config) {
 
 
   ## ICU
+  ## -------
   output$covid19_ui_modelling_icu <- renderUI({
     ns <- session$ns
     req(input$covid19_modelling_location_code)
