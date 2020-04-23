@@ -61,7 +61,7 @@ config_update_dates <- function(config){
 
 config <- new.env()
 config$ages <- list(
-  "totalt",
+  "total",
   "0-4",
   "5-14",
   "15-19",

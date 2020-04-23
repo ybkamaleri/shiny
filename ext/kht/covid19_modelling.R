@@ -180,10 +180,11 @@ covid19_modelling_server <- function(input, output, session, config) {
 
   ## get modelling data for estimates
   dataModel <- eventReactive(input$covid19_modelling_location_code, {
+    x_location_code <- input$covid19_modelling_location_code
 
-    location_codes <- get_dependent_location_codes(location_code = input$covid19_modelling_location_code)
+    location_codes <- get_dependent_location_codes(location_code = x_location_code)
 
-    pd <- pool %>% dplyr::tbl("data_covid19_model") %>%
+    pd <- pool %>% dplyr::tbl("results_covid19_model") %>%
       dplyr::filter(location_code %in% !! location_codes) %>%
       dplyr::collect()
 
@@ -343,7 +344,7 @@ dt_covid19_modelling_main <- function(
                                       location_code = "norge",
                                       config = config
                                       ){
-  pd <- pool %>% dplyr::tbl("data_covid19_model") %>%
+  pd <- pool %>% dplyr::tbl("results_covid19_model") %>%
     dplyr::filter(location_code == !! location_code) %>%
     dplyr::collect()
   setDT(pd)

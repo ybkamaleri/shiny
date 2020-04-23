@@ -295,7 +295,7 @@ norsyss_overview_server <- function(input, output, session, config) {
 ### PLOTS
 
 plot_barometer_age <- function(
-  tag_outcome = "respiratoryexternal_lt",
+  tag_outcome = "respiratoryexternal_vk_ot",
   location_code = "norge",
   config
   ){
@@ -304,9 +304,9 @@ plot_barometer_age <- function(
 
   min_date1 <- lubridate::today()-7*15
   pd1 <- pool %>% dplyr::tbl("results_norsyss_standard") %>%
-    dplyr::filter(tag_outcome %in% !!tag_outcome) %>%
     dplyr::filter(date >= !!min_date1) %>%
-    dplyr::filter(granularity_time == "weekly") %>%
+    dplyr::filter(tag_outcome %in% !!tag_outcome) %>%
+    dplyr::filter(granularity_time == "week") %>%
     dplyr::filter(location_code %in% !!location_code) %>%
     dplyr::select(granularity_time, date, yrwk, age, location_code, n_status) %>%
     dplyr::collect()
@@ -315,7 +315,7 @@ plot_barometer_age <- function(
   pd2 <- pool %>% dplyr::tbl("results_norsyss_standard") %>%
     dplyr::filter(tag_outcome %in% !!tag_outcome) %>%
     dplyr::filter(date >= !!min_date2) %>%
-    dplyr::filter(granularity_time == "daily") %>%
+    dplyr::filter(granularity_time == "day") %>%
     dplyr::filter(location_code %in% !!location_code) %>%
     dplyr::select(granularity_time, date, yrwk, age, location_code, n_status) %>%
     dplyr::collect()
@@ -333,7 +333,7 @@ plot_barometer_age <- function(
       "15-19",
       "5-14",
       "0-4",
-      "totalt"
+      "total"
     ), labels = c(
       "65+",
       "30-64",
@@ -355,7 +355,7 @@ plot_barometer_age <- function(
     )
   )]
 
-  q <- ggplot(pd[granularity_time=="weekly"], aes(x=yrwk,y=age,fill=n_status))
+  q <- ggplot(pd[granularity_time=="week"], aes(x=yrwk,y=age,fill=n_status))
   q <- q + geom_tile(color="black")
   q <- q + scale_y_discrete("Alder")
   q <- q + scale_x_discrete("Uke")
@@ -376,7 +376,7 @@ plot_barometer_age <- function(
   ))
   q1 <- q
 
-  q <- ggplot(pd[granularity_time=="daily"], aes(x=date,y=age,fill=n_status))
+  q <- ggplot(pd[granularity_time=="day"], aes(x=date,y=age,fill=n_status))
   q <- q + geom_tile(color="black")
   q <- q + scale_y_discrete("Alder")
   q <- q + scale_x_date(
@@ -455,7 +455,7 @@ plot_barameter_location <- function(
   pd_week <- pool %>% dplyr::tbl("results_norsyss_standard") %>%
     dplyr::filter(tag_outcome %in% !!tag_outcome) %>%
     dplyr::filter(date >= !!min_date1) %>%
-    dplyr::filter(granularity_time == "weekly") %>%
+    dplyr::filter(granularity_time == "week") %>%
     dplyr::filter(location_code %in% !!location_codes) %>%
     dplyr::select(granularity_time, date, yrwk, age, location_code, n_status) %>%
     dplyr::collect()
@@ -464,7 +464,7 @@ plot_barameter_location <- function(
   pd_day <- pool %>% dplyr::tbl("results_norsyss_standard") %>%
     dplyr::filter(tag_outcome %in% !!tag_outcome) %>%
     dplyr::filter(date >= !!min_date2) %>%
-    dplyr::filter(granularity_time == "daily") %>%
+    dplyr::filter(granularity_time == "day") %>%
     dplyr::filter(location_code %in% !!location_codes) %>%
     dplyr::select(granularity_time, date, yrwk, age, location_code, n_status) %>%
     dplyr::collect()
@@ -478,7 +478,7 @@ plot_barameter_location <- function(
   pd[, age := factor(
     age,
     levels = c(
-      "totalt",
+      "total",
       "0-4",
       "5-14",
       "15-19",
@@ -520,7 +520,7 @@ plot_barameter_location <- function(
     )
   )]
 
-  q <- ggplot(pd[granularity_time=="weekly"], aes(x=yrwk,y=location_name,fill=n_status))
+  q <- ggplot(pd[granularity_time=="week"], aes(x=yrwk,y=location_name,fill=n_status))
   q <- q + geom_tile(color="black")
   q <- q + scale_y_discrete(NULL)
   q <- q + scale_x_discrete(NULL)
@@ -542,7 +542,7 @@ plot_barameter_location <- function(
   ))
   q_week <- q
 
-  q <- ggplot(pd[granularity_time=="daily"], aes(x=date,y=location_name,fill=n_status))
+  q <- ggplot(pd[granularity_time=="day"], aes(x=date,y=location_name,fill=n_status))
   q <- q + geom_tile(color="black")
   q <- q + scale_y_discrete(NULL)
   q <- q + scale_x_date(
@@ -661,7 +661,7 @@ plot_trends_multiple <- function(tag_outcome, location_code, config){
   pdday <- pool %>% dplyr::tbl("results_norsyss_standard") %>%
     dplyr::filter(tag_outcome == !!tag_outcome) %>%
     dplyr::filter(date >= !!min_date_daily) %>%
-    dplyr::filter(granularity_time == "daily") %>%
+    dplyr::filter(granularity_time == "day") %>%
     dplyr::filter(location_code %in% !!location_code) %>%
     dplyr::collect()
   setDT(pdday)
@@ -670,7 +670,7 @@ plot_trends_multiple <- function(tag_outcome, location_code, config){
   pd <- pool %>% dplyr::tbl("results_norsyss_standard") %>%
     dplyr::filter(tag_outcome == !!tag_outcome) %>%
     dplyr::filter(date >= !!min_date_weekly) %>%
-    dplyr::filter(granularity_time == "weekly") %>%
+    dplyr::filter(granularity_time == "week") %>%
     dplyr::filter(location_code %in% !!location_code) %>%
     dplyr::collect()
   setDT(pd)
@@ -743,7 +743,7 @@ plot_trends_multiple <- function(tag_outcome, location_code, config){
 
     cowplot::plot_grid(
       title,
-      plot_trends_single(pd, "totalt"),
+      plot_trends_single(pd, "total"),
       ncol=1,
       rel_heights = c(0.2, 1),
       label_x = 0,
@@ -771,7 +771,7 @@ plot_trends_multiple <- function(tag_outcome, location_code, config){
 
     cowplot::plot_grid(
       title,
-      plot_trends_single(pd, "totalt"),
+      plot_trends_single(pd, "total"),
       plot_trends_single(pd, "0-4"),
       plot_trends_single(pd, "5-14"),
       plot_trends_single(pd, "15-19"),
