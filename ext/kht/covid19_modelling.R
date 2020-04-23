@@ -106,6 +106,41 @@ covid19_modelling_ui <- function(id, config) {
       )
     ),
 
+    ## Infection
+    fluidRow(
+      column(
+        width=12, align="left",
+        br(),
+        p(strong("Figur 2."),"Antall smittsomme"),
+        uiOutput(ns("covid19_ui_modelling_infectious")),
+        br(),br(),br()
+      )
+    ),
+
+
+    ## Hospital
+    fluidRow(
+      column(
+        width=12, align="left",
+        br(),
+        p(strong("Figur 3."),"Antall sykehus innleggelse"),
+        uiOutput(ns("covid19_ui_modelling_hosp")),
+        br(),br(),br()
+      )
+    ),
+
+
+    ## ICU
+    fluidRow(
+      column(
+        width=12, align="left",
+        br(),
+        p(strong("Figur 4."),"Antall ICU"),
+        uiOutput(ns("covid19_ui_modelling_icu")),
+        br(),br(),br()
+      )
+    ),
+
     fluidRow(
       column(
         width=12, align="left",
@@ -143,9 +178,40 @@ covid19_modelling_server <- function(input, output, session, config) {
   })
 
 
+  ## get modelling data for estimates
+  dataModel <- eventReactive(input$covid19_modelling_location_code, {
+
+    location_codes <- get_dependent_location_codes(location_code = input$covid19_modelling_location_code)
+
+    pd <- pool %>% dplyr::tbl("data_covid19_model") %>%
+      dplyr::filter(location_code %in% !! location_codes) %>%
+      dplyr::collect()
+
+    setDT(pd)
+    pd[,date:=as.Date(date)]
+
+    ## merge in the real names
+    pd[
+      fhidata::norway_locations_long_b2020,
+      on = "location_code",
+      location_name := location_name
+    ]
+
+    ## reorder location for facet viewing
+    pd[,location_code := factor(location_code, levels = location_codes)]
+    setorder(pd,location_code)
+    location_names <- unique(pd$location_name)
+    pd[,location_name := factor(location_name, levels = location_names)]
+
+  })
+
+
+  ## Incidence
+  ## -----------
   output$covid19_ui_modelling_incidence <- renderUI({
     ns <- session$ns
     req(input$covid19_modelling_location_code)
+
 
     location_codes <- get_dependent_location_codes(location_code = input$covid19_modelling_location_code)
     height <- round(250 + 150*ceiling(length(location_codes)/3))
@@ -162,7 +228,8 @@ covid19_modelling_server <- function(input, output, session, config) {
 
     plot_covid19_modelling_incidence(
       location_code = input$covid19_modelling_location_code,
-      config = config
+      config = config,
+      pd = dataModel()
     )
   }, cacheKeyExpr={list(
     input$covid19_modelling_location_code,
@@ -170,6 +237,105 @@ covid19_modelling_server <- function(input, output, session, config) {
   )},
   res = 72
   )
+
+  ## Infection
+  ## ----------
+  output$covid19_ui_modelling_infectious <- renderUI({
+    ns <- session$ns
+    req(input$covid19_modelling_location_code)
+
+
+    location_codes <- get_dependent_location_codes(location_code = input$covid19_modelling_location_code)
+    height <- round(250 + 150*ceiling(length(location_codes)/3))
+    height <- max(400, height)
+    height <- paste0(height,"px")
+
+    plotOutput(ns("covid19_modelling_plot_infectious"), height = height)
+
+  })
+
+  output$covid19_modelling_plot_infectious <- renderCachedPlot({
+    req(input$covid19_modelling_location_code)
+
+    plot_covid19_modelling_infectious(
+      location_code = input$covid19_modelling_location_code,
+      config = config,
+      pd = dataModel()
+    )
+  }, cacheKeyExpr={list(
+    input$covid19_modelling_location_code,
+    dev_invalidate_cache
+  )},
+  res = 72
+  )
+
+
+  ## Hospital
+  ## ---------
+  output$covid19_ui_modelling_hosp <- renderUI({
+    ns <- session$ns
+    req(input$covid19_modelling_location_code)
+
+
+    location_codes <- get_dependent_location_codes(location_code = input$covid19_modelling_location_code)
+    height <- round(250 + 150*ceiling(length(location_codes)/3))
+    height <- max(400, height)
+    height <- paste0(height,"px")
+
+    plotOutput(ns("covid19_modelling_plot_hosp"), height = height)
+
+  })
+
+
+  output$covid19_modelling_plot_hosp <- renderCachedPlot({
+    req(input$covid19_modelling_location_code)
+
+    plot_covid19_modelling_hosp(
+      location_code = input$covid19_modelling_location_code,
+      config = config,
+      pd = dataModel()
+    )
+  }, cacheKeyExpr={list(
+    input$covid19_modelling_location_code,
+    dev_invalidate_cache
+  )},
+  res = 72
+  )
+
+
+  ## ICU
+  ## -------
+  output$covid19_ui_modelling_icu <- renderUI({
+    ns <- session$ns
+    req(input$covid19_modelling_location_code)
+
+
+    location_codes <- get_dependent_location_codes(location_code = input$covid19_modelling_location_code)
+    height <- round(250 + 150*ceiling(length(location_codes)/3))
+    height <- max(400, height)
+    height <- paste0(height,"px")
+
+    plotOutput(ns("covid19_modelling_plot_icu"), height = height)
+
+  })
+
+
+  output$covid19_modelling_plot_icu <- renderCachedPlot({
+    req(input$covid19_modelling_location_code)
+
+    plot_covid19_modelling_icu(
+      location_code = input$covid19_modelling_location_code,
+      config = config,
+      pd = dataModel()
+    )
+  }, cacheKeyExpr={list(
+    input$covid19_modelling_location_code,
+    dev_invalidate_cache
+  )},
+  res = 72
+  )
+
+
 }
 
 
@@ -253,52 +419,142 @@ dt_covid19_modelling_main <- function(
 }
 
 
-plot_covid19_modelling_incidence <- function(location_code,config){
+
+## Incidence
+plot_covid19_modelling_incidence <- function(location_code,
+                                             config,
+                                             pd){
 
   location_codes <- get_dependent_location_codes(location_code = location_code)
 
-  ## Access DB
-  pd <- pool %>% dplyr::tbl("data_covid19_model") %>%
-    dplyr::filter(location_code %in% !! location_codes) %>%
-    dplyr::select(location_code,
-                  date, incidence_est,
-                  incidence_thresholdl0,
-                  incidence_thresholdu0) %>%
-    dplyr::collect()
+  selectVar <- c("location_code",
+                 "date",
+                 "location_name",
+                 "incidence_est",
+                 "incidence_thresholdl0",
+                 "incidence_thresholdu0")
 
-  ## Edit DT
-  setDT(pd)
-  pd[,date:=as.Date(date)]
-  pd[, incidence_est := round(incidence_est)]
-  pd[, incidence_thresholdl0 := round(incidence_thresholdl0)]
-  pd[, incidence_thresholdu0 := round(incidence_thresholdu0)]
+  pd <- pd[, ..selectVar]
+  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
 
-  ## merge in the real names
-  pd[
-    fhidata::norway_locations_long_b2020,
-    on = "location_code",
-    location_name := location_name
-  ]
 
-  ## reorder location for facet viewing
-  pd[,location_code := factor(location_code, levels = location_codes)]
-  setorder(pd,location_code)
-  location_names <- unique(pd$location_name)
-  pd[,location_name := factor(location_name, levels = location_names)]
+  plot_covid19_modelling_generic(incidence_est,
+                                 incidence_thresholdl0,
+                                 incidence_thresholdu0,
+                                 y_title = "Daglig insidens")
+
+}
+
+
+## Infection
+plot_covid19_modelling_infectious <- function(location_code,
+                                             config,
+                                             pd){
+
+  location_codes <- get_dependent_location_codes(location_code = location_code)
+
+  selectVar <- c("location_code",
+                 "date",
+                 "location_name",
+                 "infectious_prev_est",
+                 "infectious_prev_thresholdl0",
+                 "infectious_prev_thresholdu0")
+
+  pd <- pd[, ..selectVar]
+  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
+
+
+  plot_covid19_modelling_generic(infectious_prev_est,
+                                 infectious_prev_thresholdl0,
+                                 infectious_prev_thresholdu0,
+                                 y_title = "Antall smittsomme")
+
+}
+
+
+
+## Hospital
+plot_covid19_modelling_hosp <- function(location_code,
+                                             config,
+                                             pd){
+
+  location_codes <- get_dependent_location_codes(location_code = location_code)
+
+  selectVar <- c("location_code",
+                 "date",
+                 "location_name",
+                 "hosp_prev_est",
+                 "hosp_prev_thresholdl0",
+                 "hosp_prev_thresholdu0")
+
+  pd <- pd[, ..selectVar]
+  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
+
+
+  plot_covid19_modelling_generic(hosp_prev_est,
+                                 hosp_prev_thresholdl0,
+                                 hosp_prev_thresholdu0,
+                                 y_title = "Antall innleggelse")
+
+}
+
+
+
+
+## ICU
+plot_covid19_modelling_icu <- function(location_code,
+                                             config,
+                                             pd){
+
+  location_codes <- get_dependent_location_codes(location_code = location_code)
+
+  selectVar <- c("location_code",
+                 "date",
+                 "location_name",
+                 "icu_prev_est",
+                 "icu_prev_thresholdl0",
+                 "icu_prev_thresholdu0")
+
+  pd <- pd[, ..selectVar]
+  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
+
+
+  plot_covid19_modelling_generic(icu_prev_est,
+                                 icu_prev_thresholdl0,
+                                 icu_prev_thresholdu0,
+                                 y_title = "Antall ICU")
+
+}
+
+
+
+
+
+## Generic function for plotting
+plot_covid19_modelling_generic <- function(est,
+                                           lower,
+                                           upper,
+                                           y_title){
+
+  pd <- parent.frame()$pd
+
+  est_value <- as.character(substitute(est))
+  est_lower <- as.character(substitute(lower))
+  est_upper <- as.character(substitute(upper))
 
 
   ## Plotting
   q <- ggplot(pd, aes(date))
-  q <- q + geom_ribbon(aes(ymin = incidence_thresholdl0, ymax = incidence_thresholdu0),
+  q <- q + geom_ribbon(aes_string(ymin = est_lower, ymax = est_upper),
                        fill = fhiplot::base_color, alpha = 0.5)
-  q <- q + geom_line(aes(y = incidence_est), color = fhiplot::base_color, size = 1.5)
+  q <- q + geom_line(aes_string(y = est_value), color = fhiplot::base_color, size = 1.5)
   q <- q + lemon::facet_rep_wrap(vars(location_name),
                                  repeat.tick.labels = "y",
                                  scales = "free_y",
                                  ncol = 3)
 
   q <- q + scale_y_continuous(
-    "Daglig insidens",
+    name = y_title,
     breaks = fhiplot::pretty_breaks(5),
     labels = fhiplot::format_nor,
     expand = expand_scale(mult = c(0, 0.1))
