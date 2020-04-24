@@ -35,9 +35,19 @@ covid19_modelling_ui <- function(id, config) {
           multiple = FALSE,
           options = NULL,
           width = "400px"
-        ),
-        br(),br(),br()
-      )
+        )
+      ),
+      ## br(),
+      column(
+        width = 12, align = "center",
+        radioButtons(
+          inputId = ns("select_plot_ui"),
+          label = "",
+          choices = list("Hele tidsperiode" = 1, "En måned" = 2),
+          inline = TRUE,
+          selected =
+        )),
+      br(),br(),br()
     ),
 
     fluidRow(
@@ -167,6 +177,7 @@ covid19_modelling_ui <- function(id, config) {
 }
 
 covid19_modelling_server <- function(input, output, session, config) {
+
   #output$covid19_modelling_main <- DT::renderDataTable({
   output$covid19_modelling_main <- formattable::renderFormattable({
     req(input$covid19_modelling_location_code)
@@ -178,8 +189,16 @@ covid19_modelling_server <- function(input, output, session, config) {
   })
 
 
+  ## Subset to a date range. Can be dynamic
+  dateRange <- eventReactive(input$select_plot_ui, {
+    fromDate <- as.Date("2020-03-01")
+    toDate <- fromDate + lubridate::dweeks(4)
+    list(fromDate, toDate)
+  })
+
+
   ## get modelling data for estimates
-  dataModel <- eventReactive(input$covid19_modelling_location_code, {
+  dataModel <- reactive({
     x_location_code <- input$covid19_modelling_location_code
 
     location_codes <- get_dependent_location_codes(location_code = x_location_code)
@@ -190,6 +209,11 @@ covid19_modelling_server <- function(input, output, session, config) {
 
     setDT(pd)
     pd[,date:=as.Date(date)]
+
+    ## Subset for selected date interval
+    if (input$select_plot_ui == 2){
+      pd <- subset(pd, date > dateRange()[[1]] & date < dateRange()[[2]])
+    }
 
     ## merge in the real names
     pd[
@@ -204,7 +228,11 @@ covid19_modelling_server <- function(input, output, session, config) {
     location_names <- unique(pd$location_name)
     pd[,location_name := factor(location_name, levels = location_names)]
 
+    list(pd = pd, opts = input$select_plot_ui)
+
   })
+
+
 
 
   ## Incidence
@@ -234,6 +262,7 @@ covid19_modelling_server <- function(input, output, session, config) {
     )
   }, cacheKeyExpr={list(
     input$covid19_modelling_location_code,
+    input$select_plot_ui,
     dev_invalidate_cache
   )},
   res = 72
@@ -265,6 +294,7 @@ covid19_modelling_server <- function(input, output, session, config) {
     )
   }, cacheKeyExpr={list(
     input$covid19_modelling_location_code,
+    input$select_plot_ui,
     dev_invalidate_cache
   )},
   res = 72
@@ -298,6 +328,7 @@ covid19_modelling_server <- function(input, output, session, config) {
     )
   }, cacheKeyExpr={list(
     input$covid19_modelling_location_code,
+    input$select_plot_ui,
     dev_invalidate_cache
   )},
   res = 72
@@ -331,6 +362,7 @@ covid19_modelling_server <- function(input, output, session, config) {
     )
   }, cacheKeyExpr={list(
     input$covid19_modelling_location_code,
+    input$select_plot_ui,
     dev_invalidate_cache
   )},
   res = 72
@@ -435,9 +467,11 @@ plot_covid19_modelling_incidence <- function(location_code,
                  "incidence_thresholdl0",
                  "incidence_thresholdu0")
 
-  pd <- pd[, ..selectVar]
-  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
+  ## plot type
+  opts <- pd[["opts"]]
 
+  pd <- pd[["pd"]][, ..selectVar]
+  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
 
   plot_covid19_modelling_generic(incidence_est,
                                  incidence_thresholdl0,
@@ -461,9 +495,12 @@ plot_covid19_modelling_infectious <- function(location_code,
                  "infectious_prev_thresholdl0",
                  "infectious_prev_thresholdu0")
 
-  pd <- pd[, ..selectVar]
-  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
 
+  ## plot type
+  opts <- pd[["opts"]]
+
+  pd <- pd[["pd"]][, ..selectVar]
+  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
 
   plot_covid19_modelling_generic(infectious_prev_est,
                                  infectious_prev_thresholdl0,
@@ -488,9 +525,12 @@ plot_covid19_modelling_hosp <- function(location_code,
                  "hosp_prev_thresholdl0",
                  "hosp_prev_thresholdu0")
 
-  pd <- pd[, ..selectVar]
-  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
 
+  ## plot type
+  opts <- pd[["opts"]]
+
+  pd <- pd[["pd"]][, ..selectVar]
+  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
 
   plot_covid19_modelling_generic(hosp_prev_est,
                                  hosp_prev_thresholdl0,
@@ -516,9 +556,11 @@ plot_covid19_modelling_icu <- function(location_code,
                  "icu_prev_thresholdl0",
                  "icu_prev_thresholdu0")
 
-  pd <- pd[, ..selectVar]
-  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
+  ## plot type
+  opts <- pd[["opts"]]
 
+  pd <- pd[["pd"]][, ..selectVar]
+  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
 
   plot_covid19_modelling_generic(icu_prev_est,
                                  icu_prev_thresholdl0,
@@ -527,10 +569,6 @@ plot_covid19_modelling_icu <- function(location_code,
 
 }
 
-
-
-
-
 ## Generic function for plotting
 plot_covid19_modelling_generic <- function(est,
                                            lower,
@@ -538,6 +576,7 @@ plot_covid19_modelling_generic <- function(est,
                                            y_title){
 
   pd <- parent.frame()$pd
+  opts <- parent.frame()$opts
 
   est_value <- as.character(substitute(est))
   est_lower <- as.character(substitute(lower))
@@ -560,11 +599,22 @@ plot_covid19_modelling_generic <- function(est,
     labels = fhiplot::format_nor,
     expand = expand_scale(mult = c(0, 0.1))
   )
-  q <- q + scale_x_date(
-    NULL,
-    date_breaks = "2 months",
-    date_labels = "%d.%m"
-  )
+
+  ## Scale options for different time intervals
+  if(opts == 1){
+    q <- q + scale_x_date(
+      NULL,
+      date_breaks = "2 months",
+      date_labels = "%d.%m"
+    )
+  } else {
+    q <- q + scale_x_date(
+      NULL,
+      date_breaks = "3 days ",
+      date_labels = "%d.%m"
+    )
+  }
+
   q <- q + labs(
     caption = glue::glue("Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}")
   )
