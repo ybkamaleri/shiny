@@ -37,15 +37,14 @@ covid19_modelling_ui <- function(id, config) {
           width = "400px"
         )
       ),
-      ## br(),
       column(
         width = 12, align = "center",
         radioButtons(
           inputId = ns("select_plot_ui"),
-          label = "",
+          label = "Tidsinterval",
           choices = list("Hele tidsperiode" = 1, "En måned" = 2),
           inline = TRUE,
-          selected =
+          selected = 1
         )),
       br(),br(),br()
     ),
@@ -233,21 +232,20 @@ covid19_modelling_server <- function(input, output, session, config) {
   })
 
 
-
-
   ## Incidence
   ## -----------
   output$covid19_ui_modelling_incidence <- renderUI({
     ns <- session$ns
     req(input$covid19_modelling_location_code)
 
-
     location_codes <- get_dependent_location_codes(location_code = input$covid19_modelling_location_code)
     height <- round(250 + 150*ceiling(length(location_codes)/3))
     height <- max(400, height)
     height <- paste0(height,"px")
 
-    plotOutput(ns("covid19_modelling_plot_incidence"), height = height)
+    shinycssloaders::withSpinner(
+      plotOutput(ns("covid19_modelling_plot_incidence"), height = height)
+    )
 
   })
 
@@ -280,8 +278,9 @@ covid19_modelling_server <- function(input, output, session, config) {
     height <- max(400, height)
     height <- paste0(height,"px")
 
-    plotOutput(ns("covid19_modelling_plot_infectious"), height = height)
-
+    shinycssloaders::withSpinner(
+      plotOutput(ns("covid19_modelling_plot_infectious"), height = height)
+    )
   })
 
   output$covid19_modelling_plot_infectious <- renderCachedPlot({
@@ -313,8 +312,9 @@ covid19_modelling_server <- function(input, output, session, config) {
     height <- max(400, height)
     height <- paste0(height,"px")
 
-    plotOutput(ns("covid19_modelling_plot_hosp"), height = height)
-
+    shinycssloaders::withSpinner(
+      plotOutput(ns("covid19_modelling_plot_hosp"), height = height)
+    )
   })
 
 
@@ -347,8 +347,9 @@ covid19_modelling_server <- function(input, output, session, config) {
     height <- max(400, height)
     height <- paste0(height,"px")
 
-    plotOutput(ns("covid19_modelling_plot_icu"), height = height)
-
+    shinycssloaders::withSpinner(
+      plotOutput(ns("covid19_modelling_plot_icu"), height = height)
+    )
   })
 
 

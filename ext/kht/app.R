@@ -1,6 +1,10 @@
 ## app.R ##
 library(shiny)
 library(shinyjs)
+library(shinycssloaders)
+
+## shinycssloaders global optios
+options(list(spinner.type = 6, spinner.color = "#027357"))
 
 if (.Platform$OS.type == "windows"){
   makeActiveBinding('dev_invalidate_cache', function() {
