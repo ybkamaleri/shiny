@@ -40,9 +40,9 @@ covid19_modelling_ui <- function(id, config) {
       column(
         width = 12, align = "center",
         radioButtons(
-          inputId = ns("select_plot_ui"),
-          label = "Tidsinterval",
-          choices = list("Hele tidsperiode" = 1, "En måned" = 2),
+          inputId = ns("select_plot_view"),
+          label = "Tidsrom for visning",
+          choices = list("Hele tidsperiode" = 1, "En måned (zoom)" = 2),
           inline = TRUE,
           selected = 1
         )),
@@ -189,7 +189,7 @@ covid19_modelling_server <- function(input, output, session, config) {
 
 
   ## Subset to a date range. Can be dynamic
-  dateRange <- eventReactive(input$select_plot_ui, {
+  dateRange <- eventReactive(input$select_plot_view, {
     fromDate <- as.Date("2020-03-01")
     toDate <- fromDate + lubridate::dweeks(4)
     list(fromDate, toDate)
@@ -210,7 +210,7 @@ covid19_modelling_server <- function(input, output, session, config) {
     pd[,date:=as.Date(date)]
 
     ## Subset for selected date interval
-    if (input$select_plot_ui == 2){
+    if (input$select_plot_view == 2){
       pd <- subset(pd, date > dateRange()[[1]] & date < dateRange()[[2]])
     }
 
@@ -227,7 +227,7 @@ covid19_modelling_server <- function(input, output, session, config) {
     location_names <- unique(pd$location_name)
     pd[,location_name := factor(location_name, levels = location_names)]
 
-    list(pd = pd, opts = input$select_plot_ui)
+    list(pd = pd, opts = input$select_plot_view)
 
   })
 
@@ -260,7 +260,7 @@ covid19_modelling_server <- function(input, output, session, config) {
     )
   }, cacheKeyExpr={list(
     input$covid19_modelling_location_code,
-    input$select_plot_ui,
+    input$select_plot_view,
     dev_invalidate_cache
   )},
   res = 72
@@ -293,7 +293,7 @@ covid19_modelling_server <- function(input, output, session, config) {
     )
   }, cacheKeyExpr={list(
     input$covid19_modelling_location_code,
-    input$select_plot_ui,
+    input$select_plot_view,
     dev_invalidate_cache
   )},
   res = 72
@@ -328,7 +328,7 @@ covid19_modelling_server <- function(input, output, session, config) {
     )
   }, cacheKeyExpr={list(
     input$covid19_modelling_location_code,
-    input$select_plot_ui,
+    input$select_plot_view,
     dev_invalidate_cache
   )},
   res = 72
@@ -363,7 +363,7 @@ covid19_modelling_server <- function(input, output, session, config) {
     )
   }, cacheKeyExpr={list(
     input$covid19_modelling_location_code,
-    input$select_plot_ui,
+    input$select_plot_view,
     dev_invalidate_cache
   )},
   res = 72
@@ -598,7 +598,7 @@ plot_covid19_modelling_generic <- function(est,
     name = y_title,
     breaks = fhiplot::pretty_breaks(5),
     labels = fhiplot::format_nor,
-    expand = expand_scale(mult = c(0, 0.1))
+    expand = expansion(mult = c(0, 0.1))
   )
 
   ## Scale options for different time intervals
