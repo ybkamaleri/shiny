@@ -132,7 +132,7 @@ covid19_modelling_ui <- function(id, config) {
       column(
         width=12, align="left",
         br(),
-        p(strong("Figur 3."),"Antall sykehus innleggelse"),
+        p(strong("Figur 3."),"Antall sykehus innleggelse (ikke ICU)"),
         uiOutput(ns("covid19_ui_modelling_hosp")),
         br(),br(),br()
       )
@@ -536,7 +536,7 @@ plot_covid19_modelling_hosp <- function(location_code,
   plot_covid19_modelling_generic(hosp_prev_est,
                                  hosp_prev_thresholdl0,
                                  hosp_prev_thresholdu0,
-                                 y_title = "Antall innleggelse")
+                                 y_title = "Antall innleggelse (ikke ICU)")
 
 }
 
@@ -606,7 +606,7 @@ plot_covid19_modelling_generic <- function(est,
     q <- q + scale_x_date(
       NULL,
       date_breaks = "2 months",
-      date_labels = "%d.%m"
+      date_labels = "%b.%Y"
     )
   } else {
     q <- q + scale_x_date(
