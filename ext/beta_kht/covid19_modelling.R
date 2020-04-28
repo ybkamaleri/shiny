@@ -11,11 +11,36 @@ covid19_modelling_ui <- function(id, config) {
           " Tallene som vises er forventet spredning i et område.",
           " Den faktiske spredningen i det gitte området vil kunne avvike fra det som ble beregnet i modellen.",
           br(),br(),
-          "Under vil du se en tabell som gir ",
+          " Vi benytter en matematisk modell som simulerer spredningen av",
+          "covid-19 i Norge over tid og sted. Modellen tar hensyn til",
+          "befolkningsstrukturen i hver kommune, informasjon om bevegelser",
+          "mellom kommunene (med basis i opplysninger fire ganger i døgnet om",
+          "mobiltelefoners bevegelser mellom kommunene). Modellen er en såkalt",
+          "SEIR-modell uten aldersfordeling, uten hensyn til demografiske endringer",
+          "og med tilfeldig miksing mellom mennesker.", br(),
+
+          "Modellen starter med at kjente tilfeller plasseres i tid og sted og dobles.",
+          "I modellen beveger mennesker seg så gjennom stadiene mottakelig (S),",
+          "eksponert og smittet, men ikke smittsom (E), smittsom (I) og immun (eller død)(R).",
+          br(),br(),
+
+          "Resultatene fra modellen er beheftet med usikkerhet på grunn av tilfeldighet i",
+          "smittespredningen, tilfeldighet i mobilitet (om det er smittsomme eller mottakelige",
+          "som reiser for eksempel) og usikkerhet i de tre kalibrerte parameterne.",
+          "I tillegg er det flere kilder til usikkerhet som modellen ikke fanger opp,",
+          "og vi tar ikke høyde for usikkerhet knyttet til modellens øvrige parametre.",
+          "Modellen er en forenklet representasjon av virkeligheten og bygger på en antakelse",
+          "om gjennomsnittlig atferd i befolkningen på tvers av alder.",
+          br(),br(),
+
+          "Under vil du se figurer og en tabell som gir ",
           "en oversikt over det geografiske området du velger i ",
           "nedtrekksmenyen under. Du kan også begynne å skrive navnet ",
           "på ønsket fylke eller kommune så vil det automatisk komme ",
-          "opp alternativer.", br(), br(),
+          "opp alternativer.", br(),
+          "Du kan også velge tidsrom for visning, enten hele tidsperioden",
+          "som det er gjort analyser for, eller en måned.",
+          br(),br(),
           strong("Norge:"), " Gir en oversikt over Norge.", br(),
           strong("Fylke:"), " Gir en oversikt over det valgte fylket.", br(),
           strong("Kommune:"), " Gir en oversikt over den valgte kommunen.",
@@ -55,28 +80,6 @@ covid19_modelling_ui <- function(id, config) {
 
         p(
 
-          " Vi benytter en matematisk modell som simulerer spredningen av",
-          "covid-19 i Norge over tid og sted. Modellen tar hensyn til",
-          "befolkningsstrukturen i hver kommune, informasjon om bevegelser",
-          "mellom kommunene (med basis i opplysninger fire ganger i døgnet om",
-          "mobiltelefoners bevegelser mellom kommunene). Modellen er en såkalt",
-          "SEIR-modell uten aldersfordeling, uten hensyn til demografiske endringer",
-          "og med tilfeldig miksing mellom mennesker.", br(),
-
-          "Modellen starter med at kjente tilfeller plasseres i tid og sted og dobles.",
-          "I modellen beveger mennesker seg så gjennom stadiene mottakelig (S),",
-          "eksponert og smittet, men ikke smittsom (E), smittsom (I) og immun (eller død)(R).",
-          br(),
-
-          "Resultatene fra modellen er beheftet med usikkerhet på grunn av tilfeldighet i",
-          "smittespredningen, tilfeldighet i mobilitet (om det er smittsomme eller mottakelige",
-          "som reiser for eksempel) og usikkerhet i de tre kalibrerte parameterne.",
-          "I tillegg er det flere kilder til usikkerhet som modellen ikke fanger opp,",
-          "og vi tar ikke høyde for usikkerhet knyttet til modellens øvrige parametre.",
-          "Modellen er en forenklet representasjon av virkeligheten og bygger på en antakelse",
-          "om gjennomsnittlig atferd i befolkningen på tvers av alder.",
-          br(),br(),
-
           "Resultatene fra modellen bør tolkes med varsomhet og må alltid ses i sammenheng",
           "med annen informasjon og med epidemiologiske vurderinger.",
           "Som nevnt over er det mange usikkerhetsmomenter og modellen forbedres stadig.",
@@ -90,15 +93,14 @@ covid19_modelling_ui <- function(id, config) {
           tags$a(href="https://www.fhi.no/sv/smittsomme-sykdommer/corona/koronavirus-modellering/", "her."),
           br(),br(),
 
-          strong("Dato"),
-          "viser datoen for hver 7. dag. Dataene du ser er for disse datoene (ikke aggregert på ukesnivå).", br(),
+          strong("Den røde vertikale linjen"), "angir dagens dato", br(),
           strong("Daglig insidens"),
           "viser forventet antall smittede på den gitte datoen.", br(),
           strong("Antall smittsomme"),
           "viser forventet antall smittsomme på den gitte datoen.", br(),
-          strong("Antall i sykehus (ikke ICU)"),
+          strong("Antall på sykehus (ikke ICU)"),
           "viser antallet som er på sykehus på den gitte datoen. Disse tallene inkluderer ikke de som er på intensivavdelingen.",br(),
-          strong("Antall i ICU"),
+          strong("Antall på ICU"),
           "viser antall på intensivavdelingen på den gitte datoen."
         )
       )
@@ -109,7 +111,7 @@ covid19_modelling_ui <- function(id, config) {
       column(
         width=12, align="left",
         br(),
-        p(strong("Figur 1."),"Daglig insidens med 95% konfidens intervall. Vær oppmerksom på at y-skalaen er forskjellig for de forskjellige geografiske områdene."),
+        p(strong("Figur 1."),"Daglig insidens med 95% konfidens intervall. Den røde vertikale linjen angir dagens dato. Vær oppmerksom på at y-skalaen er forskjellig for de forskjellige geografiske områdene."),
         uiOutput(ns("covid19_ui_modelling_incidence")),
         br(),br(),br()
       )
@@ -120,7 +122,7 @@ covid19_modelling_ui <- function(id, config) {
       column(
         width=12, align="left",
         br(),
-        p(strong("Figur 2."),"Antall smittsomme"),
+        p(strong("Figur 2."),"Antall smittsomme med 95% konfidens intervall.  Den røde vertikale linjen angir dagens dato. Vær oppmerksom på at y-skalaen er forskjellig for de forskjellige geografiske områdene."),
         uiOutput(ns("covid19_ui_modelling_infectious")),
         br(),br(),br()
       )
@@ -132,7 +134,7 @@ covid19_modelling_ui <- function(id, config) {
       column(
         width=12, align="left",
         br(),
-        p(strong("Figur 3."),"Antall sykehus innleggelse (ikke ICU)"),
+        p(strong("Figur 3."),"Antall på sykehus (ikke ICU) med 95% konfidens intervall.  Den røde vertikale linjen angir dagens dato. Vær oppmerksom på at y-skalaen er forskjellig for de forskjellige geografiske områdene."),
         uiOutput(ns("covid19_ui_modelling_hosp")),
         br(),br(),br()
       )
@@ -144,7 +146,7 @@ covid19_modelling_ui <- function(id, config) {
       column(
         width=12, align="left",
         br(),
-        p(strong("Figur 4."),"Antall ICU"),
+        p(strong("Figur 4."),"Antall på ICU med 95% konfidens intervall. ICU betyr intensivavdeling.  Den røde vertikale linjen angir dagens dato. Vær oppmerksom på at y-skalaen er forskjellig for de forskjellige geografiske områdene."),
         uiOutput(ns("covid19_ui_modelling_icu")),
         br(),br(),br()
       )
@@ -160,7 +162,9 @@ covid19_modelling_ui <- function(id, config) {
           strong("Tabell 1"),
           "viser beregninger fra FHIs spredningsmodell for covid-19 for hver 7. dag",
           "i det valgte geografiske området",
-          " med et estimert tall og 95% konfidens intervall i parentes.",
+         " med et estimert tall og 95% konfidens intervall i parentes.",
+         "Dataene du ser er for disse datoene (ikke aggregert på ukesnivå).",
+         "Antall på ICU betyr antall på intensivavdeling.",
           br(), br()
 
         ),
@@ -432,8 +436,8 @@ dt_covid19_modelling_main <- function(
       "Dato",
       "Daglig insidens",
       "Antall smittsomme",
-      "Antall i sykehus (ikke ICU)",
-      "Antall i ICU"
+      "Antall på sykehus (ikke ICU)",
+      "Antall på ICU"
     )
   )
 
@@ -536,7 +540,7 @@ plot_covid19_modelling_hosp <- function(location_code,
   plot_covid19_modelling_generic(hosp_prev_est,
                                  hosp_prev_thresholdl0,
                                  hosp_prev_thresholdu0,
-                                 y_title = "Antall innleggelse (ikke ICU)")
+                                 y_title = "Antall på sykehus (ikke ICU)")
 
 }
 
@@ -566,7 +570,7 @@ plot_covid19_modelling_icu <- function(location_code,
   plot_covid19_modelling_generic(icu_prev_est,
                                  icu_prev_thresholdl0,
                                  icu_prev_thresholdu0,
-                                 y_title = "Antall ICU")
+                                 y_title = "Antall på ICU")
 
 }
 
