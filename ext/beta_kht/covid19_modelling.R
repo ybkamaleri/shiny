@@ -190,8 +190,8 @@ covid19_modelling_server <- function(input, output, session, config) {
 
   ## Subset to a date range. Can be dynamic
   dateRange <- eventReactive(input$select_plot_view, {
-    fromDate <- lubridate::today()
-    toDate <- fromDate + lubridate::dweeks(4)
+    fromDate <- lubridate::today()-7
+    toDate <- fromDate + 7*5
     list(fromDate, toDate)
   })
 
