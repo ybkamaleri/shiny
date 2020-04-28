@@ -109,7 +109,7 @@ norsyss_overview_ui <- function(id, config) {
        p(
          strong("Figur 1."), "Ukentlig og daglig oversikt fordelt på aldersgrupper"
         ),
-       plotOutput(ns("norsyss_plot_barometer_age"), height = "600px"),
+       shinycssloaders::withSpinner(plotOutput(ns("norsyss_plot_barometer_age"), height = "600px")),
        br(), br(), br()
      )
    ),
@@ -158,7 +158,7 @@ norsyss_overview_ui <- function(id, config) {
        ),
        uiOutput(ns("norsyss_ui_barometer_location")),
        br(), br(), br()
-       #plotOutput(ns("norsyss_plot_barometer_location"), height = "5000px")
+       #shinycssloaders::withSpinnerplotOutput(ns("norsyss_plot_barometer_location"), height = "5000px")
      )
    ),
 
@@ -246,10 +246,10 @@ norsyss_overview_server <- function(input, output, session, config) {
     height <- round(200*length(location_codes))
     height <- max(1000, height)
     height <- paste0(height,"px")
-    plotOutput(ns("norsyss_plot_barometer_location"), height = height)
+    shinycssloaders::withSpinner(plotOutput(ns("norsyss_plot_barometer_location"), height = height))
   })
 
-  #plotOutput(ns("norsyss_plot_barometer_location"), height = "5000px")
+  #shinycssloaders::withSpinnerplotOutput(ns("norsyss_plot_barometer_location"), height = "5000px")
 
   output$norsyss_ui_trends <- renderUI({
     ns <- session$ns
@@ -261,7 +261,7 @@ norsyss_overview_server <- function(input, output, session, config) {
     } else {
       height <- "2000px"
     }
-    plotOutput(ns("norsyss_plot_trends"), height = height)
+    shinycssloaders::withSpinner(plotOutput(ns("norsyss_plot_trends"), height = height))
   })
 
   output$norsyss_plot_trends <- renderCachedPlot({

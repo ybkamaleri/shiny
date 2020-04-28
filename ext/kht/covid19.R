@@ -148,7 +148,7 @@ covid19_ui <- function(id, config) {
                   strong("Figur 1.")," Antall covid-19 meldinger til MSIS og andel konsultasjoner for ",
                   "covid-19 (mistenkte eller bekreftet) på legekontor og legevakt"
                 ),
-                plotOutput(ns("overview_norsyss_vs_msis"), height = "700px"),
+                shinycssloaders::withSpinner(plotOutput(ns("overview_norsyss_vs_msis"), height = "700px")),
                 br(),br(),br()
               )
             ),
@@ -192,7 +192,7 @@ covid19_ui <- function(id, config) {
               width=12, align="left",
               br(),
               p(strong("Figur 2.")," Andel konsultasjoner med forskjellig luftveisagens."),
-              plotOutput(ns("overview_plot_national_syndromes_proportion"), height = "700px"),
+              shinycssloaders::withSpinner(plotOutput(ns("overview_plot_national_syndromes_proportion"), height = "700px")),
               br(),br(),br()
             )
           ),
@@ -234,7 +234,7 @@ covid19_ui <- function(id, config) {
                 strong("Figur 3."), " Antall konsultasjoner for covid-19 fordelt på type ",
                 "konsultasjon samt andel konsultasjoner for covid-19."
               ),
-              plotOutput(ns("overview_plot_national_source_proportion"), height = "700px"),
+              shinycssloaders::withSpinner(plotOutput(ns("overview_plot_national_source_proportion"), height = "700px")),
               br(),br(),br()
             )
           ),
@@ -278,7 +278,7 @@ covid19_ui <- function(id, config) {
               p(
                 strong("Figur 4."), "Andel konsultasjoner med covid-19 (mistenkt eller bekreftet) fordelt på aldersgruppe"
               ),
-              plotOutput(ns("overview_plot_national_age_burden"), height = "700px"),
+              shinycssloaders::withSpinner(plotOutput(ns("overview_plot_national_age_burden"), height = "700px")),
               br(),br(),br()
             )
           ),
@@ -320,7 +320,7 @@ covid19_ui <- function(id, config) {
                 strong("Figur 5."), " Andel konsultasjoner med covid-19 (mistenkt eller bekreftet) ",
                 "fordelt på aldersgrupper"
               ),
-              plotOutput(ns("overview_plot_national_age_trends"), height = "700px"),
+              shinycssloaders::withSpinner(plotOutput(ns("overview_plot_national_age_trends"), height = "700px")),
               br(),br(),br()
             )
           ),
@@ -358,7 +358,7 @@ covid19_ui <- function(id, config) {
               ),
               uiOutput(ns("overview_ui_county_proportion")),
               br(),br(),br()
-              #plotOutput(ns("overview_plot_county_proportion"), height = "900px")
+              #shinycssloaders::withSpinnerplotOutput(ns("overview_plot_county_proportion"), height = "900px")
             )
           ),
 
@@ -384,7 +384,7 @@ covid19_ui <- function(id, config) {
               width=12, align="left",
               br(),
               p(strong("Figure 7.")),
-              plotOutput(ns("overview_map_county_proportion"), height = "600px"),
+              shinycssloaders::withSpinner(plotOutput(ns("overview_map_county_proportion"), height = "600px")),
               br(),br(),br()
             )
           ),
@@ -410,7 +410,7 @@ covid19_ui <- function(id, config) {
               width=12, align="left",
               br(),
               p(strong("Figure 8.")),
-              plotOutput(ns("overview_map_county_proportion_2"), height = "600px"),
+              shinycssloaders::withSpinner(plotOutput(ns("overview_map_county_proportion_2"), height = "600px")),
               br(),br(),br()
             )
           )
@@ -674,7 +674,7 @@ covid19_server <- function(input, output, session, config) {
     height <- round(250 + 150*ceiling(length(location_codes)/3))
     height <- max(600, height)
     height <- paste0(height,"px")
-    plotOutput(ns("overview_plot_county_proportion"), height = height)
+    shinycssloaders::withSpinner(plotOutput(ns("overview_plot_county_proportion"), height = height))
   })
 
   output$overview_map_county_proportion <- renderCachedPlot({
