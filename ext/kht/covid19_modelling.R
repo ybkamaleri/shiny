@@ -35,9 +35,18 @@ covid19_modelling_ui <- function(id, config) {
           multiple = FALSE,
           options = NULL,
           width = "400px"
-        ),
-        br(),br(),br()
-      )
+        )
+      ),
+      column(
+        width = 12, align = "center",
+        radioButtons(
+          inputId = ns("select_plot_view"),
+          label = "Tidsrom for visning",
+          choices = list("Hele tidsperiode" = 1, "En måned (zoom)" = 2),
+          inline = TRUE,
+          selected = 1
+        )),
+      br(),br(),br()
     ),
 
     fluidRow(
@@ -123,7 +132,7 @@ covid19_modelling_ui <- function(id, config) {
       column(
         width=12, align="left",
         br(),
-        p(strong("Figur 3."),"Antall sykehus innleggelse"),
+        p(strong("Figur 3."),"Antall sykehus innleggelse (ikke ICU)"),
         uiOutput(ns("covid19_ui_modelling_hosp")),
         br(),br(),br()
       )
@@ -167,6 +176,7 @@ covid19_modelling_ui <- function(id, config) {
 }
 
 covid19_modelling_server <- function(input, output, session, config) {
+
   #output$covid19_modelling_main <- DT::renderDataTable({
   output$covid19_modelling_main <- formattable::renderFormattable({
     req(input$covid19_modelling_location_code)
@@ -178,8 +188,16 @@ covid19_modelling_server <- function(input, output, session, config) {
   })
 
 
+  ## Subset to a date range. Can be dynamic
+  dateRange <- eventReactive(input$select_plot_view, {
+    fromDate <- as.Date("2020-03-01")
+    toDate <- fromDate + lubridate::dweeks(4)
+    list(fromDate, toDate)
+  })
+
+
   ## get modelling data for estimates
-  dataModel <- eventReactive(input$covid19_modelling_location_code, {
+  dataModel <- reactive({
     x_location_code <- input$covid19_modelling_location_code
 
     location_codes <- get_dependent_location_codes(location_code = x_location_code)
@@ -190,6 +208,11 @@ covid19_modelling_server <- function(input, output, session, config) {
 
     setDT(pd)
     pd[,date:=as.Date(date)]
+
+    ## Subset for selected date interval
+    if (input$select_plot_view == 2){
+      pd <- subset(pd, date > dateRange()[[1]] & date < dateRange()[[2]])
+    }
 
     ## merge in the real names
     pd[
@@ -204,6 +227,8 @@ covid19_modelling_server <- function(input, output, session, config) {
     location_names <- unique(pd$location_name)
     pd[,location_name := factor(location_name, levels = location_names)]
 
+    list(pd = pd, opts = input$select_plot_view)
+
   })
 
 
@@ -213,13 +238,14 @@ covid19_modelling_server <- function(input, output, session, config) {
     ns <- session$ns
     req(input$covid19_modelling_location_code)
 
-
     location_codes <- get_dependent_location_codes(location_code = input$covid19_modelling_location_code)
     height <- round(250 + 150*ceiling(length(location_codes)/3))
     height <- max(400, height)
     height <- paste0(height,"px")
 
-    plotOutput(ns("covid19_modelling_plot_incidence"), height = height)
+    shinycssloaders::withSpinner(
+      plotOutput(ns("covid19_modelling_plot_incidence"), height = height)
+    )
 
   })
 
@@ -234,6 +260,7 @@ covid19_modelling_server <- function(input, output, session, config) {
     )
   }, cacheKeyExpr={list(
     input$covid19_modelling_location_code,
+    input$select_plot_view,
     dev_invalidate_cache
   )},
   res = 72
@@ -251,8 +278,9 @@ covid19_modelling_server <- function(input, output, session, config) {
     height <- max(400, height)
     height <- paste0(height,"px")
 
-    plotOutput(ns("covid19_modelling_plot_infectious"), height = height)
-
+    shinycssloaders::withSpinner(
+      plotOutput(ns("covid19_modelling_plot_infectious"), height = height)
+    )
   })
 
   output$covid19_modelling_plot_infectious <- renderCachedPlot({
@@ -265,6 +293,7 @@ covid19_modelling_server <- function(input, output, session, config) {
     )
   }, cacheKeyExpr={list(
     input$covid19_modelling_location_code,
+    input$select_plot_view,
     dev_invalidate_cache
   )},
   res = 72
@@ -283,8 +312,9 @@ covid19_modelling_server <- function(input, output, session, config) {
     height <- max(400, height)
     height <- paste0(height,"px")
 
-    plotOutput(ns("covid19_modelling_plot_hosp"), height = height)
-
+    shinycssloaders::withSpinner(
+      plotOutput(ns("covid19_modelling_plot_hosp"), height = height)
+    )
   })
 
 
@@ -298,6 +328,7 @@ covid19_modelling_server <- function(input, output, session, config) {
     )
   }, cacheKeyExpr={list(
     input$covid19_modelling_location_code,
+    input$select_plot_view,
     dev_invalidate_cache
   )},
   res = 72
@@ -316,8 +347,9 @@ covid19_modelling_server <- function(input, output, session, config) {
     height <- max(400, height)
     height <- paste0(height,"px")
 
-    plotOutput(ns("covid19_modelling_plot_icu"), height = height)
-
+    shinycssloaders::withSpinner(
+      plotOutput(ns("covid19_modelling_plot_icu"), height = height)
+    )
   })
 
 
@@ -331,6 +363,7 @@ covid19_modelling_server <- function(input, output, session, config) {
     )
   }, cacheKeyExpr={list(
     input$covid19_modelling_location_code,
+    input$select_plot_view,
     dev_invalidate_cache
   )},
   res = 72
@@ -435,9 +468,11 @@ plot_covid19_modelling_incidence <- function(location_code,
                  "incidence_thresholdl0",
                  "incidence_thresholdu0")
 
-  pd <- pd[, ..selectVar]
-  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
+  ## plot type
+  opts <- pd[["opts"]]
 
+  pd <- pd[["pd"]][, ..selectVar]
+  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
 
   plot_covid19_modelling_generic(incidence_est,
                                  incidence_thresholdl0,
@@ -461,9 +496,12 @@ plot_covid19_modelling_infectious <- function(location_code,
                  "infectious_prev_thresholdl0",
                  "infectious_prev_thresholdu0")
 
-  pd <- pd[, ..selectVar]
-  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
 
+  ## plot type
+  opts <- pd[["opts"]]
+
+  pd <- pd[["pd"]][, ..selectVar]
+  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
 
   plot_covid19_modelling_generic(infectious_prev_est,
                                  infectious_prev_thresholdl0,
@@ -488,14 +526,17 @@ plot_covid19_modelling_hosp <- function(location_code,
                  "hosp_prev_thresholdl0",
                  "hosp_prev_thresholdu0")
 
-  pd <- pd[, ..selectVar]
-  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
 
+  ## plot type
+  opts <- pd[["opts"]]
+
+  pd <- pd[["pd"]][, ..selectVar]
+  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
 
   plot_covid19_modelling_generic(hosp_prev_est,
                                  hosp_prev_thresholdl0,
                                  hosp_prev_thresholdu0,
-                                 y_title = "Antall innleggelse")
+                                 y_title = "Antall innleggelse (ikke ICU)")
 
 }
 
@@ -516,9 +557,11 @@ plot_covid19_modelling_icu <- function(location_code,
                  "icu_prev_thresholdl0",
                  "icu_prev_thresholdu0")
 
-  pd <- pd[, ..selectVar]
-  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
+  ## plot type
+  opts <- pd[["opts"]]
 
+  pd <- pd[["pd"]][, ..selectVar]
+  for (j in selectVar[4:6]) set(pd, j = j, value = round(pd[[j]]))
 
   plot_covid19_modelling_generic(icu_prev_est,
                                  icu_prev_thresholdl0,
@@ -527,10 +570,6 @@ plot_covid19_modelling_icu <- function(location_code,
 
 }
 
-
-
-
-
 ## Generic function for plotting
 plot_covid19_modelling_generic <- function(est,
                                            lower,
@@ -538,6 +577,7 @@ plot_covid19_modelling_generic <- function(est,
                                            y_title){
 
   pd <- parent.frame()$pd
+  opts <- parent.frame()$opts
 
   est_value <- as.character(substitute(est))
   est_lower <- as.character(substitute(lower))
@@ -558,13 +598,24 @@ plot_covid19_modelling_generic <- function(est,
     name = y_title,
     breaks = fhiplot::pretty_breaks(5),
     labels = fhiplot::format_nor,
-    expand = expand_scale(mult = c(0, 0.1))
+    expand = expansion(mult = c(0, 0.1))
   )
-  q <- q + scale_x_date(
-    NULL,
-    date_breaks = "2 months",
-    date_labels = "%d.%m"
-  )
+
+  ## Scale options for different time intervals
+  if(opts == 1){
+    q <- q + scale_x_date(
+      NULL,
+      date_breaks = "2 months",
+      date_labels = "%b.%Y"
+    )
+  } else {
+    q <- q + scale_x_date(
+      NULL,
+      date_breaks = "3 days ",
+      date_labels = "%d.%m"
+    )
+  }
+
   q <- q + labs(
     caption = glue::glue("Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}")
   )
