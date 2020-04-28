@@ -610,7 +610,7 @@ plot_covid19_modelling_generic <- function(est,
     q <- q + scale_x_date(
       NULL,
       date_breaks = "2 months",
-      date_labels = "%b.%Y"
+      date_labels = "%d.%m.%Y"
     )
   } else {
     q <- q + scale_x_date(

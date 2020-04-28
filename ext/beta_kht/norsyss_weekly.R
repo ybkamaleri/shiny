@@ -75,7 +75,7 @@ norsyss_weekly_ui <- function(id, config) {
    fluidRow(
      column(
        width=12, align="center",
-       plotOutput(ns("norsyss_weekly_trend"), height = "600px"),
+       shinycssloaders::withSpinner(plotOutput(ns("norsyss_weekly_trend"), height = "600px")),
        br(),
        br(),
        br(),
