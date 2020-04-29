@@ -87,6 +87,9 @@ covid19_modelling_ui <- function(id, config) {
 
           " Spredningsmodellen oppdateres foreløpig en gang i uken.",
           " Oppdateringen kan endre tallene da variablene tilpasses ny kunnskap og endringer som skjer i samfunnet.",
+          "Et eksempel på dette er reproduksjonstallet (R) som blir beregnet for den nåværende perioden.",
+          "Estimatene for de neste ukene og månedene vil baseres på dette reproduksjonstallet.",
+          "Det vil derfor bli endringer i grafene og tabellen når reproduksjonstallet endres.",
           br(),br(),
           "Mer informasjon om variablene som brukes i modellen kan du",
           "finne ",
@@ -602,7 +605,7 @@ plot_covid19_modelling_generic <- function(est,
     name = y_title,
     breaks = fhiplot::pretty_breaks(5),
     labels = fhiplot::format_nor,
-    expand = expansion(mult = c(0, 0.1))
+    expand = expand_scale(mult = c(0, 0.1))
   )
 
   ## Scale options for different time intervals
