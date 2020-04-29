@@ -15,8 +15,16 @@
 
 body, li, a, p {
     font-family: "Brandon Regular", helvetica, arial, sans-serif;
-    color: black;
     font-size: 18px;
+}
+
+a {
+  text-decoration: underline;
+  color: #39614b;
+}
+
+body, li, p {
+    color: black;
 }
 
 .control-label {
@@ -36,6 +44,7 @@ body, li, a, p {
 
 .navbar-nav>li>a {
     padding-top: 5px;
+    text-decoration: none;
 }
 
 .navbar-header {
@@ -59,6 +68,7 @@ body, li, a, p {
    font-size: 27px;
    color: black !important;
   padding-top: 20px;
+  text-decoration: none;
 }
 
 .navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:focus, .navbar-default .navbar-nav>.active>a:hover {
@@ -91,6 +101,7 @@ body, li, a, p {
     background-color: #dbe6ec ;
     margin-right: 20px;
     min-width: 200px;
+        text-decoration: none;
 }
 
 
