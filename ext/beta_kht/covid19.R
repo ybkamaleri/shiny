@@ -818,9 +818,8 @@ covid19_plot_single <- function(
   if(!is.null(d_right)){
     q <- q + geom_line(
       data=d_right,
-      mapping = aes(y=scaled_value, group=1),
-      lwd = 3,
-      color="red"
+      mapping = aes(y=scaled_value, group=1, color = "Andel NorSySS konsultasjoner"),
+      lwd = 3
     )
   }
 
@@ -828,9 +827,9 @@ covid19_plot_single <- function(
   if(!is.null(d_third)){
     q <- q + geom_line(
     data = d_third,
-    mapping = aes(y = scaled_value, group = 1),
-    size = 3,
-    color = "lightgreen")
+    mapping = aes(y = scaled_value, group = 1, color = "Andel positive laboratorietester"),
+    size = 3
+    )
   }
   
   if(nrow(no_data)>0) q <- q + geom_vline(data=no_data, mapping=aes(xintercept = time),color= "red", lty=3, lwd=1.5)
