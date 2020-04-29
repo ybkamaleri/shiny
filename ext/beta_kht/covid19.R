@@ -815,22 +815,56 @@ covid19_plot_single <- function(
       lwd = 4
     )
   }
-  if(!is.null(d_right)){
+
+  
+  if(is.null(d_third) && !is.null(d_right)){
     q <- q + geom_line(
       data=d_right,
-      mapping = aes(y=scaled_value, group=1, color = "Andel NorSySS konsultasjoner"),
+      mapping = aes(y=scaled_value, group=1),
+      lwd = 4,
+      color="red")
+
+  }
+
+  if(!is.null(d_third) && !is.null(d_right)){
+    q <- q + geom_line(
+      data=d_right,
+      mapping = aes(y=scaled_value,
+                    group=1,
+                    color = "Andel NorSySS konsultasjoner"),
       lwd = 3
+    )
+
+    q <- q + geom_line(
+      data = d_third,
+      mapping = aes(y = scaled_value,
+                    group = 1,
+                    color = "Andel positive laboratorietester"),
+      size = 3
+
     )
   }
 
-  #third dataset
-  if(!is.null(d_third)){
-    q <- q + geom_line(
-    data = d_third,
-    mapping = aes(y = scaled_value, group = 1, color = "Andel positive laboratorietester"),
-    size = 3
-    )
-  }
+
+      
+  
+  ## if(!is.null(d_right)){
+  ##   q <- q + geom_line(
+  ##     data=d_right,
+  ##     mapping = aes(y=scaled_value, group=1, color = "Andel NorSySS konsultasjoner"),
+  ##     lwd = 3
+  ##   )
+  ## }
+
+  ## #third dataset
+  ## if(!is.null(d_third)){
+  ##   q <- q + geom_line(
+  ##   data = d_third,
+  ##   mapping = aes(y = scaled_value, group = 1, color = "Andel positive laboratorietester"),
+  ##   size = 3
+  ##   )
+  ## }
+
   
   if(nrow(no_data)>0) q <- q + geom_vline(data=no_data, mapping=aes(xintercept = time),color= "red", lty=3, lwd=1.5)
   if(nrow(censored)>0) q <- q + geom_label(
