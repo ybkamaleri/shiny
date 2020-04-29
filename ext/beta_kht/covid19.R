@@ -717,6 +717,7 @@ covid19_plot_single <- function(
   granularity_time = "day",
   d_left,
   d_right = NULL,
+  d_third = NULL, 
   censored,
   no_data,
   type_left="col",
@@ -732,7 +733,7 @@ covid19_plot_single <- function(
   multiplier_min_y_start = -0.175,
   left_labels = fhiplot::format_nor_perc_0
 ){
-
+  
   stopifnot(type_left %in% c("col","line"))
 
   d_left <- copy(d_left)
@@ -740,6 +741,7 @@ covid19_plot_single <- function(
   if(granularity_time == "day"){
     setnames(d_left,"date","time")
     if(!is.null(d_right)) setnames(d_right,"date","time")
+    if(!is.null(d_third)) setnames(d_third, "date", "time")
   } else {
     setnames(d_left,"yrwk","time")
     if(!is.null(d_right)) setnames(d_right,"yrwk","time")
@@ -760,6 +762,14 @@ covid19_plot_single <- function(
     d_right[, scaled_value := value / max_right * max_left]
   }
 
+  ## Third dataset
+  max_third <- max(d_third$value)
+  max_third <- max(c(max_third, 5))
+
+  if(!is.null(d_third)){
+    d_third[, scaled_value := value / max_third * max_left]
+  }
+  
   if(granularity_time=="day"){
     weekends <- get_free_days(
       date_start = min(c(d_left$time,d_right$time)),
@@ -809,10 +819,20 @@ covid19_plot_single <- function(
     q <- q + geom_line(
       data=d_right,
       mapping = aes(y=scaled_value, group=1),
-      lwd = 4,
+      lwd = 3,
       color="red"
     )
   }
+
+  #third dataset
+  if(!is.null(d_third)){
+    q <- q + geom_line(
+    data = d_third,
+    mapping = aes(y = scaled_value, group = 1),
+    size = 3,
+    color = "lightgreen")
+  }
+  
   if(nrow(no_data)>0) q <- q + geom_vline(data=no_data, mapping=aes(xintercept = time),color= "red", lty=3, lwd=1.5)
   if(nrow(censored)>0) q <- q + geom_label(
     data=censored,
@@ -856,6 +876,8 @@ covid19_plot_single <- function(
       )
     )
   }
+
+  
   q <- q + expand_limits(y = 0)
   if(granularity_time=="day"){
     q <- q + scale_x_date(
@@ -915,7 +937,7 @@ covid19_norsyss_vs_msis_daily <- function(
   setDT(d_left)
   d_left[, date:= as.Date(date)]
   setnames(d_left, "n", "value")
-
+  
   d_right <- pool %>% dplyr::tbl("data_norsyss") %>%
     dplyr::filter(location_code== !!location_code) %>%
     dplyr::filter(granularity_time=="day") %>%
@@ -927,6 +949,19 @@ covid19_norsyss_vs_msis_daily <- function(
   setDT(d_right)
   d_right[, date:= as.Date(date)]
 
+  ## test positive
+  d_third <- pool %>%
+    dplyr::tbl("data_covid19_lab_by_time") %>%
+    dplyr::filter(location_code== !!location_code) %>%
+    dplyr::filter(granularity_time=="day") %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::select(date, pr100_pos) %>%
+    dplyr::collect()
+  setDT(d_third)
+  d_third[, date := as.Date(date)]
+  setnames(d_third, "pr100_pos", "value") #can be dynamic
+  
+  
   d_right[,censor := ""]
   d_right[censor=="" & n>0 & n<5, censor := "N"]
   d_right[censor != "", n := 0]
@@ -943,11 +978,12 @@ covid19_norsyss_vs_msis_daily <- function(
   covid19_plot_single(
     d_left = d_left,
     d_right = d_right,
+    d_third = d_third, 
     censored = censored,
     no_data = no_data,
     type_left="col",
     labs_left = "Antall tilfeller meldt til MSIS",
-    labs_right = "Andel NorSySS konsultasjoner\n",
+    labs_right = "Andel NorSySS konsultasjoner\n og andel positive laboratorietester\n",
     labs_title = glue::glue(
       "{names(config$choices_location)[config$choices_location==location_code]}\n",
       "Antall covid-19 meldinger til MSIS og andel konsultasjoner for covid-19 (mistenkte eller bekreftet)\n",
