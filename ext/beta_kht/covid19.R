@@ -80,8 +80,8 @@ covid19_ui <- function(id, config) {
                 "derfor vil ikke trendene kunne brukes på en god måte.",
                 "Kommuner med under 500 innbyggere vil mangle aldersdelte figurer pga anonymitet.", br(), br(),
 
-                "Det er noe forsinkelse ",
-                "både i MSIS dataene og NorSySS, derfor ",
+                "MSIS dataene blir oppdatert ca kl 13 hver ukedag, i helger og på helligdager blir de foreløpig ikke oppdatert",
+                "Det er noe forsinkelse både i MSIS og NorSySS dataene, derfor ",
                 "kan figurene endre seg etter hvert.",
               br(),
                 "For mer informasjon om dataene kan du gå til fanen 'Informasjon'.",
