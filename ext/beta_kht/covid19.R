@@ -717,7 +717,7 @@ covid19_plot_single <- function(
   granularity_time = "day",
   d_left,
   d_right = NULL,
-  d_third = NULL, 
+  d_third = NULL,
   censored,
   no_data,
   type_left="col",
@@ -763,12 +763,31 @@ covid19_plot_single <- function(
   }
 
   ## Third dataset
-  max_third <- max(d_third$value)
-  max_third <- max(c(max_third, 5))
+  if(!is.null(d_third) && !is.null(d_right)){
 
-  if(!is.null(d_third)){
-    d_third[, scaled_value := value / max_third * max_left]
-  }
+    minRight <- min(d_right$value)
+    maxRight <- max(d_right$value)
+    minThird <- min(d_third$value)
+    maxThird <- max(d_third$value)
+
+    ## Standardize value for d_right and d_third
+    tranRight <- coef(lm(c(minThird, maxThird) ~ c(minRight, maxRight)))
+    d_right[, rescaled := tranRight[2] * value + tranRight[1]]
+
+    max_right <- max(d_right$rescaled)
+    max_right <- max(c(max_right, 5))
+
+    d_right[, scaled_value := rescaled / max_right * max_left]
+    
+    tranThird <- coef(lm(c(minRight, maxRight) ~ c(minThird, maxThird)))
+    d_third[, rescaled := tranThird[2] * value + tranThird[1]]
+
+    max_third <- max(d_third$rescaled)
+    max_third <- max(c(max_third, 5))
+
+    d_third[, scaled_value := rescaled / max_third * max_left]
+    
+}
   
   if(granularity_time=="day"){
     weekends <- get_free_days(
@@ -844,6 +863,7 @@ covid19_plot_single <- function(
     )
   }
 
+  
   
   if(nrow(no_data)>0) q <- q + geom_vline(data=no_data, mapping=aes(xintercept = time),color= "red", lty=3, lwd=1.5)
   if(nrow(censored)>0) q <- q + geom_label(
