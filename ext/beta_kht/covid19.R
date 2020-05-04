@@ -728,6 +728,7 @@ covid19_plot_single <- function(
   labs_caption = NULL,
   labs_legend = NULL,
   legend_position = "bottom",
+  legend_labs = NULL, 
   multiplier_min_y_censor = -0.13,
   multiplier_min_y_end = -0.14,
   multiplier_min_y_start = -0.175,
@@ -849,7 +850,9 @@ covid19_plot_single <- function(
       data=d_right,
       mapping = aes(y=scaled_value,
                     group=1,
-                    color = "Andel NorSySS konsultasjoner"),
+                    color = legend_labs[1]
+                    ## color = "Andel NorSySS konsultasjoner"
+                    ),
       lwd = 3
     )
 
@@ -857,7 +860,9 @@ covid19_plot_single <- function(
       data = d_third,
       mapping = aes(y = scaled_value,
                     group = 1,
-                    color = "Andel positive laboratorietester"),
+                    color = legend_labs[2]
+                    ## color = "Andel positive laboratorietester"
+                    ),
       size = 3
 
     )
@@ -1035,6 +1040,10 @@ covid19_norsyss_vs_msis_daily <- function(
       "R{fhi::nb$oe}de stiplede vertikale linjer på figuren betyr at ingen konsultasjoner er rapportert på disse datoene\n",
       "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
     ),
+    legend_labs = c(
+      "Andel NorSySS konsultasjoner",
+      "Andel positive laboratorietester"
+    ), 
     multiplier_min_y_censor = -0.13,
     multiplier_min_y_end = -0.14,
     multiplier_min_y_start = -0.175,
