@@ -347,7 +347,7 @@ plot_barometer_age <- function(
 
   pd[, n_status := factor(
     n_status,
-    levels = c("Normal", "Medium", "High"),
+    levels = c("normal", "medium", "high"),
     labels = c(
       "Forventet",
       "Høyere enn\nforventet",
@@ -509,9 +509,9 @@ plot_barameter_location <- function(
   pd[, n_status := factor(
     n_status,
     levels = c(
-      "Normal",
-      "Medium",
-      "High"
+      "normal",
+      "medium",
+      "high"
     ),
     labels = c(
       "Forventet",
