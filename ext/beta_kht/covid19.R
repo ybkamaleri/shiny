@@ -717,6 +717,7 @@ covid19_plot_single <- function(
   granularity_time = "day",
   d_left,
   d_right = NULL,
+  d_third = NULL,
   censored,
   no_data,
   type_left="col",
@@ -727,12 +728,14 @@ covid19_plot_single <- function(
   labs_caption = NULL,
   labs_legend = NULL,
   legend_position = "bottom",
+  legend_labs = NULL,
+  legend_extra = TRUE, 
   multiplier_min_y_censor = -0.13,
   multiplier_min_y_end = -0.14,
   multiplier_min_y_start = -0.175,
   left_labels = fhiplot::format_nor_perc_0
 ){
-
+  
   stopifnot(type_left %in% c("col","line"))
 
   d_left <- copy(d_left)
@@ -740,6 +743,7 @@ covid19_plot_single <- function(
   if(granularity_time == "day"){
     setnames(d_left,"date","time")
     if(!is.null(d_right)) setnames(d_right,"date","time")
+    if(!is.null(d_third)) setnames(d_third, "date", "time")
   } else {
     setnames(d_left,"yrwk","time")
     if(!is.null(d_right)) setnames(d_right,"yrwk","time")
@@ -750,11 +754,16 @@ covid19_plot_single <- function(
   } else {
     max_left <- max(d_left$value)
   }
-  max_left <- max(c(max_left),5)
+  max_left <- max(c(max_left, 5))
 
   max_right <- max(d_right$value)
   max_right <- max(c(max_right, 5))
 
+  if(!is.null(d_third)){
+    max_right <- max(c(max_right, max(d_third$value)))
+    d_third[, scaled_value := value / max_right * max_left]
+  }
+  
   if(!is.null(d_right)){
     d_right[, scaled_value := value]
     d_right[, scaled_value := value / max_right * max_left]
@@ -805,14 +814,46 @@ covid19_plot_single <- function(
       lwd = 4
     )
   }
-  if(!is.null(d_right)){
+
+  
+  ## if(legend_extra){
+  ##   q <- q + geom_col(data = d_left,
+  ##                     mapping = aes(y = value, fill = "Legend lab 3"))
+  ## }
+
+  if(is.null(d_third) && !is.null(d_right)){
     q <- q + geom_line(
       data=d_right,
       mapping = aes(y=scaled_value, group=1),
       lwd = 4,
-      color="red"
+      color="red")
+  }
+
+  if(!is.null(d_third) && !is.null(d_right)){
+    q <- q + geom_line(
+      data=d_right,
+      mapping = aes(y=scaled_value,
+                    group=1,
+                    color = legend_labs[1]
+                    ## color = "Andel NorSySS konsultasjoner"
+                    ),
+      lwd = 3
+    )
+
+    q <- q + geom_line(
+      data = d_third,
+      mapping = aes(y = scaled_value,
+                    group = 1,
+                    color = legend_labs[2]
+                    ## color = "Andel positive laboratorietester"
+                    ),
+      size = 3
+
     )
   }
+
+  
+  
   if(nrow(no_data)>0) q <- q + geom_vline(data=no_data, mapping=aes(xintercept = time),color= "red", lty=3, lwd=1.5)
   if(nrow(censored)>0) q <- q + geom_label(
     data=censored,
@@ -856,6 +897,8 @@ covid19_plot_single <- function(
       )
     )
   }
+
+  
   q <- q + expand_limits(y = 0)
   if(granularity_time=="day"){
     q <- q + scale_x_date(
@@ -869,6 +912,13 @@ covid19_plot_single <- function(
     )
   }
   q <- q + fhiplot::scale_color_fhi(labs_legend)
+
+  if(!is.null(d_third) && !is.null(d_right)){
+    q <- q + fhiplot::scale_color_fhi(palette = "posneg")
+    ## q <- q + fhiplot::scale_color_fhi()
+    q <- q + guides(color = guide_legend(title = NULL))
+  }
+
   q <- q + fhiplot::scale_fill_fhi(labs_legend)
   q <- q + fhiplot::theme_fhi_lines(
     20, panel_on_top = T,
@@ -884,11 +934,17 @@ covid19_plot_single <- function(
   q
 }
 
+
 covid19_norsyss_vs_msis <- function(
   location_code,
   config
 ){
-  if(get_granularity_geo(location_code) %in% c("nation", "county")){
+  if(get_granularity_geo(location_code) == "nation"){
+    covid19_norsyss_vs_msis_lab_daily(
+      location_code = location_code,
+      config = config
+    )
+  } else if(get_granularity_geo(location_code) == "county") {
     covid19_norsyss_vs_msis_daily(
       location_code = location_code,
       config = config
@@ -900,6 +956,92 @@ covid19_norsyss_vs_msis <- function(
     )
   }
 }
+
+
+covid19_norsyss_vs_msis_lab_daily <- function(
+  location_code,
+  config
+){
+  d_left <- pool %>% dplyr::tbl("data_covid19_msis_by_time_location") %>%
+    dplyr::filter(granularity_time == "day") %>%
+    dplyr::filter(location_code== !!location_code) %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::select(date, n) %>%
+    dplyr::collect()
+  setDT(d_left)
+  d_left[, date:= as.Date(date)]
+  setnames(d_left, "n", "value")
+  
+  d_right <- pool %>% dplyr::tbl("data_norsyss") %>%
+    dplyr::filter(location_code== !!location_code) %>%
+    dplyr::filter(granularity_time=="day") %>%
+    dplyr::filter(tag_outcome %in% "covid19_vk_ote") %>%
+    dplyr::filter(age=="total") %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::select(date, n, consult_with_influenza) %>%
+    dplyr::collect()
+  setDT(d_right)
+  d_right[, date:= as.Date(date)]
+
+  
+  d_third <- pool %>%
+    dplyr::tbl("data_covid19_lab_by_time") %>%
+    dplyr::filter(location_code== !!location_code) %>%
+    dplyr::filter(granularity_time=="day") %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::select(date, pr100_pos) %>%
+    dplyr::collect()
+  setDT(d_third)
+  d_third[, date := as.Date(date)]
+  setnames(d_third, "pr100_pos", "value") 
+  
+  
+  d_right[,censor := ""]
+  d_right[censor=="" & n>0 & n<5, censor := "N"]
+  d_right[censor != "", n := 0]
+  d_right[, value := 100* n / consult_with_influenza]
+  d_right[is.nan(value), value := 0]
+  d_right[value>60, value := 60]
+  d_right[, n := NULL]
+  d_right[, no_data := consult_with_influenza==0]
+  d_right[,consult_with_influenza := NULL]
+
+  censored <- d_right[censor!=""]$date
+  no_data <- d_right[no_data==TRUE]$date
+
+  covid19_plot_single(
+    d_left = d_left,
+    d_right = d_right,
+    d_third = d_third, 
+    censored = censored,
+    no_data = no_data,
+    type_left="col",
+    labs_left = "Antall tilfeller meldt til MSIS",
+    labs_right = "Andel NorSySS konsultasjoner\n og andel positive laboratorietester\n",
+    labs_title = glue::glue(
+      "{names(config$choices_location)[config$choices_location==location_code]}\n",
+      "Antall covid-19 meldinger til MSIS og andel konsultasjoner for covid-19 (mistenkte eller bekreftet)\n",
+      "på legekontor og legevakt\n",
+      "Data fra NorSySS og MSIS"
+    ),
+    labs_caption = glue::glue(
+      "Røde piler på x-aksen viser helger og helligdager. Røde * på x-aksen viser sensurerte data\n",
+      "Søylene skal leses av på venstre side, den røde linjen skal leses av på høyre side\n",
+      "Nevneren på andelen er totalt antall konsultasjoner per dato i valgt geografisk område\n",
+      "R{fhi::nb$oe}de stiplede vertikale linjer på figuren betyr at ingen konsultasjoner er rapportert på disse datoene\n",
+      "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
+    ),
+    legend_labs = c(
+      "Andel NorSySS konsultasjoner",
+      "Andel positive laboratorietester"
+    ), 
+    multiplier_min_y_censor = -0.13,
+    multiplier_min_y_end = -0.14,
+    multiplier_min_y_start = -0.175,
+    left_labels = fhiplot::format_nor
+  )
+}
+
 
 covid19_norsyss_vs_msis_daily <- function(
   location_code,
@@ -915,7 +1057,7 @@ covid19_norsyss_vs_msis_daily <- function(
   setDT(d_left)
   d_left[, date:= as.Date(date)]
   setnames(d_left, "n", "value")
-
+  
   d_right <- pool %>% dplyr::tbl("data_norsyss") %>%
     dplyr::filter(location_code== !!location_code) %>%
     dplyr::filter(granularity_time=="day") %>%
@@ -926,7 +1068,8 @@ covid19_norsyss_vs_msis_daily <- function(
     dplyr::collect()
   setDT(d_right)
   d_right[, date:= as.Date(date)]
-
+  
+  
   d_right[,censor := ""]
   d_right[censor=="" & n>0 & n<5, censor := "N"]
   d_right[censor != "", n := 0]
