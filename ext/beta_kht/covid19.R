@@ -754,43 +754,21 @@ covid19_plot_single <- function(
   } else {
     max_left <- max(d_left$value)
   }
-  max_left <- max(c(max_left),5)
+  max_left <- max(c(max_left, 5))
 
   max_right <- max(d_right$value)
   max_right <- max(c(max_right, 5))
 
+  if(!is.null(d_third)){
+    max_right <- max(c(max_right, max(d_third$value)))
+    d_third[, scaled_value := value / max_right * max_left]
+  }
+  
   if(!is.null(d_right)){
     d_right[, scaled_value := value]
     d_right[, scaled_value := value / max_right * max_left]
   }
 
-  ## Third dataset
-  if(!is.null(d_third) && !is.null(d_right)){
-
-    minRight <- min(d_right$value)
-    maxRight <- max(d_right$value)
-    minThird <- min(d_third$value)
-    maxThird <- max(d_third$value)
-
-    ## Standardize value for d_right and d_third
-    tranRight <- coef(lm(c(minThird, maxThird) ~ c(minRight, maxRight)))
-    d_right[, rescaled := tranRight[2] * value + tranRight[1]]
-
-    max_right <- max(d_right$rescaled)
-    max_right <- max(c(max_right, 5))
-
-    d_right[, scaled_value := rescaled / max_right * max_left]
-    
-    tranThird <- coef(lm(c(minRight, maxRight) ~ c(minThird, maxThird)))
-    d_third[, rescaled := tranThird[2] * value + tranThird[1]]
-
-    max_third <- max(d_third$rescaled)
-    max_third <- max(c(max_third, 5))
-
-    d_third[, scaled_value := rescaled / max_third * max_left]
-    
-}
-  
   if(granularity_time=="day"){
     weekends <- get_free_days(
       date_start = min(c(d_left$time,d_right$time)),
