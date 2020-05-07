@@ -74,10 +74,13 @@ server <- function(input, output, session) {
       updateNavbarPage(session, "navbar", selected = query[["page"]])
       #updateSliderInput(session, "bins", value = query[['bins']])
       if(query[["page"]]=="covid19"){
-        if (!is.null(query[['location_code']])) {
-          updateSelectizeInput(session, "covid19-covid_location_code", selected = query[["location_code"]])
-        }
+
       }
+    }
+    if (!is.null(query[['location_code']])) {
+      updateSelectizeInput(session, "covid19-covid_location_code", selected = query[["location_code"]])
+    } else {
+      updateSelectizeInput(session, "covid19-covid_location_code", selected = "norge")
     }
   })
 
@@ -102,11 +105,11 @@ server <- function(input, output, session) {
   callModule(norsyss_daily_server, "norsyss_daily", config=config)
   callModule(norsyss_purpose_server, "norsyss_purpose", config=config)
 
-  
+
   if (.Platform$OS.type == "windows"){
     session$onSessionEnded(stopApp)
   }
- 
+
 }
 
 shinyApp(ui, server, enableBookmarking = "url")

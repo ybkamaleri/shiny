@@ -97,7 +97,8 @@ covid19_ui <- function(id, config) {
                 inputId = ns("covid_location_code"),
                 label = "Geografisk område",
                 choices = config$choices_location,
-                selected = "norge",
+                #selected = "norge",
+                selected = NULL,
                 multiple = FALSE,
                 options = NULL,
                 width = "400px"
@@ -729,13 +730,13 @@ covid19_plot_single <- function(
   labs_legend = NULL,
   legend_position = "bottom",
   legend_labs = NULL,
-  legend_extra = TRUE, 
+  legend_extra = TRUE,
   multiplier_min_y_censor = -0.13,
   multiplier_min_y_end = -0.14,
   multiplier_min_y_start = -0.175,
   left_labels = fhiplot::format_nor_perc_0
 ){
-  
+
   stopifnot(type_left %in% c("col","line"))
 
   d_left <- copy(d_left)
@@ -763,7 +764,7 @@ covid19_plot_single <- function(
     max_right <- max(c(max_right, max(d_third$value)))
     d_third[, scaled_value := value / max_right * max_left]
   }
-  
+
   if(!is.null(d_right)){
     d_right[, scaled_value := value]
     d_right[, scaled_value := value / max_right * max_left]
@@ -815,7 +816,7 @@ covid19_plot_single <- function(
     )
   }
 
-  
+
   ## if(legend_extra){
   ##   q <- q + geom_col(data = d_left,
   ##                     mapping = aes(y = value, fill = "Legend lab 3"))
@@ -852,8 +853,8 @@ covid19_plot_single <- function(
     )
   }
 
-  
-  
+
+
   if(nrow(no_data)>0) q <- q + geom_vline(data=no_data, mapping=aes(xintercept = time),color= "red", lty=3, lwd=1.5)
   if(nrow(censored)>0) q <- q + geom_label(
     data=censored,
@@ -898,7 +899,7 @@ covid19_plot_single <- function(
     )
   }
 
-  
+
   q <- q + expand_limits(y = 0)
   if(granularity_time=="day"){
     q <- q + scale_x_date(
@@ -971,7 +972,7 @@ covid19_norsyss_vs_msis_lab_daily <- function(
   setDT(d_left)
   d_left[, date:= as.Date(date)]
   setnames(d_left, "n", "value")
-  
+
   d_right <- pool %>% dplyr::tbl("data_norsyss") %>%
     dplyr::filter(location_code== !!location_code) %>%
     dplyr::filter(granularity_time=="day") %>%
@@ -983,7 +984,7 @@ covid19_norsyss_vs_msis_lab_daily <- function(
   setDT(d_right)
   d_right[, date:= as.Date(date)]
 
-  
+
   d_third <- pool %>%
     dplyr::tbl("data_covid19_lab_by_time") %>%
     dplyr::filter(location_code== !!location_code) %>%
@@ -993,9 +994,9 @@ covid19_norsyss_vs_msis_lab_daily <- function(
     dplyr::collect()
   setDT(d_third)
   d_third[, date := as.Date(date)]
-  setnames(d_third, "pr100_pos", "value") 
-  
-  
+  setnames(d_third, "pr100_pos", "value")
+
+
   d_right[,censor := ""]
   d_right[censor=="" & n>0 & n<5, censor := "N"]
   d_right[censor != "", n := 0]
@@ -1012,7 +1013,7 @@ covid19_norsyss_vs_msis_lab_daily <- function(
   covid19_plot_single(
     d_left = d_left,
     d_right = d_right,
-    d_third = d_third, 
+    d_third = d_third,
     censored = censored,
     no_data = no_data,
     type_left="col",
@@ -1034,7 +1035,7 @@ covid19_norsyss_vs_msis_lab_daily <- function(
     legend_labs = c(
       "Andel NorSySS konsultasjoner",
       "Andel positive laboratorietester"
-    ), 
+    ),
     multiplier_min_y_censor = -0.13,
     multiplier_min_y_end = -0.14,
     multiplier_min_y_start = -0.175,
@@ -1057,7 +1058,7 @@ covid19_norsyss_vs_msis_daily <- function(
   setDT(d_left)
   d_left[, date:= as.Date(date)]
   setnames(d_left, "n", "value")
-  
+
   d_right <- pool %>% dplyr::tbl("data_norsyss") %>%
     dplyr::filter(location_code== !!location_code) %>%
     dplyr::filter(granularity_time=="day") %>%
@@ -1068,8 +1069,8 @@ covid19_norsyss_vs_msis_daily <- function(
     dplyr::collect()
   setDT(d_right)
   d_right[, date:= as.Date(date)]
-  
-  
+
+
   d_right[,censor := ""]
   d_right[censor=="" & n>0 & n<5, censor := "N"]
   d_right[censor != "", n := 0]
