@@ -96,8 +96,9 @@ covid19_ui <- function(id, config) {
               selectizeInput(
                 inputId = ns("covid_location_code"),
                 label = "Geografisk område",
-                choices = NULL,
+                #choices = config$choices_location,
                 #selected = "norge",
+                choices = NULL,
                 selected = NULL,
                 multiple = FALSE,
                 options = NULL,
@@ -706,12 +707,7 @@ covid19_server <- function(input, output, session, config) {
   )
 
 
-  outputOptions(output, "overview_plot_national_syndromes_proportion", priority = 10)
-  outputOptions(output, "overview_plot_national_age_burden", priority = 9)
-  outputOptions(output, "overview_plot_county_proportion", priority = 8)
-  outputOptions(output, "overview_map_county_proportion", priority = 7)
-  outputOptions(output, "overview_map_county_proportion_2", priority = 7)
-
+  outputOptions(output, "overview_norsyss_vs_msis", priority = 100)
 }
 
 covid19_plot_single <- function(
