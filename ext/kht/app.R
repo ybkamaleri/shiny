@@ -77,34 +77,33 @@ server <- function(input, output, session) {
 
       }
     }
-    if (!is.null(query[['location_code']])) {
-      updateSelectizeInput(
-        session,
-        "covid19-covid_location_code",
-        choices=config$choices_location,
-        selected = query[["location_code"]]
-      )
-    } else {
-      updateSelectizeInput(
-        session,
-        "covid19-covid_location_code",
-        choices=config$choices_location,
-        selected = config$choices_location[1]
-      )
+
+
+    selected <- config$choices_location[1]
+    if (!is.null(query[['location_code']])) if(query[['location_code']] %in% fhidata::norway_locations_long_b2020$location_code){
+      selected <- query[['location_code']]
     }
+
+    updateSelectizeInput(
+      session,
+      "covid19-covid_location_code",
+      choices=config$choices_location,
+      selected = selected
+    )
+
   })
 
-  observeEvent(
-    {
-      input$`covid19-covid_location_code`
-      input$navbar
-    }, {
-      to_replace = glue::glue(
-        "?page={input$navbar}&location_code={input$`covid19-covid_location_code`}"
-      )
-      updateQueryString(to_replace, mode = "replace")
-    }
-  )
+  # observeEvent(
+  #   {
+  #     input$`covid19-covid_location_code`
+  #     input$navbar
+  #   }, {
+  #     to_replace = glue::glue(
+  #       "?page={input$navbar}&location_code={input$`covid19-covid_location_code`}"
+  #     )
+  #     updateQueryString(to_replace, mode = "replace")
+  #   }
+  # )
 
   callModule(covid19_server, "covid19", config=config)
   callModule(covid19_modelling_server, "covid19_modelling", config=config)
