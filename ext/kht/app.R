@@ -68,30 +68,30 @@ server <- function(input, output, session) {
     config_update_dates(config = config)
   })
 
-  observe({
-    query <- parseQueryString(session$clientData$url_search)
-    if (!is.null(query[['page']])) {
-      updateNavbarPage(session, "navbar", selected = query[["page"]])
-      #updateSliderInput(session, "bins", value = query[['bins']])
-      if(query[["page"]]=="covid19"){
-
-      }
-    }
-
-
-    selected <- config$choices_location[1]
-    if (!is.null(query[['location_code']])) if(query[['location_code']] %in% fhidata::norway_locations_long_b2020$location_code){
-      selected <- query[['location_code']]
-    }
-
-    updateSelectizeInput(
-      session,
-      "covid19-covid_location_code",
-      choices=config$choices_location,
-      selected = selected
-    )
-
-  })
+  # observe({
+  #   query <- parseQueryString(session$clientData$url_search)
+  #   if (!is.null(query[['page']])) {
+  #     updateNavbarPage(session, "navbar", selected = query[["page"]])
+  #     #updateSliderInput(session, "bins", value = query[['bins']])
+  #     if(query[["page"]]=="covid19"){
+  #
+  #     }
+  #   }
+  #
+  #
+  #   selected <- config$choices_location[1]
+  #   if (!is.null(query[['location_code']])) if(query[['location_code']] %in% fhidata::norway_locations_long_b2020$location_code){
+  #     selected <- query[['location_code']]
+  #   }
+  #
+  #   updateSelectizeInput(
+  #     session,
+  #     "covid19-covid_location_code",
+  #     choices=config$choices_location,
+  #     selected = selected
+  #   )
+  #
+  # })
 
   # observeEvent(
   #   {

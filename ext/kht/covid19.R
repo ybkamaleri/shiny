@@ -96,9 +96,10 @@ covid19_ui <- function(id, config) {
               selectizeInput(
                 inputId = ns("covid_location_code"),
                 label = "Geografisk område",
-                choices = NULL,
-                #selected = "norge",
-                selected = NULL,
+                choices = config$choices_location,
+                selected = "norge",
+                #choices = NULL,
+                #selected = NULL,
                 multiple = FALSE,
                 options = NULL,
                 width = "400px"
