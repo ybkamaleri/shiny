@@ -729,8 +729,8 @@ covid19_plot_single <- function(
   labs_caption = NULL,
   labs_legend = NULL,
   legend_position = "bottom",
-  legend_labs = NULL,
-  legend_extra = TRUE,
+  right_legend_labs = NULL,
+  right_legend_direction = 1,
   multiplier_min_y_censor = -0.13,
   multiplier_min_y_end = -0.14,
   multiplier_min_y_start = -0.175,
@@ -835,7 +835,7 @@ covid19_plot_single <- function(
       data=d_right,
       mapping = aes(y=scaled_value,
                     group=1,
-                    color = legend_labs[1]
+                    color = right_legend_labs[1]
                     ## color = "Andel NorSySS konsultasjoner"
                     ),
       lwd = 3
@@ -845,7 +845,7 @@ covid19_plot_single <- function(
       data = d_third,
       mapping = aes(y = scaled_value,
                     group = 1,
-                    color = legend_labs[2]
+                    color = right_legend_labs[2]
                     ## color = "Andel positive laboratorietester"
                     ),
       size = 3
@@ -915,7 +915,7 @@ covid19_plot_single <- function(
   q <- q + fhiplot::scale_color_fhi(labs_legend)
 
   if(!is.null(d_third) && !is.null(d_right)){
-    q <- q + fhiplot::scale_color_fhi(palette = "posneg")
+    q <- q + fhiplot::scale_color_fhi(palette = "posneg", direction = right_legend_direction)
     ## q <- q + fhiplot::scale_color_fhi()
     q <- q + guides(color = guide_legend(title = NULL))
   }
@@ -1032,10 +1032,11 @@ covid19_norsyss_vs_msis_lab_daily <- function(
       "R{fhi::nb$oe}de stiplede vertikale linjer på figuren betyr at ingen konsultasjoner er rapportert på disse datoene\n",
       "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
     ),
-    legend_labs = c(
+    right_legend_labs = c(
       "Andel NorSySS konsultasjoner",
       "Andel positive laboratorietester"
     ),
+    right_legend_direction = -1,
     multiplier_min_y_censor = -0.13,
     multiplier_min_y_end = -0.14,
     multiplier_min_y_start = -0.175,
