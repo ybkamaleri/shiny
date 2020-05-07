@@ -98,7 +98,7 @@ covid19_ui <- function(id, config) {
                 label = "Geografisk område",
                 choices = config$choices_location,
                 #selected = "norge",
-                selected = NULL,
+                selected = "x",
                 multiple = FALSE,
                 options = NULL,
                 width = "400px"
