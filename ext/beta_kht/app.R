@@ -78,9 +78,19 @@ server <- function(input, output, session) {
       }
     }
     if (!is.null(query[['location_code']])) {
-      updateSelectizeInput(session, "covid19-covid_location_code", selected = query[["location_code"]])
+      updateSelectizeInput(
+        session,
+        "covid19-covid_location_code",
+        choices=config$choices_location,
+        selected = query[["location_code"]]
+      )
     } else {
-      updateSelectizeInput(session, "covid19-covid_location_code", selected = "norge")
+      updateSelectizeInput(
+        session,
+        "covid19-covid_location_code",
+        choices=config$choices_location,
+        selected = config$choices_location[1]
+      )
     }
   })
 
