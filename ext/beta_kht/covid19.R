@@ -1833,7 +1833,7 @@ covid19_overview_plot_national_age_trends_daily <- function(
       "65+"
     ),
     labels = c(
-      "total",
+      "Totalt",
       "0-4",
       "5-14",
       "15-19",
@@ -1937,7 +1937,7 @@ covid19_overview_plot_national_age_trends_weekly <- function(
       "65+"
     ),
     labels = c(
-      "total",
+      "Totalt",
       "0-4",
       "5-14",
       "15-19",
