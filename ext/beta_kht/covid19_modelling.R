@@ -636,6 +636,7 @@ plot_covid19_modelling_generic <- function(est,
   q <- q + geom_vline(xintercept = lubridate::today(), color="red")
   q <- q + fhiplot::set_x_axis_vertical()
 
+  q <- q + theme(axis.title = element_text(hjust = 0.95))
   q
 
 }
