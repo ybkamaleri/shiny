@@ -813,11 +813,6 @@ covid19_plot_single <- function(
   }
 
 
-  ## if(legend_extra){
-  ##   q <- q + geom_col(data = d_left,
-  ##                     mapping = aes(y = value, fill = "Legend lab 3"))
-  ## }
-
   if(is.null(d_third) && !is.null(d_right)){
     q <- q + geom_line(
       data=d_right,
@@ -827,12 +822,19 @@ covid19_plot_single <- function(
   }
 
   if(!is.null(d_third) && !is.null(d_right)){
+    
+    q <- q + geom_col(
+      data = d_left,
+      mapping = aes(y = value,
+                    fill = right_legend_labs[3]),
+      width = 0.8
+      )
+
     q <- q + geom_line(
       data=d_right,
       mapping = aes(y=scaled_value,
                     group=1,
                     color = right_legend_labs[1]
-                    ## color = "Andel NorSySS konsultasjoner"
                     ),
       lwd = 3
     )
@@ -842,11 +844,11 @@ covid19_plot_single <- function(
       mapping = aes(y = scaled_value,
                     group = 1,
                     color = right_legend_labs[2]
-                    ## color = "Andel positive laboratorietester"
                     ),
       size = 3
 
     )
+
   }
 
 
@@ -909,14 +911,14 @@ covid19_plot_single <- function(
     )
   }
   q <- q + fhiplot::scale_color_fhi(labs_legend)
+  q <- q + fhiplot::scale_fill_fhi(labs_legend)
 
   if(!is.null(d_third) && !is.null(d_right)){
+    q <- q + fhiplot::scale_fill_fhi(palette = "primary")
     q <- q + fhiplot::scale_color_fhi(palette = "posneg", direction = right_legend_direction)
-    ## q <- q + fhiplot::scale_color_fhi()
-    q <- q + guides(color = guide_legend(title = NULL))
+    q <- q + guides(color = guide_legend(title = NULL), fill = guide_legend(title = NULL))
   }
 
-  q <- q + fhiplot::scale_fill_fhi(labs_legend)
   q <- q + fhiplot::theme_fhi_lines(
     20, panel_on_top = T,
     panel.grid.major.x = element_blank(),
@@ -1030,7 +1032,8 @@ covid19_norsyss_vs_msis_lab_daily <- function(
     ),
     right_legend_labs = c(
       "Andel NorSySS konsultasjoner",
-      "Andel positive laboratorietester"
+      "Andel positive laboratorietester",
+      "Antall tilfeller meldt til MSIS"
     ),
     right_legend_direction = -1,
     multiplier_min_y_censor = -0.13,
