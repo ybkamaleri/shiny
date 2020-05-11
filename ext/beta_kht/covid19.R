@@ -802,13 +802,13 @@ covid19_plot_single <- function(
     q <- q + geom_line(
       data=d_left,
       mapping = aes(y=value, color=group, group=1),
-      lwd = 4
+      lwd = 3
     )
   } else if(type_left=="line" & group_left==TRUE){
     q <- q + geom_line(
       data=d_left,
       mapping = aes(y=value, color=group, group=group),
-      lwd = 4
+      lwd = 3
     )
   }
 
@@ -817,7 +817,7 @@ covid19_plot_single <- function(
     q <- q + geom_line(
       data=d_right,
       mapping = aes(y=scaled_value, group=1),
-      lwd = 4,
+      lwd = 3,
       color="red")
   }
 
@@ -1273,9 +1273,9 @@ covid19_overview_plot_national_syndromes_proportion_daily <- function(
       "Røde stiplede vertikale linjer på figuren betyr at ingen konsultasjoner er rapportert på disse datoene\n",
       "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
     ),
-    multiplier_min_y_censor = -0.13,
-    multiplier_min_y_end = -0.14,
-    multiplier_min_y_start = -0.175,
+    multiplier_min_y_censor = -0.145,
+    multiplier_min_y_end = -0.155,
+    multiplier_min_y_start = -0.19,
     left_labels = fhiplot::format_nor_perc_0
   )
 }
