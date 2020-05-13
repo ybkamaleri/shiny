@@ -2,6 +2,7 @@ library(pool)
 library(data.table)
 library(magrittr)
 library(ggplot2)
+library(writexl)
 
 format_nor_perc <- function(x) paste0(fhiplot::format_nor(x, digits=1),"%")
 
