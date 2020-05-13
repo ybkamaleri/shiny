@@ -171,6 +171,9 @@ covid19_modelling_ui <- function(id, config) {
           br(), br()
 
         ),
+        downloadButton(ns("download_xls"), "Laste ned tabell", class = "knappe"),
+        tags$head(tags$style(".knappe{background-color:#add8e6;} .knappe{color: #111;}")),
+        br(),
         formattable::formattableOutput(ns("covid19_modelling_main"), height="800px"),
         br(),
         br(),
@@ -184,16 +187,34 @@ covid19_modelling_ui <- function(id, config) {
 
 covid19_modelling_server <- function(input, output, session, config) {
 
-  #output$covid19_modelling_main <- DT::renderDataTable({
-  output$covid19_modelling_main <- formattable::renderFormattable({
-    req(input$covid19_modelling_location_code)
+  modelling_main_table <- eventReactive(input$covid19_modelling_location_code, {
 
     dt_covid19_modelling_main(
       location_code = input$covid19_modelling_location_code,
       config = config
     )
+
   })
 
+  #output$covid19_modelling_main <- DT::renderDataTable({
+  output$covid19_modelling_main <- formattable::renderFormattable({
+    req(input$covid19_modelling_location_code)
+
+    ## dt_covid19_modelling_main(
+    ##   location_code = input$covid19_modelling_location_code,
+    ##   config = config
+    ## )
+    modelling_main_table()$tab
+  })
+
+  ## Download table
+  output$download_xls <- downloadHandler(
+
+    filename = function(){ paste0("covid", lubridate::today(), ".xlsx")},
+    content = function(file){
+      writexl::write_xlsx(modelling_main_table()$pd_xl, file)
+    }
+  )
 
   ## Subset to a date range. Can be dynamic
   dateRange <- eventReactive(input$select_plot_view, {
@@ -395,6 +416,26 @@ dt_covid19_modelling_main <- function(
   dates <- unique(c(dates1, dates2))
   dates <- dates[dates %in% pd$date]
 
+   ## Create data for excel output
+  SelectedVar <- c(
+    "date",
+    "incidence_est", "incidence_thresholdl0", "incidence_thresholdu0",
+    "infectious_prev_est", "infectious_prev_thresholdl0", "infectious_prev_thresholdu0",
+    "hosp_prev_est", "hosp_prev_thresholdl0", "hosp_prev_thresholdu0",
+    "icu_prev_est", "icu_prev_thresholdl0", "icu_prev_thresholdu0"
+  )
+
+  NewName <- c(
+    "Dato",
+    "Hva vil dere kalle de andre variablene?")
+
+  pd_xl <- pd[date %in% dates, ..SelectedVar]
+
+  for (j in SelectedVar[-1]){
+    set(pd_xl, j = j, value = fhiplot::format_nor(pd_xl[[j]]))
+  }
+  ## data.table::setnames(pd_xl, new = NewName)
+
   pd[, incidence_format := glue::glue(
     "{est} ({l95}, {u95})",
     est=fhiplot::format_nor(incidence_est),
@@ -457,6 +498,7 @@ dt_covid19_modelling_main <- function(
   )
 
   tab
+  list(tab = tab, pd_xl = pd_xl)
 }
 
 
