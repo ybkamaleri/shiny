@@ -187,14 +187,24 @@ covid19_modelling_ui <- function(id, config) {
 
 covid19_modelling_server <- function(input, output, session, config) {
 
-  #output$covid19_modelling_main <- DT::renderDataTable({
-  output$covid19_modelling_main <- formattable::renderFormattable({
-    req(input$covid19_modelling_location_code)
+  modelling_main_table <- eventReactive(input$covid19_modelling_location_code, {
 
     dt_covid19_modelling_main(
       location_code = input$covid19_modelling_location_code,
       config = config
     )
+
+  })
+
+  #output$covid19_modelling_main <- DT::renderDataTable({
+  output$covid19_modelling_main <- formattable::renderFormattable({
+    req(input$covid19_modelling_location_code)
+
+    ## dt_covid19_modelling_main(
+    ##   location_code = input$covid19_modelling_location_code,
+    ##   config = config
+    ## )
+    modelling_main_table()$tab
   })
 
   ## Download table
@@ -202,7 +212,7 @@ covid19_modelling_server <- function(input, output, session, config) {
 
     filename = function(){ paste0("covid", lubridate::today(), ".xlsx")},
     content = function(file){
-      writexl::write_xlsx(pd_xl, file)
+      writexl::write_xlsx(modelling_main_table()$pd_xl, file)
     }
   )
 
@@ -425,8 +435,6 @@ dt_covid19_modelling_main <- function(
     set(pd_xl, j = j, value = fhiplot::format_nor(pd_xl[[j]]))
   }
   ## data.table::setnames(pd_xl, new = NewName)
-  assign("pd_xl", pd_xl, envir = .GlobalEnv)
-
 
   pd[, incidence_format := glue::glue(
     "{est} ({l95}, {u95})",
@@ -490,6 +498,7 @@ dt_covid19_modelling_main <- function(
   )
 
   tab
+  list(tab = tab, pd_xl = pd_xl)
 }
 
 
