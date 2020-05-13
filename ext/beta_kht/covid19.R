@@ -17,34 +17,12 @@ covid19_ui <- function(id, config) {
           "Gi gjerne tilbakemeldinger og ønskede endringer via",
           strong("sykdomspulsen@fhi.no"), br(), br(),
 
-          strong("I covid-19 overvåkningen bruker vi både NorSySS og MSIS data:"),br(),
-          strong("NorSySS"),
-          "er forkortelsen for Norwegian Syndromic Surveillance System som er en del av Sykdomspulsen.", br(),
-          "Dette er et overvåkningssystem basert på diagnosekoder (ICPC-2 koder) satt på legekontor og legevakt i hele Norge.",
-   "Antallet konsultasjoner på legekontor og legevakt angir ikke antallet smittede i Norge.",br(),
-          "For å overvåke covid-19 epidemien har vi valgt å følge ",
-          "ekstra nøye med på to ICPC-2 diagnosekoder i primærhelsetjenesten:",
-          br(),
-
-          strong("- R991: Covid-19 (mistenkt eller bekreftet)"),
-          " ble opprettet 06.03.2020. ",
-          br(),
-          strong("- R27: Engstelig for sykdom i luftveiene IKA"),
-          "ble anbefalt ",
-        "brukt av referansegruppen for primærmedisinsk kodeverk i ",
-        "Direktoratet for e-helse og Legeforeningen 13.03.2020. ",
-        "Denne koden skal brukes ved sykmelding/konsultasjon/kontakt ",
-        "vedrørende covid-19, med unntak av bekreftet/mistenkt ",
-        "koronavirus-sykdom (https://fastlegen.no/artikkel/diagnosekoder-ved-Covid-19). ",br(), br(),
-
-          strong("MSIS"),
-          "er det nasjonale overvåkingssystemet for smittsomme sykdommer. ",
-          "Koronavirus med utbruddspotensiale ble definert som ny meldepliktig sykdom ",
-          "i MSIS fra 31.01.2020. Både leger og laboratorier som påviser sykdommen skal ",
-          "melde tilfellet til MSIS. Tallene gir en indikasjon på aktiviteten av covid-19, ",
-          "men angir ikke nøyaktig antall covid-19 smittede i befolkningen.", br(), br(),
-
-
+          "I covid-19 overvåkningen bruker vi NorSySS, MSIS og laboratoriedatabasen.",
+          "NorSySS dataene blir oppdatert hver morgen.",
+          "MSIS og laboratorie dataene blir oppdatert ca kl 13 hver ukedag, i helger og på helligdager blir de foreløpig ikke oppdatert.",
+          "Det er noe forsinkelse i alle dataene, derfor ",
+          "kan figurene endre seg etter hvert.",
+          "Mer informasjon om dataene finner du i 'Informasjon' fanen under.", br(),br(),
 
           "Under kan du velge blant to faner som gir deg forskjellig informasjon:", br(),
           "- ",strong("Oversikt")," fanen vil gi deg en rekke figurer, tabeller og kart hvor du kan velge det geografiske området du er interessert i", br(),
@@ -66,9 +44,19 @@ covid19_ui <- function(id, config) {
 
                 strong("Under vil du se en rekke figurer, kart og tabeller som gir ",
                 "en oversikt over det geografiske området du velger i ",
-                "nedtrekksmenyen under. Du kan også begynne å skrive navnet ",
+                "nedtrekksmenyen under. Du kan begynne å skrive navnet ",
                 "på ønsket fylke eller kommune så vil det automatisk komme ",
-                "opp alternativer."), br(), br(),
+                "opp alternativer."),
+                 br(), br(),
+
+                "De røde pilene på x-aksen under figuren indikerer helger og helligdager. ",
+                "Det er som regel færre konsultasjoner hos lege og legevakt i helger og ",
+                "helligdager enn på hverdager.",
+                "En rød stjerne (*) på x-aksen under figuren indikerer at det er",
+                " mellom 1 og 4 konsultasjoner i nevneren for NorSySS.",
+                "Røde stiplede vertikale linjer i figuren indikerer at det",
+                "ikke er rapportert noen konsultasjoner på denne datoen for dette geografiske området.",
+                br(), br(),
 
                 strong("Norge:"), " Gir en oversikt over Norge i tillegg til oversikt ",
                 "over alle fylkene. De nasjonale dataene er aggregert på dagsnivå.", br(),
@@ -79,12 +67,6 @@ covid19_ui <- function(id, config) {
                 "Vær oppmerksom på at noen kommuner har veldig få konsultasjoner,",
                 "derfor vil ikke trendene kunne brukes på en god måte.",
                 "Kommuner med under 500 innbyggere vil mangle aldersdelte figurer pga anonymitet.", br(), br(),
-
-                "MSIS dataene blir oppdatert ca kl 13 hver ukedag, i helger og på helligdager blir de foreløpig ikke oppdatert",
-                "Det er noe forsinkelse både i MSIS og NorSySS dataene, derfor ",
-                "kan figurene endre seg etter hvert.",
-              br(),
-                "For mer informasjon om dataene kan du gå til fanen 'Informasjon'.",
                 br(),br(),br()
               )
             )
@@ -116,29 +98,12 @@ covid19_ui <- function(id, config) {
                 p(
                   strong("Figur 1")," viser antall covid-19 meldinger ",
                   "til MSIS (blå søyler) sammenstilt med andel konsultasjoner ",
-                  "for covid-19 (mistenkt eller bekreftet) på ",
-                  "legekontor og legevakt gjennom NorSySS (rød linje). Denne figuren kan gi en ",
-                  "oversikt over trendene i MSIS og NorSySS i ",
-                  "forhold til hverandre.",
+                  "for covid-19 (mistenkt, sannsynlig eller bekreftet) på ",
+                  "legekontor og legevakt gjennom NorSySS (rød linje) og andel positive laboratorietester (kun på Norgesnivå).",
+                  "Denne figuren kan gi en ",
+                  "oversikt over trendene i forhold til hverandre.",
                   br(),
-                  "På nasjonalt og fylkesnivå",
-                  "vil figuren vise data per dag (dag.måned).",
-                  "På kommunenivå vil figuren vise data per uke (år-ukenummer).",
-                  br(), br(),
-                  "Det er noe forsinkelse ",
-                  "både i MSIS dataene og NorSySS, derfor ",
-                  "kan figuren endre seg etter hvert."),
-                br(),
-
-                "De røde pilene på x-aksen under figuren indikerer helger og helligdager. ",
-                "Det er som regel færre konsultasjoner hos lege og legevakt i helger og ",
-                "helligdager enn på hverdager.",br(),br(),
-
-                "En rød stjerne (*) på x-aksen under figuren indikerer at det er",
-                " mellom 1 og 4 konsultasjoner i nevneren for NorSySS.",
-                " Ved rød stjerne vil den røde linjen ligge på 0%.", br(), br(),
-                "Røde stiplede vertikale linjer i figuren indikerer at det ikke er rapportert noen konsultasjoner på denne datoen for dette geografiske området."
-
+                )
               )
             ),
 
@@ -147,11 +112,9 @@ covid19_ui <- function(id, config) {
                 width=12, align="left",
                 br(),
                 p(
-                  strong("Figur 1.")," Antall covid-19 meldinger til MSIS og andel konsultasjoner for ",
-                  "covid-19 (mistenkte eller bekreftet) på legekontor og legevakt"
-                ),
+                  ),
                 shinycssloaders::withSpinner(plotOutput(ns("overview_norsyss_vs_msis"), height = "700px")),
-                br(),br(),br()
+                br()
               )
             ),
 
@@ -164,26 +127,9 @@ covid19_ui <- function(id, config) {
                 "Vi har inkludert andel konsultasjoner av fire forskjellige enkeltstående",
                 " ICPC-2 diagnosekoder og en kode der vi har samlet en rekke luftveis ",
                 "diagnoser (R01, R02, R03, R04, R05, R07, R08, R09, R21, R24, R25, ",
-                "R27, R29, R74, R75, R76, R77, R79, R80, R81, R82, R83, R99). ",
+                "R27, R29, R74, R75, R76, R77, R79, R80, R81, R82, R83, R991, R992). ",
                 "Se i fanen «informasjon» for å få navn på diagnosekodene som er med.",
-                br(), br(),
-                "På nasjonalt og fylkesnivå",
-                "vil figuren vise data per dag (dag.måned).",
-                "På kommunenivå vil figuren vise data per uke (år-ukenummer).",
-                 br(), br(),
-
-                "Nevneren i andelen er totalt antall konsultasjoner per dag i det ",
-                "samme geografisk området.",
-                br(), br(),
-
-                "De røde pilene på x-aksen under figuren indikerer helger og helligdager. ",
-                "Det er som regel færre konsultasjoner hos lege og legevakt i helger og ",
-                "helligdager enn på hverdager.", br(),br(),
-
-                "En rød stjerne (*) på x-aksen under figuren indikerer at det er",
-                " mellom 1 og 4 konsultasjoner i nevneren.",
-                " Linjen som har mellom 1 og 4 konsultasjoenr vil ligge på 0% i figuren.", br(), br(),
-                "Røde stiplede vertikale linjer i figuren indikerer at det ikke er rapportert noen konsultasjoner på denne datoen for dette geografiske området."
+                br(),
 
               )
             )
@@ -193,9 +139,8 @@ covid19_ui <- function(id, config) {
             column(
               width=12, align="left",
               br(),
-              p(strong("Figur 2.")," Andel konsultasjoner med forskjellig luftveisagens."),
               shinycssloaders::withSpinner(plotOutput(ns("overview_plot_national_syndromes_proportion"), height = "700px")),
-              br(),br(),br()
+              br()
             )
           ),
 
@@ -207,23 +152,9 @@ covid19_ui <- function(id, config) {
                 strong("Figur 3")," viser fordelingen av konsultasjoner på lege/legevakt ",
                 "og telefon/e-konsultasjon/oppmøte ved hjelp av søyler som skal ",
                 "leses av på x-aksen til venstre på figuren. Den røde linjen viser ",
-                "andel konsultasjoner per dag og skal leses av på høyre side av figuren.",  br(), br(),
-                "På nasjonalt og fylkesnivå",
-                "vil figuren vise data per dag (dag.måned).",
-                "På kommunenivå vil figuren vise data per uke (år-ukenummer).",br(), br(),
+                "andel konsultasjoner per dag og skal leses av på høyre side av figuren.",
+                br(),
 
-                "Nevneren er totalt antall konsultasjoner per dag i valgt geografiske område.", br(), br(),
-
-                "De røde pilene på x-aksen under figuren indikerer helger og helligdager. ",
-                "Det er som regel færre konsultasjoner hos lege og legevakt i helger og ",
-                "helligdager enn på hverdager.", br(),br(),
-
-                "En rød stjerne (*) på x-aksen under figuren indikerer at det er",
-                " mellom 1 og 4 konsultasjoner i nevneren",
-                " i en av gruppene eller i telleren for Oppmøte.",
-                " Den gruppen som har mellom 1 og 4 konsultasjoener",
-                " vil ikke vises i figuren.", br(), br(),
-                "Røde stiplede vertikale linjer i figuren indikerer at det ikke er rapportert noen konsultasjoner på denne datoen for dette geografiske området."
               )
             )
           ),
@@ -233,11 +164,10 @@ covid19_ui <- function(id, config) {
               width=12, align="left",
               br(),
               p(
-                strong("Figur 3."), " Antall konsultasjoner for covid-19 fordelt på type ",
-                "konsultasjon samt andel konsultasjoner for covid-19."
+
               ),
               shinycssloaders::withSpinner(plotOutput(ns("overview_plot_national_source_proportion"), height = "700px")),
-              br(),br(),br()
+              br()
             )
           ),
 
@@ -247,28 +177,13 @@ covid19_ui <- function(id, config) {
 
               p(
                 strong("Figur 4")," viser andel konsultasjoner med covid-19 ",
-                "(mistenkt eller bekreftet) diagnose per aldersgruppe. Vær ",
+                "(mistenkt, sannsynlig eller bekreftet) diagnose per aldersgruppe. Vær ",
                 "oppmerksom på at aldersgruppene ikke er like store og ",
                 strong("nevneren er totalt antall konsultasjoner per dag og per geografisk område. "),
                 "Dette gir en oversikt over hvilke aldersgrupper som i hovedsak ",
-                "kontakter lege og legevakt for covid-19 (mistenkt eller bekreftet). ",
+                "kontakter lege og legevakt for covid-19. ",
                 "For å se mer på spesifikke aldersgrupper se ", strong("Figur 5"),
-                br(), br(),
-                "På nasjonalt og fylkesnivå",
-                "vil figuren vise data per dag (dag.måned).",
-                "På kommunenivå vil figuren vise data per uke (år-ukenummer).",
-                br(), br(),
-
-                "De røde pilene på x-aksen under figuren indikerer helger og helligdager. ",
-                "Det er som regel færre konsultasjoner hos lege og legevakt i helger og ",
-                "helligdager enn på hverdager.", br(), br(),
-
-                "En rød stjerne (*) på x-aksen under figuren indikerer at det er",
-                " mellom 1 og 4 konsultasjoner i enten telleren eller nevneren",
-                " i en av gruppene.",
-                " Den gruppen som har mellom 1 og 4 konsultasjoener",
-                " vil ikke vises i figuren.", br(), br(),
-                "Røde stiplede vertikale linjer i figuren indikerer at det ikke er rapportert noen konsultasjoner på denne datoen for dette geografiske området."
+                br(),
               )
             )
           ),
@@ -278,10 +193,9 @@ covid19_ui <- function(id, config) {
               width=12, align="left",
               br(),
               p(
-                strong("Figur 4."), "Andel konsultasjoner med covid-19 (mistenkt eller bekreftet) fordelt på aldersgruppe"
-              ),
+               ),
               shinycssloaders::withSpinner(plotOutput(ns("overview_plot_national_age_burden"), height = "700px")),
-              br(),br(),br()
+              br()
             )
           ),
 
@@ -290,26 +204,12 @@ covid19_ui <- function(id, config) {
               width=12, align="left",
               p(
                 strong("Figur 5")," viser andel konsultasjoner med covid-19 ",
-                "(mistenkt eller bekreftet) diagnose per aldersgruppe. ",
+                "(mistenkt, sannsynlig eller bekreftet) diagnose per aldersgruppe. ",
                 "Vær oppmerksom på at ",
                 strong("nevneren er totalt antall konsultasjoner per aldersgruppe, per dag og per geografisk område. "),
                 "Dette gir en oversikt over hvordan trendene er for covid-19 ",
                 "(mistenkt eller bekreftet) per aldersgruppe.",
-                br(), br(),
-                "På nasjonalt og fylkesnivå",
-                "vil figuren vise data per dag (dag.måned).",
-                "På kommunenivå vil figuren vise data per uke (år-ukenummer).",
-
-                br(), br(),
-
-                "De røde pilene på x-aksen under figuren indikerer helger og helligdager. ",
-                "Det er som regel færre konsultasjoner hos lege og legevakt i helger og ",
-                "helligdager enn på hverdager.", br(), br(),
-
-                "En rød stjerne (*) istedenfor en søyle indikerer at det er",
-                " mellom 1 og 4 konsultasjoner i enten telleren eller nevneren",
-                " i en av gruppene.", br(), br(),
-                "Røde stiplede vertikale linjer i figuren indikerer at det ikke er rapportert noen konsultasjoner på denne datoen for dette geografiske området."
+                br(),
               )
             )
           ),
@@ -319,11 +219,10 @@ covid19_ui <- function(id, config) {
               width=12, align="left",
               br(),
               p(
-                strong("Figur 5."), " Andel konsultasjoner med covid-19 (mistenkt eller bekreftet) ",
-                "fordelt på aldersgrupper"
+
               ),
               shinycssloaders::withSpinner(plotOutput(ns("overview_plot_national_age_trends"), height = "700px")),
-              br(),br(),br()
+              br()
             )
           ),
 
@@ -332,19 +231,9 @@ covid19_ui <- function(id, config) {
               width=12, align="left",
 
               p(
-                strong("Figur 6")," viser andel konsultasjoner med R991: Covid-19 ",
-                "(mistenkt eller bekreftet) og R27: Engstelig luftveissykdom ",
+                strong("Figur 6")," viser andel konsultasjoner med R991 og R992 sammen: Covid-19 ",
+                "(mistenkt, sannsynlig eller bekreftet) og R27: Engstelig luftveissykdom ",
                 "IKA diagnose per geografisk område.",br(),
-
-                "Nevneren er totalt antall konsultasjoner per dag i det viste ",
-                "geografiske området.", br(), br(),
-
-                "En rød stjerne (*) i figuren indikerer at det er",
-                " mellom 1 og 4 konsultasjoner i nevneren",
-                " i en av diagnosekodene.",
-                " Den diagnosekoden som har mellom 1 og 4 konsultasjoener",
-                " vil vises som 0% i figuren.", br(), br(),
-                "Røde stiplede vertikale linjer i figuren indikerer at det ikke er rapportert noen konsultasjoner på denne datoen for dette geografiske området."
 
               )
             )
@@ -355,11 +244,9 @@ covid19_ui <- function(id, config) {
               width=12, align="left",
               br(),
               p(
-                strong("Figur 6."), " Andel konsultasjoner av R991: Covid-19 (mistenkt eller bekreftet) ",
-                "og R27: Engstelig luftveissykdom IKA diagnose per geografisk område."
-              ),
+                 ),
               uiOutput(ns("overview_ui_county_proportion")),
-              br(),br(),br()
+              br()
               #shinycssloaders::withSpinnerplotOutput(ns("overview_plot_county_proportion"), height = "900px")
             )
           ),
@@ -371,8 +258,7 @@ covid19_ui <- function(id, config) {
               p(
                 strong("Figur 7")," viser det geografiske området du har valgt ",
                 "øverst på siden med kumulativt antall konsultasjoner per ",
-                "geografisk område.", br(), br(),
-
+                "geografisk område.",
                 "De kommunene som ikke har legevakt eller legekontor vil ",
                 "bli hvite med rødt 'X' i kartet da vi ikke har noe data over ",
                 "disse kommunene. De som bor i disse kommunene drar til ",
@@ -385,9 +271,8 @@ covid19_ui <- function(id, config) {
             column(
               width=12, align="left",
               br(),
-              p(strong("Figure 7.")),
               shinycssloaders::withSpinner(plotOutput(ns("overview_map_county_proportion"), height = "600px")),
-              br(),br(),br()
+              br()
             )
           ),
 
@@ -397,8 +282,7 @@ covid19_ui <- function(id, config) {
 
               p(
                 strong("Figur 8")," viser det geografiske området du har valgt ",
-                "øverst på siden med andel konsultasjoner for R991 og R27.", br(), br(),
-
+                "øverst på siden med andel konsultasjoner for R991 og R27.",
                 "De kommunene som ikke har legevakt eller legekontor vil ",
                 "bli hvite med rødt 'X' i kartet da vi ikke har noe data over ",
                 "disse kommunene. De som bor i disse kommunene drar til ",
@@ -411,9 +295,8 @@ covid19_ui <- function(id, config) {
             column(
               width=12, align="left",
               br(),
-              p(strong("Figure 8.")),
               shinycssloaders::withSpinner(plotOutput(ns("overview_map_county_proportion_2"), height = "600px")),
-              br(),br(),br()
+              br()
             )
           )
         )
@@ -434,13 +317,11 @@ covid19_ui <- function(id, config) {
               width=12, align="left",
 
               p(
-                strong("Vi får data til covid-19 overvåkingen via NorSySS og MSIS "),br(), br(),
+                strong("Vi får data til covid-19 overvåkingen via NorSySS, MSIS og laboratoriedatabasen"),br(), br(),
 
                 strong("NorSySS"),
                 "er forkortelsen for Norwegian Syndromic Surveillance System som er en del av Sykdomspulsen.", br(),
                 "Dette er et overvåkningssystem basert på diagnosekoder (ICPC-2 koder) satt på legekontor og legevakt i hele Norge.",
-
-
                 "Diagnosekodene sendes ",
                 "til Helsedirektoratet som en del av legenes refusjonskrav ",
                 "(KUHR-systemet). Folkehelseinstituttet mottar daglig ",
@@ -449,12 +330,13 @@ covid19_ui <- function(id, config) {
                 "men med informasjon om kjønn, aldersgruppe, konsultasjonsdato ",
                 "og sted for konsultasjon.", br(),
                 "For å overvåke covid-19 epidemien har vi valgt å følge ",
-                "ekstra nøye med på to ICPC-2 diagnosekoder i primærhelsetjenesten:",br(),
+                "ekstra nøye med på tre ICPC-2 diagnosekoder i primærhelsetjenesten:",br(),
 
-                strong("- R991: Covid-19 (mistenkt eller bekreftet)"), " ble opprettet 06.03.2020. ",
-                "Ikke alle legekontor og legevakt kunne benytte seg av denne koden ",
-                "med en gang etter at den ble opprettet da de først ",
-                "måtte implementere denne i deres journalsystem.",
+                strong("- R991: Covid-19 (mistenkt eller bekreftet)"), " ble opprettet 06.03.2020, men endret til ",
+                br(),
+                strong("- R991: Covid-19 (mistenkt/sannsynlig) og R992: Covid-19 (bekreftet)"), " 04.05.2020. ",
+                "For å få mest mulig enhetlig data for hele tidsperioden viser vi R991 og R992 samlet for tiden",
+                "etter 04.05.2020. Vi vurderer å endre dette etterhvert.",br(),
                 "De kliniske tegnene på covid-19 er akutt luftveisinfeksjon med ",
                 "symptomer som feber, hoste og kortpustethet. Det er sesong ",
                 "for vanlig forkjølelse og influensa som også kan gi slike ",
@@ -477,8 +359,13 @@ covid19_ui <- function(id, config) {
                 "melde tilfellet til MSIS. Tallene gir en indikasjon på aktiviteten av covid-19, ",
                 "men angir ikke nøyaktig antall covid-19 smittede i befolkningen.", br(), br(),
 
-
-
+                strong("MSIS laboratoriedatabasen"),
+                "brukes for laboratoriedata.",
+                "Elektroniske kopisvar går direkte fra laboratoriene inn til MSIS laboratoriedatabase.",
+                "Tallene oppgjøres på antall personer som testes og ikke antall analyser.",
+                "En person kan ha fått utført mer enn en analyse for covid-19.",
+                "Antall testet og andel positive funn blant de testede påvirkes av endringer i testkriterier.",
+                br(), br(),
 
                 strong("Informasjon om dataene i covid-19 overvåkingen:"), br(),
                 "- På nasjonalt og fylkesnivå",
@@ -532,7 +419,8 @@ covid19_ui <- function(id, config) {
                 "- R82: Pleuritt IKA", br(),
                 "- R83: Luftveisinfeksjon IKA", br(),
                 "- R99: Luftveissykdom IKA", br(),
-                "- R991: Covid-19 (mistenkt eller bekreftet)", br(), br(),
+                "- R991: Covid-19 (mistenkt/sannsynlig)", br(),
+                "- R992: Covid-19 (bekreftet)", br(), br(),
 
                 "Overvåkingen av covid-19 er noe annerledes enn NorSySS ",
                 "overvåkingen i Sykdomspulsen. Siden diagnosekoden covid-19 ",
@@ -822,7 +710,7 @@ covid19_plot_single <- function(
   }
 
   if(!is.null(d_third) && !is.null(d_right)){
-    
+
     q <- q + geom_col(
       data = d_left,
       mapping = aes(y = value,
@@ -1019,8 +907,8 @@ covid19_norsyss_vs_msis_lab_daily <- function(
     labs_right = "Andel NorSySS konsultasjoner\n og andel positive laboratorietester\n",
     labs_title = glue::glue(
       "{names(config$choices_location)[config$choices_location==location_code]}\n",
-      "Antall covid-19 meldinger til MSIS og andel konsultasjoner for covid-19 (mistenkte eller bekreftet)\n",
-      "på legekontor og legevakt\n",
+      "Antall covid-19 meldinger til MSIS og andel konsultasjoner for \n",
+      "covid-19 (mistenkt, sannsynlig eller bekreftet) på legekontor og legevakt\n",
       "Data fra NorSySS og MSIS"
     ),
     labs_caption = glue::glue(
@@ -1094,8 +982,8 @@ covid19_norsyss_vs_msis_daily <- function(
     labs_right = "Andel NorSySS konsultasjoner\n",
     labs_title = glue::glue(
       "{names(config$choices_location)[config$choices_location==location_code]}\n",
-      "Antall covid-19 meldinger til MSIS og andel konsultasjoner for covid-19 (mistenkte eller bekreftet)\n",
-      "på legekontor og legevakt\n",
+      "Antall covid-19 meldinger til MSIS og andel konsultasjoner for\n",
+      "covid-19 (mistenkt, sannsynlig eller bekreftet) på legekontor og legevakt\n",
       "Data fra NorSySS og MSIS"
     ),
     labs_caption = glue::glue(
@@ -1161,8 +1049,8 @@ covid19_norsyss_vs_msis_weekly <- function(
     labs_right = "Andel NorSySS konsultasjoner\n",
     labs_title = glue::glue(
       "{names(config$choices_location)[config$choices_location==location_code]}\n",
-      "Antall covid-19 meldinger til MSIS og andel konsultasjoner for covid-19 (mistenkte eller bekreftet)\n",
-      "på legekontor og legevakt\n",
+      "Antall covid-19 meldinger til MSIS og andel konsultasjoner for\n",
+      "covid-19 (mistenkt, sannsynlig eller bekreftet) på legekontor og legevakt\n",
       "Data fra NorSySS og MSIS"
     ),
     labs_caption = glue::glue(
@@ -1237,7 +1125,7 @@ covid19_overview_plot_national_syndromes_proportion_daily <- function(
       "rxx_for_covid19_vk_ote"
     ),
     labels = c(
-      "Covid-19 (mistenkt\neller bekreftet) (R991)",
+      "Covid-19 (mistenkt\nsannsynlig\neller bekreftet) (R991, R992)",
       "Engstelig luftveissykdom\nIKA (R27)",
       "Influensa (R80)",
       "Akutt øvre\nluftveisinfeksjon (R74)",
@@ -1269,7 +1157,7 @@ covid19_overview_plot_national_syndromes_proportion_daily <- function(
     ),
     labs_caption = glue::glue(
       "Røde piler på x-aksen viser helger og helligdager. Røde * på x-aksen viser sensurerte data\n",      "Nevneren er totalt antall konsultasjoner\n",
-      "*R- 01, 02, 03, 04, 05, 06, 07, 08, 09, 21, 24, 25, 27, 29, 72, 74, 75, 76, 77, 78, 79, 81, 82, 83, 99, 991\n",
+      "*R- 01, 02, 03, 04, 05, 06, 07, 08, 09, 21, 24, 25, 27, 29, 72, 74, 75, 76, 77, 78, 79, 81, 82, 83, 99, 991, 992\n",
       "Røde stiplede vertikale linjer på figuren betyr at ingen konsultasjoner er rapportert på disse datoene\n",
       "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
     ),
@@ -1321,7 +1209,7 @@ covid19_overview_plot_national_syndromes_proportion_weekly <- function(
       "rxx_for_covid19_vk_ote"
     ),
     labels = c(
-      "Covid-19 (mistenkt\neller bekreftet) (R991)",
+      "Covid-19 (mistenkt\n sannsynlig\neller bekreftet) (R991,R992)",
       "Engstelig luftveissykdom\nIKA (R27)",
       "Influensa (R80)",
       "Akutt øvre\nluftveisinfeksjon (R74)",
@@ -1355,7 +1243,7 @@ covid19_overview_plot_national_syndromes_proportion_weekly <- function(
     labs_caption = glue::glue(
       "\nRøde * på x-aksen viser sensurerte data\n",
       "Nevneren er totalt antall konsultasjoner\n",
-      "*R- 01, 02, 03, 04, 05, 06, 07, 08, 09, 21, 24, 25, 27, 29, 72, 74, 75, 76, 77, 78, 79, 81, 82, 83, 99, 991\n",
+      "*R- 01, 02, 03, 04, 05, 06, 07, 08, 09, 21, 24, 25, 27, 29, 72, 74, 75, 76, 77, 78, 79, 81, 82, 83, 99, 991, 992\n",
       "Røde stiplede vertikale linjer på figuren betyr at ingen konsultasjoner er rapportert på disse datoene\n",
       "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
     ),
@@ -1482,7 +1370,8 @@ covid19_overview_plot_national_source_proportion_daily <- function(
     labs_right = "Andel",
     labs_title = glue::glue(
       "{names(config$choices_location)[config$choices_location==location_code]}\n",
-      "Antall konsultasjoner for covid-19 fordelt på type konsultasjon samt andel konsultasjoner for covid-19\n",
+      "Antall konsultasjoner for covid-19 fordelt på type konsultasjon\n",
+      "samt andel konsultasjoner for covid-19\n",
       "Data fra NorSySS"
     ),
     labs_caption = glue::glue(
@@ -1600,7 +1489,8 @@ covid19_overview_plot_national_source_proportion_weekly <- function(
     labs_right = "Andel",
     labs_title = glue::glue(
       "{names(config$choices_location)[config$choices_location==location_code]}\n",
-      "Antall konsultasjoner for covid-19 fordelt på type konsultasjon samt andel konsultasjoner for covid-19\n",
+      "Antall konsultasjoner for covid-19 fordelt på type konsultasjon\n",
+      "samt andel konsultasjoner for covid-19\n",
       "Data fra NorSySS"
     ),
     labs_caption = glue::glue(
@@ -1695,7 +1585,7 @@ covid19_overview_plot_national_age_burden_daily <- function(
     labs_right = NULL,
     labs_title = glue::glue(
       "{names(config$choices_location)[config$choices_location==location_code]}\n",
-      "Andel konsultasjoner med covid-19 (mistenkt eller bekreftet) fordelt på aldersgruppe\n",
+      "Andel konsultasjoner med covid-19 (mistenkt, sannsynlig eller bekreftet) fordelt på aldersgruppe\n",
       "Data fra NorSySS"
     ),
     labs_caption = glue::glue(
@@ -1771,7 +1661,7 @@ covid19_overview_plot_national_age_burden_weekly <- function(
     labs_right = NULL,
     labs_title = glue::glue(
       "{names(config$choices_location)[config$choices_location==location_code]}\n",
-      "Andel konsultasjoner med covid-19 (mistenkt eller bekreftet) fordelt på aldersgruppe\n",
+      "Andel konsultasjoner med covid-19 (mistenkt, sannsynlig eller bekreftet) fordelt på aldersgruppe\n",
       "Data fra NorSySS"
     ),
     labs_caption = glue::glue(
@@ -1899,7 +1789,7 @@ covid19_overview_plot_national_age_trends_daily <- function(
   q <- q + theme(legend.key.size = unit(1, "cm"))
   q <- q + labs(title = glue::glue(
     "{names(config$choices_location)[config$choices_location==location_code]}\n",
-    "Andel konsultasjoner med covid-19 (mistenkt eller bekreftet) fordelt på aldersgrupper\n",
+    "Andel konsultasjoner med covid-19 (mistenkt, sannsynlig eller bekreftet) fordelt på aldersgrupper\n",
     "Data fra NorSySS"
   ))
   q <- q + labs(caption=glue::glue(
@@ -1998,7 +1888,7 @@ covid19_overview_plot_national_age_trends_weekly <- function(
   q <- q + theme(legend.key.size = unit(1, "cm"))
   q <- q + labs(title = glue::glue(
     "{names(config$choices_location)[config$choices_location==location_code]}\n",
-    "Andel konsultasjoner med covid-19 (mistenkt eller bekreftet) fordelt på aldersgrupper\n",
+    "Andel konsultasjoner med covid-19 (mistenkt, sannsynlig eller bekreftet) fordelt på aldersgrupper\n",
     "Data fra NorSySS"
   ))
   q <- q + labs(caption=glue::glue(
@@ -2064,7 +1954,7 @@ covid19_overview_plot_county_proportion_weekly <- function(
       "engstelig_luftveissykdom_ika_vk_ote"
     ),
     labels = c(
-      "Covid-19 (mistenkt eller bekreftet) (R991)",
+      "Covid-19 (mistenkt, sannsynlig eller bekreftet) (R991, R992)",
       "Engstelig luftveissykdom IKA (R27)"
     )
   )]
@@ -2140,7 +2030,7 @@ covid19_overview_plot_county_proportion_weekly <- function(
   q <- q + theme(legend.position="bottom")
   q <- q + labs(title=glue::glue(
     "Andel konsultasjoner av\n",
-    "R991: Covid-19 (mistenkt eller bekreftet) og\n",
+    "R991 og R992 samlet: Covid-19 (mistenkt, sannsynlig eller bekreftet)\n",
     "R27: Engstelig luftveissykdom IKA diagnose per geografisk område\n",
     "Data fra NorSySS"
   ))
@@ -2207,7 +2097,7 @@ covid19_overview_map_county_proportion <- function(
         "engstelig_luftveissykdom_ika_vk_ote"
       ),
       labels = c(
-        "Covid-19 (mistenkt eller bekreftet) (R991)",
+        "Covid-19 (mistenkt, sannsynlig eller bekreftet) (R991, R992)",
         "Engstelig luftveissykdom IKA (R27)"
       )
     )]
@@ -2354,7 +2244,7 @@ covid19_overview_map_county_proportion_2 <- function(
       "engstelig_luftveissykdom_ika_vk_ote"
     ),
     labels = c(
-      "Covid-19 (mistenkt eller bekreftet) (R991)",
+      "Covid-19 (mistenkt, sannsynlig eller bekreftet) (R991, R992)",
       "Engstelig luftveissykdom IKA (R27)"
     )
   )]
