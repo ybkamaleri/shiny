@@ -171,7 +171,7 @@ covid19_modelling_ui <- function(id, config) {
           br(), br()
 
         ),
-        downloadButton(ns("download_xls"), "Laste ned tabell", class = "knappe"),
+        downloadButton(ns("download_xls"), "Last ned tabell", class = "knappe"),
         tags$head(tags$style(".knappe{background-color:#add8e6;} .knappe{color: #111;}")),
         br(),
         formattable::formattableOutput(ns("covid19_modelling_main"), height="800px"),
