@@ -103,6 +103,8 @@ covid19_ui <- function(id, config) {
                   "Denne figuren kan gi en ",
                   "oversikt over trendene i forhold til hverandre.",
                   br(),
+                  br(), 
+                  actionButton(ns("show_table"), "Vis | last ned tabell"), 
                 )
               )
             ),
@@ -473,12 +475,18 @@ covid19_ui <- function(id, config) {
 covid19_server <- function(input, output, session, config) {
   #width <-  as.numeric(input$dimension[1])
 
-  output$overview_norsyss_vs_msis <- renderCachedPlot({
+  norsyss_vs_msis_list <- reactive({
 
-    covid19_norsyss_vs_msis(
+      covid19_norsyss_vs_msis(
       location_code = input$covid_location_code,
       config = config
     )
+  })
+  
+  output$overview_norsyss_vs_msis <- renderCachedPlot({
+
+    norsyss_vs_msis_list()$pd_plot
+
   }, cacheKeyExpr={list(
     input$covid_location_code,
     dev_invalidate_cache
@@ -486,6 +494,50 @@ covid19_server <- function(input, output, session, config) {
   res = 72
   )
 
+  ## Download table
+  modalTable <- function(){
+    div(id = "downtable",
+        modalDialog(
+          DTOutput(session$ns("download_tbl")),
+          br(), 
+          downloadButton(session$ns("download_xls"), "Last ned tabell"),
+          br(),
+          footer = tagList(
+            modalButton("Avbryt")
+          )
+        ))
+  }
+
+  output$download_tbl <- DT::renderDT(
+
+    norsyss_vs_msis_list()$pd_xl,
+    caption = "*Sensurerte data vises som tomme celler", 
+    options = list(
+      ## dom = "f",
+      language = list(
+        info = "Viser _START_ til _END_ av _TOTAL_ linjer",
+        paginate =  list(previous = 'Forrige', `next` = 'Neste')
+      ), 
+      pageLength = 10,
+      searching = FALSE
+    )
+  )
+
+  output$download_xls <- downloadHandler(
+
+    filename = function(){ paste0("covid19_overview_", lubridate::today(), ".xlsx")},
+    content = function(file){
+      writexl::write_xlsx(norsyss_vs_msis_list()$pd_xl, file)
+    }
+  )
+
+  observeEvent(input$show_table,
+               ignoreNULL = TRUE,
+               showModal(modalTable()))
+
+  ## ----
+
+  
   output$overview_plot_national_syndromes_proportion <- renderCachedPlot({
     req(input$covid_location_code)
 
@@ -845,10 +897,43 @@ covid19_norsyss_vs_msis <- function(
 }
 
 
+
+## Create table
+make_table_generic <- function(...) {
+  ## the order MUST be d_left, d_right, d_third
+  dd <- list(...)
+
+  varKey <- names(dd[[1]])[1] #either date or yrwk
+  invisible(lapply(dd, function(x) data.table::setkeyv(x, varKey)))
+  pd_xl <- Reduce(function(...) merge(..., all = TRUE), dd)
+
+  delColName <- c("censor", "no_data", "n")
+  oldColName <- setdiff(names(pd_xl), delColName)
+  newColName <- c("dato", "antall_MSIS", "andel_NorSySS", "andel_positive")
+  
+  if (length(dd) == 3) {
+    data.table::setnames(pd_xl, oldColName, newColName)
+  } else {
+    data.table::setnames(pd_xl, oldColName, newColName[-4])
+  }
+
+  ## rounding and change real censored to NA
+  roundCol <- newColName[3]
+  pd_xl[censor != "", (roundCol) := NA] %>%
+    .[, (roundCol) := round(get(roundCol), digits = 1)]
+
+  pd_xl[, (delColName) := NULL]
+
+  pd_xl
+  
+}
+
+
 covid19_norsyss_vs_msis_lab_daily <- function(
   location_code,
   config
 ){
+  
   d_left <- pool %>% dplyr::tbl("data_covid19_msis_by_time_location") %>%
     dplyr::filter(granularity_time == "day") %>%
     dplyr::filter(location_code== !!location_code) %>%
@@ -893,10 +978,15 @@ covid19_norsyss_vs_msis_lab_daily <- function(
   d_right[, no_data := consult_with_influenza==0]
   d_right[,consult_with_influenza := NULL]
 
+  ## Create table
+  pd_xl <- make_table_generic(d_left, d_right, d_third)
+  
+  
+  ## Create plot
   censored <- d_right[censor!=""]$date
   no_data <- d_right[no_data==TRUE]$date
 
-  covid19_plot_single(
+  pd_plot <- covid19_plot_single(
     d_left = d_left,
     d_right = d_right,
     d_third = d_third,
@@ -929,6 +1019,8 @@ covid19_norsyss_vs_msis_lab_daily <- function(
     multiplier_min_y_start = -0.175,
     left_labels = fhiplot::format_nor
   )
+
+  list(pd_plot = pd_plot, pd_xl = pd_xl)
 }
 
 
@@ -969,10 +1061,15 @@ covid19_norsyss_vs_msis_daily <- function(
   d_right[, no_data := consult_with_influenza==0]
   d_right[,consult_with_influenza := NULL]
 
+
+  ## Create table
+  pd_xl <- make_table_generic(d_left, d_right)
+
+  ## Create plot
   censored <- d_right[censor!=""]$date
   no_data <- d_right[no_data==TRUE]$date
 
-  covid19_plot_single(
+  pd_plot <- covid19_plot_single(
     d_left = d_left,
     d_right = d_right,
     censored = censored,
@@ -998,12 +1095,16 @@ covid19_norsyss_vs_msis_daily <- function(
     multiplier_min_y_start = -0.175,
     left_labels = fhiplot::format_nor
   )
+
+  list(pd_plot = pd_plot, pd_xl = pd_xl)
 }
+
 
 covid19_norsyss_vs_msis_weekly <- function(
   location_code,
   config
 ){
+  
   d_left <- pool %>% dplyr::tbl("data_covid19_msis_by_time_location") %>%
     dplyr::filter(granularity_time == "week") %>%
     dplyr::filter(location_code== !!location_code) %>%
@@ -1035,10 +1136,15 @@ covid19_norsyss_vs_msis_weekly <- function(
   d_right[, no_data := consult_with_influenza==0]
   d_right[,consult_with_influenza := NULL]
 
+  
+  ## Create table
+  pd_xl <- make_table_generic(d_left, d_right)
+
+  ## Create plot
   censored <- d_right[censor!=""]$yrwk
   no_data <- d_right[no_data==T]$yrwk
 
-  covid19_plot_single(
+  pd_plot <- covid19_plot_single(
     granularity_time = "week",
     d_left = d_left,
     d_right = d_right,
@@ -1065,6 +1171,8 @@ covid19_norsyss_vs_msis_weekly <- function(
     multiplier_min_y_start = -0.175,
     left_labels = fhiplot::format_nor
   )
+
+  list(pd_plot = pd_plot, pd_xl = pd_xl)
 }
 
 
