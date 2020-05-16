@@ -2,7 +2,7 @@
 library(shiny)
 library(shinyjs)
 library(shinycssloaders)
-library(DT)
+
 
 ## shinycssloaders global optios
 options(list(spinner.type = 6, spinner.color = "#027357"))

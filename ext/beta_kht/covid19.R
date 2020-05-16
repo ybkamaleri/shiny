@@ -103,8 +103,9 @@ covid19_ui <- function(id, config) {
                   "Denne figuren kan gi en ",
                   "oversikt over trendene i forhold til hverandre.",
                   br(),
-                  br(), 
-                  actionButton(ns("show_table"), "Vis | last ned tabell"), 
+                  br(),
+                  downloadButton(ns("download_xls"), "Last ned tabell", class = "knappe"),
+                  tags$head(tags$style(".knappe{background-color:#add8e6;} .knappe{color: #111;}")),
                 )
               )
             ),
@@ -495,34 +496,6 @@ covid19_server <- function(input, output, session, config) {
   )
 
   ## Download table
-  modalTable <- function(){
-    div(id = "downtable",
-        modalDialog(
-          DTOutput(session$ns("download_tbl")),
-          br(), 
-          downloadButton(session$ns("download_xls"), "Last ned tabell"),
-          br(),
-          footer = tagList(
-            modalButton("Avbryt")
-          )
-        ))
-  }
-
-  output$download_tbl <- DT::renderDT(
-
-    norsyss_vs_msis_list()$pd_xl,
-    caption = "*Sensurerte data vises som tomme celler", 
-    options = list(
-      ## dom = "f",
-      language = list(
-        info = "Viser _START_ til _END_ av _TOTAL_ linjer",
-        paginate =  list(previous = 'Forrige', `next` = 'Neste')
-      ), 
-      pageLength = 10,
-      searching = FALSE
-    )
-  )
-
   output$download_xls <- downloadHandler(
 
     filename = function(){ paste0("covid19_overview_", lubridate::today(), ".xlsx")},
@@ -530,11 +503,6 @@ covid19_server <- function(input, output, session, config) {
       writexl::write_xlsx(norsyss_vs_msis_list()$pd_xl, file)
     }
   )
-
-  observeEvent(input$show_table,
-               ignoreNULL = TRUE,
-               showModal(modalTable()))
-
   ## ----
 
   
@@ -917,9 +885,9 @@ make_table_generic <- function(...) {
     data.table::setnames(pd_xl, oldColName, newColName[-4])
   }
 
-  ## rounding and change real censored to NA
+  ## rounding and change real censored to 99
   roundCol <- newColName[3]
-  pd_xl[censor != "", (roundCol) := NA] %>%
+  pd_xl[censor != "", (roundCol) := 99] %>%
     .[, (roundCol) := round(get(roundCol), digits = 1)]
 
   pd_xl[, (delColName) := NULL]
