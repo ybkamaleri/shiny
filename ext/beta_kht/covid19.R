@@ -887,7 +887,7 @@ make_table_generic <- function(...) {
 
   ## rounding and change real censored to 99
   roundCol <- newColName[3]
-  pd_xl[censor != "", (roundCol) := 99] %>%
+  pd_xl[censor != "", (roundCol) := NA] %>%
     .[, (roundCol) := round(get(roundCol), digits = 1)]
 
   pd_xl[, (delColName) := NULL]
