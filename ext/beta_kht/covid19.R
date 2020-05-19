@@ -483,7 +483,7 @@ covid19_server <- function(input, output, session, config) {
       config = config
     )
   })
-  
+
   output$overview_norsyss_vs_msis <- renderCachedPlot({
 
     norsyss_vs_msis_list()$pd_plot
@@ -505,7 +505,7 @@ covid19_server <- function(input, output, session, config) {
   )
   ## ----
 
-  
+
   output$overview_plot_national_syndromes_proportion <- renderCachedPlot({
     req(input$covid_location_code)
 
@@ -877,8 +877,8 @@ make_table_generic <- function(...) {
 
   delColName <- c("censor", "no_data", "n")
   oldColName <- setdiff(names(pd_xl), delColName)
-  newColName <- c("dato", "antall_MSIS", "andel_NorSySS", "andel_positive")
-  
+  newColName <- c("dato", "antall_MSIS", "andel_NorSySS", "andel_positive_laboratorietester")
+
   if (length(dd) == 3) {
     data.table::setnames(pd_xl, oldColName, newColName)
   } else {
@@ -893,7 +893,7 @@ make_table_generic <- function(...) {
   pd_xl[, (delColName) := NULL]
 
   pd_xl
-  
+
 }
 
 
@@ -901,7 +901,7 @@ covid19_norsyss_vs_msis_lab_daily <- function(
   location_code,
   config
 ){
-  
+
   d_left <- pool %>% dplyr::tbl("data_covid19_msis_by_time_location") %>%
     dplyr::filter(granularity_time == "day") %>%
     dplyr::filter(location_code== !!location_code) %>%
@@ -948,8 +948,8 @@ covid19_norsyss_vs_msis_lab_daily <- function(
 
   ## Create table
   pd_xl <- make_table_generic(d_left, d_right, d_third)
-  
-  
+
+
   ## Create plot
   censored <- d_right[censor!=""]$date
   no_data <- d_right[no_data==TRUE]$date
@@ -1072,7 +1072,7 @@ covid19_norsyss_vs_msis_weekly <- function(
   location_code,
   config
 ){
-  
+
   d_left <- pool %>% dplyr::tbl("data_covid19_msis_by_time_location") %>%
     dplyr::filter(granularity_time == "week") %>%
     dplyr::filter(location_code== !!location_code) %>%
@@ -1104,7 +1104,7 @@ covid19_norsyss_vs_msis_weekly <- function(
   d_right[, no_data := consult_with_influenza==0]
   d_right[,consult_with_influenza := NULL]
 
-  
+
   ## Create table
   pd_xl <- make_table_generic(d_left, d_right)
 
