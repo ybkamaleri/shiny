@@ -101,9 +101,9 @@ covid19_modelling_ui <- function(id, config) {
           "viser forventet antall smittede på den gitte datoen.", br(),
           strong("Antall smittsomme"),
           "viser forventet antall smittsomme på den gitte datoen.", br(),
-          strong("Antall på sykehus (ikke ICU)"),
+          strong("Antall på sykehus (ikke intensiv)"),
           "viser antallet som er på sykehus på den gitte datoen. Disse tallene inkluderer ikke de som er på intensivavdelingen.",br(),
-          strong("Antall på ICU"),
+          strong("Antall på intensiv"),
           "viser antall på intensivavdelingen på den gitte datoen."
         )
       )
@@ -137,7 +137,7 @@ covid19_modelling_ui <- function(id, config) {
       column(
         width=12, align="left",
         br(),
-        p(strong("Figur 3."),"Antall på sykehus (ikke ICU) med 95% konfidens intervall.  Den røde vertikale linjen angir dagens dato. Vær oppmerksom på at y-skalaen er forskjellig for de forskjellige geografiske områdene."),
+        p(strong("Figur 3."),"Antall på sykehus (ikke intensiv) med 95% konfidens intervall.  Den røde vertikale linjen angir dagens dato. Vær oppmerksom på at y-skalaen er forskjellig for de forskjellige geografiske områdene."),
         uiOutput(ns("covid19_ui_modelling_hosp")),
         br(),br(),br()
       )
@@ -149,7 +149,7 @@ covid19_modelling_ui <- function(id, config) {
       column(
         width=12, align="left",
         br(),
-        p(strong("Figur 4."),"Antall på ICU med 95% konfidens intervall. ICU betyr intensivavdeling.  Den røde vertikale linjen angir dagens dato. Vær oppmerksom på at y-skalaen er forskjellig for de forskjellige geografiske områdene."),
+        p(strong("Figur 4."),"Antall på intensiv med 95% konfidens intervall. Den røde vertikale linjen angir dagens dato. Vær oppmerksom på at y-skalaen er forskjellig for de forskjellige geografiske områdene."),
         uiOutput(ns("covid19_ui_modelling_icu")),
         br(),br(),br()
       )
@@ -167,8 +167,8 @@ covid19_modelling_ui <- function(id, config) {
           "i det valgte geografiske området",
          " med et estimert tall og 95% konfidens intervall i parentes.",
          "Dataene du ser er for disse datoene (ikke aggregert på ukesnivå).",
-         "Antall på ICU betyr antall på intensivavdeling.",
-          br(), br()
+         "I tabellen som du laster ned er konfidens intervall forkortet med CI.",
+        br(), br()
 
         ),
         downloadButton(ns("download_xls"), "Last ned tabell", class = "knappe"),
@@ -427,14 +427,18 @@ dt_covid19_modelling_main <- function(
 
   NewName <- c(
     "Dato",
-    "Hva vil dere kalle de andre variablene?")
+    "Daglig insidens", "Daglig insidens nedre CI ", "Daglig insidens øvre CI",
+    "Antall smittsomme", "Antall smittsomme nedre CI", "Antall smittsomme øvre CI",
+    "Antall på sykehus", "Antall på sykehus nedre CI", "Antall på sykehus øvre CI",
+    "Antall på intensiv", "Antall på intensiv nedre CI", "Antall på intensiv øvre CI"
+    )
 
   pd_xl <- pd[date %in% dates, ..SelectedVar]
 
   for (j in SelectedVar[-1]){
     set(pd_xl, j = j, value = fhiplot::format_nor(pd_xl[[j]]))
   }
-  ## data.table::setnames(pd_xl, new = NewName)
+ data.table::setnames(pd_xl, old= SelectedVar, new = NewName)
 
   pd[, incidence_format := glue::glue(
     "{est} ({l95}, {u95})",
@@ -480,8 +484,8 @@ dt_covid19_modelling_main <- function(
       "Dato",
       "Daglig insidens",
       "Antall smittsomme",
-      "Antall på sykehus (ikke ICU)",
-      "Antall på ICU"
+      "Antall på sykehus (ikke intensiv)",
+      "Antall på intensiv"
     )
   )
 
@@ -585,7 +589,7 @@ plot_covid19_modelling_hosp <- function(location_code,
   plot_covid19_modelling_generic(hosp_prev_est,
                                  hosp_prev_thresholdl0,
                                  hosp_prev_thresholdu0,
-                                 y_title = "Antall på sykehus (ikke ICU)")
+                                 y_title = "Antall på sykehus (ikke intensiv)")
 
 }
 
