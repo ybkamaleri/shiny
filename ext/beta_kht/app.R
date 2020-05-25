@@ -22,6 +22,7 @@ if (.Platform$OS.type == "windows"){
 
 source("global.R")
 source("no_data.R")
+source("covid19_interactive.R")
 source("covid19.R")
 source("covid19_modelling.R")
 source("norsyss.R")
