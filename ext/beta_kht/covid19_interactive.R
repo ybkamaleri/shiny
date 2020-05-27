@@ -3,6 +3,7 @@ covid19_interactive_ui <- function(id, config){
   ns <- NS(id)
 
   fluidPage(
+    useShinyjs(),
     fluidRow(
       br(),
       p("Dette er interaktiv side", br(),
@@ -25,6 +26,12 @@ covid19_interactive_ui <- function(id, config){
                      size = "600px")
     ),
 
+    fluidRow(
+      width = 12, align = "center",
+      actionButton(ns("reset_btn"), "Nullstille",
+                   icon = icon("redo"))
+    ),
+
     br(),
 
     fluidRow(
@@ -44,21 +51,29 @@ covid19_interactive_ui <- function(id, config){
 
 covid19_interactive_server <- function(input, output, session, config){
 
-select_locations <- reactive({
-   if (is.null(input$int_input_location)) {
-     locations <- c(c("norge", "municip0301"))
-   } else {
-     locations <- input$int_input_location
-   }
-})
+  int_loc <- reactiveValues()
 
-output$msis_plot <- renderCachedPlot({
+  observe({
+    if (is.null(input$int_input_location)) {
+      int_loc$locations <- "norge"
+    } else {
+      int_loc$locations <- input$int_input_location
+    }
+  })
 
-    covid19_int_msis(location_codes = select_locations(),
+  observeEvent(input$reset_btn, {
+    int_loc$locations <- "norge"
+    reset("int_input_location")
+  })
+
+  output$msis_plot <- renderCachedPlot({
+
+    covid19_int_msis(location_codes = int_loc$locations,
                      config = config)
 
   }, cacheKeyExpr = {list(
     input$int_input_location,
+    input$reset_btn,
     dev_invalidate_cache
   )},
   res = 72
