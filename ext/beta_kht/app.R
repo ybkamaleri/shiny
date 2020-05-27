@@ -130,6 +130,7 @@ server <- function(input, output, session) {
   #   }
   # )
 
+  callModule(covid19_interactive_server, "covid19_interactive", config = config)
   callModule(covid19_server, "covid19", config=config)
   callModule(covid19_modelling_server, "covid19_modelling", config=config)
 

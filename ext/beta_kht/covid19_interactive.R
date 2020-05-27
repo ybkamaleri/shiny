@@ -8,92 +8,152 @@ covid19_interactive_ui <- function(id, config){
       p("Dette er interaktiv side", br(),
         "Bla... bla.. bla.."),
       br(),
-    ),
+      ),
 
     fluidRow(
-      column(
-        width = 3,
-        radioButtons(ns("int_select_levels"), "Valg nivå: ",
-                     choices = list("Fylke" = 1, "Kommune" = 2),
-                     selected = 1, inline = TRUE)
-      ),
+      width = 12, align = "center",
+      selectizeInput(ns("int_input_location"), "Geografisk områder: ",
+                     choices = config$choices_location,
+                     multiple = TRUE,
+                     ## selected = c("norge", "municip0301")
+                     selected = NULL,
+                     options = list(placeholder = "Skrev områder du vil sammenligne her",
+                                    maxItems = 6,
+                                    onInitialize = I('function() {this.setValue("");}')
 
-      column(
-        width = 4,
-        selectizeInput(ns("int_input_location"), "Sammenligne: ",
-                       choices = config$choices_location[-1],
-                       ## selected = list(as.list(config$choices_location[c(2, 5)])),
-                       options = list(placeholder = "Du kan kun velge 2",
-                                      maxItems = 2,
-                                      onInitialize = I('function() {this.setValue("");}')
-                                      ))
-      ),
+                                    ),
+                     size = "600px")
+    ),
 
-      column(
-        width = 4,
-        selectizeInput(ns("int_indikator"), "Valg indikator: ",
-                       selected = character(0),
-                       choices = config$choices_location[-1],
-                       multiple = FALSE)
-      ),
+    br(),
 
-      column(
-        width = 1, style = "margin-top: 25px;",
-        actionButton(ns("int_button"), " Vis plot", icon = icon("bar-chart-o"))
-      ),
-    )
+    fluidRow(
+      width = 12, align = "left",
+      br(),
+      shinycssloaders::withSpinner(plotOutput(ns("msis_plot"), height = "600px")),
+      br()
+
+    ),
+
+    br(),
+    br(),
+    br()
   )
-
 }
 
 
 covid19_interactive_server <- function(input, output, session, config){
 
+select_locations <- reactive({
+   if (is.null(input$int_input_location)) {
+     locations <- c(c("norge", "municip0301"))
+   } else {
+     locations <- input$int_input_location
+   }
+})
 
+output$msis_plot <- renderCachedPlot({
+
+    covid19_int_msis(location_codes = select_locations(),
+                     config = config)
+
+  }, cacheKeyExpr = {list(
+    input$int_input_location,
+    dev_invalidate_cache
+  )},
+  res = 72
+  )
 
 }
 
 
 
-
-covid19_int_msis <- function(granularity_geo,
+covid19_int_msis <- function(location_codes,
                              config){
 
-    d_left <- pool %>% dplyr::tbl("data_covid19_msis_by_time_location") %>%
-    dplyr::filter(granularity_time == "day")%>%
-    dplyr::filter(granularity_geo== !!granularity_geo) %>%
+
+  d <- pool %>% dplyr::tbl("data_covid19_msis_by_time_location") %>%
+    dplyr::filter(granularity_time == "day") %>%
+    dplyr::filter(location_code %in% !!location_codes) %>%
     dplyr::filter(date >= !!config$start_date) %>%
-    dplyr::select(date, n) %>%
+    dplyr::select(location_code, date, n) %>%
     dplyr::collect()
-  setDT(d_left)
-  d_left[, date:= as.Date(date)]
-  setnames(d_left, "n", "value")
+
+
+  setDT(d)
+  setorder(d, location_code, date)
+  d[,cum_n := cumsum(n), by=.(location_code)]
+  d[, date := as.Date(date)]
+
+  d_p <- fhidata::norway_population_b2020[year==2020,.(
+    pop=sum(pop)
+  ),keyby=.(location_code)]
+
+  d[
+    d_p,
+    on="location_code",
+    pop:=pop
+  ]
+
+  d[,pr1000_cum_n := 1000*cum_n/pop]
+
+  q <- covid19_int_gen_plot(d = d)
+  q
 
 }
 
 
-covid19_int_norsyss <- function(granularity_geo,
-                                config){
+covid19_int_gen_plot <- function(
+                                 d = NULL,
+                                 legend_position = "bottom",
+                                 labs_title = " ",
+                                 labs_caption = " "
 
-  d_right <- pool %>% dplyr::tbl("data_norsyss") %>%
-    dplyr::filter(granularity_geo== !!granularity_geo) %>%
-    dplyr::filter(granularity_time=="day") %>%
-    dplyr::filter(tag_outcome %in% "covid19_vk_ote") %>%
-    dplyr::filter(age=="total") %>%
-    dplyr::filter(date >= !!config$start_date) %>%
-    dplyr::select(date, n, consult_with_influenza) %>%
-    dplyr::collect()
-  setDT(d_right)
-  d_right[, date:= as.Date(date)]
+                                 ){
 
-  d_right[,censor := ""]
-  d_right[censor=="" & n>0 & n<5, censor := "N"]
-  d_right[censor != "", n := 0]
-  d_right[, value := 100* n / consult_with_influenza]
-  d_right[is.nan(value), value := 0]
-  d_right[value>60, value := 60]
-  d_right[, n := NULL]
-  d_right[, no_data := consult_with_influenza==0]
-  d_right[,consult_with_influenza := NULL]
 
+  max_y <- max(d$pr1000_cum_n)
+
+  q <- ggplot(d, aes(x = date, y = pr1000_cum_n)) +
+    geom_line(aes(color = location_code, group = location_code), size = 3)
+
+  q <- q + scale_x_date(
+      "",
+      date_breaks = "2 days",
+      date_labels = "%d.%m"
+    )
+
+
+  q <- q + fhiplot::theme_fhi_lines(
+    20, panel_on_top = T,
+    panel.grid.major.x = element_blank(),
+    panel.grid.minor.x = element_blank(),
+    legend_position = legend_position
+  )
+
+  q <- q + fhiplot::scale_color_fhi()
+  q <- q + fhiplot::set_x_axis_vertical()
+  q <- q + theme(legend.key.size = unit(1, "cm"))
+  q <- q + coord_cartesian(ylim=c(0, max_y), clip="off", expand = F)
+  q <- q + labs(title = labs_title)
+  q <- q + labs(caption = labs_caption)
+  q <- q + guides(guide_legend(nrow = 2))
+  q
 }
+
+
+
+
+## covid19_tables <- c("data_covid19_msis_by_time_location",
+##                     "data_norsyss",
+##                     "data_covid19_lab_by_time")
+
+## location_codes <- c("norge", "municip0301")
+## select_var <- c("location_code", "date", "n")
+
+## dt <- pool %>% dplyr::tbl("data_covid19_msis_by_time_location") %>%
+##   dplyr::filter(granularity_time == "day") %>%
+##   dplyr::filter(location_code %in% !!location_codes) %>%
+##   dplyr::filter(date >= !!config$start_date) %>%
+##   dplyr::select(location_code, date, n) %>%
+##   dplyr::collect()
