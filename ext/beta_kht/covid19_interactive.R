@@ -144,6 +144,18 @@ covid19_int_gen_plot <- function(
     )
   weekends <- data.frame(date = weekends)
 
+  ## areas names
+  sub_data <- unique(d$location_code)
+  sub_location <- config$choices_location[config$choices_location %in% sub_data]
+  df_location <- stack(sub_location)
+  setDT(df_location)
+
+  d[df_location,
+    on = list(location_code = values),
+    ind_name := ind]
+
+  d[, loc_name := gsub("\\s*\\(.*?\\)$", "", ind_name)]
+
 
   ## plot
   max_y <- max(d$pr1000_cum_n)
@@ -195,7 +207,7 @@ covid19_int_gen_plot <- function(
   )
   q <- q + ggrepel::geom_text_repel(
     data = subset(d, date == max(date)),
-    mapping = aes(label = paste(location_code)),
+    mapping = aes(label = loc_name),
     hjust = 0,
     size = 7,
     direction = "y",
