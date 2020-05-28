@@ -202,6 +202,7 @@ covid19_int_gen_plot <- function(
 
   max_x_date <- max(d$rank)
   min_x_date <- min(d$rank)
+  min_x_date_extra <- min_x_date * 0.8
   max_x_date_extra <- max_x_date * 1.2
 
   ## areas names
@@ -236,7 +237,7 @@ covid19_int_gen_plot <- function(
   q <- q + fhiplot::scale_color_fhi()
   q <- q + fhiplot::set_x_axis_vertical()
   q <- q + theme(legend.key.size = unit(1, "cm"))
-  q <- q + coord_cartesian(ylim=c(0, max_y_extra), xlim = c(min_x_date, max_x_date_extra), clip="off", expand = F)
+  q <- q + coord_cartesian(ylim=c(0, max_y_extra), xlim = c(min_x_date_extra, max_x_date_extra), clip="off", expand = F)
 
   q <- q + labs(title = labs_title)
   q <- q + labs(caption = labs_caption)
