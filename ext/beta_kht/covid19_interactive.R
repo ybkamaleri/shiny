@@ -5,7 +5,9 @@ covid19_interactive_ui <- function(id, config){
   ns <- NS(id)
 
   fluidPage(
-    includeHTML("back-to-top.html"),
+    includeHTML("www/topbtn.html"),
+    includeScript("www/topbtn.js"),
+    includeCSS("www/topbtn.css"),
     fluidRow(
       br(),
       p("Dette er interaktiv side", br(),
@@ -34,15 +36,18 @@ covid19_interactive_ui <- function(id, config){
     ),
 
     br(),
+    br(),
 
     fluidRow(
       width = 12, align = "left",
-      br(),
-      shinycssloaders::withSpinner(plotOutput(ns("msis_plot"), height = "600px")),
-      br()
+      shinycssloaders::withSpinner(plotOutput(ns("msis_plot"), height = "600px"))
     ),
     br(),
-    br(),
+
+    fluidRow(
+      width = 12, align = "left",
+      shinycssloaders::withSpinner(plotOutput(ns("norsyss_plot"), height = "600px"))
+    ),
     br()
   )
 }
@@ -78,13 +83,25 @@ covid19_interactive_server <- function(input, output, session, config){
   res = 72
   )
 
+
+  output$norsyss_plot <- renderCachedPlot({
+
+    covid19_int_norsyss(location_codes = int_loc$locations,
+                        config = config)
+
+  }, cacheKeyExpr = {list(
+    input$int_input_location,
+    input$reset_btn,
+    dev_invalidate_cache
+  )},
+  res = 72
+  )
+
 }
 
 
 
-covid19_int_msis <- function(location_codes,
-                             config){
-
+covid19_int_msis <- function(location_codes, config){
 
   d <- pool %>% dplyr::tbl("data_covid19_msis_by_time_location") %>%
     dplyr::filter(granularity_time == "day") %>%
@@ -93,9 +110,8 @@ covid19_int_msis <- function(location_codes,
     dplyr::select(location_code, date, n) %>%
     dplyr::collect()
 
-
   setDT(d)
-  setorder(d, location_code, date)
+  setkey(d, location_code, date)
   d[,cum_n := cumsum(n), by=.(location_code)]
   d[, date := as.Date(date)]
 
@@ -112,11 +128,54 @@ covid19_int_msis <- function(location_codes,
   d[,pr1000_cum_n := 1000*cum_n/pop]
 
   covid19_int_gen_plot(d = d,
-                       labs_title = "Title for the plot..",
+                       labs_title = "Title for the plot: msis data",
                        labs_caption = "Extra info here..",
                        labs_y = "pr. 1000 innbyggere")
 
 }
+
+
+covid19_int_norsyss <- function(location_codes, config){
+
+  d <- pool %>% dplyr::tbl("data_norsyss") %>%
+    dplyr::filter(location_code %in%!!location_codes)%>%
+    dplyr::filter(granularity_time=="day")%>%
+    dplyr::filter(tag_outcome %in% "covid19_vk_ote") %>%
+    dplyr::filter(age=="total") %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::select(date, location_code, n, consult_with_influenza) %>%
+    dplyr::collect()
+
+  setDT(d)
+  d[, date:= as.Date(date)]
+  setkey(d, location_code, date)
+
+  d[,censor := ""]
+  d[censor=="" & n>0 & n<5, censor := "N"]
+  d[censor != "", n := 0]
+
+  d[,cum_n := cumsum(n), by=.(location_code)]
+
+  d_p <- fhidata::norway_population_b2020[year==2020,.(
+    pop=sum(pop)
+  ),keyby=.(location_code)]
+
+  d[
+    d_p,
+    on="location_code",
+    pop:=pop
+  ]
+
+  d[,pr1000_cum_n := 1000*cum_n/pop]
+
+
+  covid19_int_gen_plot(d = d,
+                       labs_title = "Title for the plot: norsyss data",
+                       labs_caption = "Extra info here..",
+                       labs_y = "pr. 1000 innbyggere")
+
+}
+
 
 
 covid19_int_gen_plot <- function(
