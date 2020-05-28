@@ -5,7 +5,7 @@ covid19_interactive_ui <- function(id, config){
   ns <- NS(id)
 
   fluidPage(
-    useShinyjs(),
+    includeHTML("back-to-top.html"),
     fluidRow(
       br(),
       p("Dette er interaktiv side", br(),
@@ -40,9 +40,7 @@ covid19_interactive_ui <- function(id, config){
       br(),
       shinycssloaders::withSpinner(plotOutput(ns("msis_plot"), height = "600px")),
       br()
-
     ),
-
     br(),
     br(),
     br()
@@ -202,7 +200,7 @@ covid19_int_gen_plot <- function(
   q <- q + geom_point(
     data = subset(d, date == max(date)),
     aes(color = location_code),
-    size = 3.5,
+    size = 4,
     show.legend = FALSE
   )
   q <- q + ggrepel::geom_text_repel(
