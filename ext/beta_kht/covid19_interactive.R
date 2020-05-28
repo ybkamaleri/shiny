@@ -43,10 +43,18 @@ covid19_interactive_ui <- function(id, config){
       shinycssloaders::withSpinner(plotOutput(ns("msis_plot"), height = "600px"))
     ),
     br(),
+    br(),
 
     fluidRow(
       width = 12, align = "left",
       shinycssloaders::withSpinner(plotOutput(ns("norsyss_plot"), height = "600px"))
+    ),
+    br(),
+    br(),
+
+    fluidRow(
+      width = 12, align = "left",
+      shinycssloaders::withSpinner(plotOutput(ns("positive_plot"), height = "600px"))
     ),
     br()
   )
@@ -87,6 +95,20 @@ covid19_interactive_server <- function(input, output, session, config){
   output$norsyss_plot <- renderCachedPlot({
 
     covid19_int_norsyss(location_codes = int_loc$locations,
+                        config = config)
+
+  }, cacheKeyExpr = {list(
+    input$int_input_location,
+    input$reset_btn,
+    dev_invalidate_cache
+  )},
+  res = 72
+  )
+
+
+  output$positive_plot <- renderCachedPlot({
+
+    covid19_int_positive(location_codes = int_loc$locations,
                         config = config)
 
   }, cacheKeyExpr = {list(
@@ -176,6 +198,44 @@ covid19_int_norsyss <- function(location_codes, config){
 
 }
 
+
+covid19_int_positive <- function(location_codes, config){
+
+
+  d <- pool %>%
+    dplyr::tbl("data_covid19_lab_by_time")%>%
+    dplyr::filter(location_code %in% !!location_codes) %>%
+    dplyr::filter(granularity_time=="day")%>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::select(date, location_code, pr100_pos) %>%
+    dplyr::collect()
+
+  setDT(d)
+  d[, date := as.Date(date)]
+  setnames(d, "pr100_pos", "n")
+  setkey(d, location_code, date)
+
+  d[,cum_n := cumsum(n), by=.(location_code)]
+
+  d_p <- fhidata::norway_population_b2020[year==2020,.(
+    pop=sum(pop)
+  ),keyby=.(location_code)]
+
+  d[
+    d_p,
+    on="location_code",
+    pop:=pop
+  ]
+
+  d[,pr1000_cum_n := 1000*cum_n/pop]
+
+
+  covid19_int_gen_plot(d = d,
+                       labs_title = "Title for the plot: Positive laboratorietester",
+                       labs_caption = "Extra info here..",
+                       labs_y = "pr. 1000 innbyggere")
+
+}
 
 
 covid19_int_gen_plot <- function(
