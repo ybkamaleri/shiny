@@ -257,6 +257,13 @@ covid19_int_gen_plot <- function(
     show.legend = FALSE
   )
 
+   q <- q + geom_point(
+    data = subset(d, yrwk == min(yrwk)),
+    aes(color = location_code),
+    size = 4,
+    show.legend = FALSE
+  )
+
   q <- q + ggrepel::geom_text_repel(
     data = subset(d, yrwk == max(yrwk)),
     mapping = aes(label = loc_name),
