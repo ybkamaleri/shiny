@@ -51,11 +51,6 @@ covid19_interactive_ui <- function(id, config){
     ),
     br(),
     br(),
-
-    fluidRow(
-      width = 12, align = "left",
-      shinycssloaders::withSpinner(plotOutput(ns("positive_plot"), height = "600px"))
-    ),
     br()
   )
 }
@@ -106,19 +101,6 @@ covid19_interactive_server <- function(input, output, session, config){
   )
 
 
-  output$positive_plot <- renderCachedPlot({
-
-    covid19_int_positive(location_codes = int_loc$locations,
-                        config = config)
-
-  }, cacheKeyExpr = {list(
-    input$int_input_location,
-    input$reset_btn,
-    dev_invalidate_cache
-  )},
-  res = 72
-  )
-
 }
 
 
@@ -126,16 +108,18 @@ covid19_interactive_server <- function(input, output, session, config){
 covid19_int_msis <- function(location_codes, config){
 
   d <- pool %>% dplyr::tbl("data_covid19_msis_by_time_location") %>%
-    dplyr::filter(granularity_time == "day") %>%
+    dplyr::filter(granularity_time == "week") %>%
     dplyr::filter(location_code %in% !!location_codes) %>%
     dplyr::filter(date >= !!config$start_date) %>%
-    dplyr::select(location_code, date, n) %>%
+    dplyr::select(location_code, yrwk, n) %>%
     dplyr::collect()
 
   setDT(d)
-  setkey(d, location_code, date)
+  setkey(d, location_code, yrwk)
   d[,cum_n := cumsum(n), by=.(location_code)]
-  d[, date := as.Date(date)]
+
+  ## for reordering the yrwk
+  d[, rank := 1:.N, by = .(location_code)]
 
   d_p <- fhidata::norway_population_b2020[year==2020,.(
     pop=sum(pop)
@@ -165,18 +149,22 @@ covid19_int_norsyss <- function(location_codes, config){
     dplyr::filter(tag_outcome %in% "covid19_vk_ote") %>%
     dplyr::filter(age=="total") %>%
     dplyr::filter(date >= !!config$start_date) %>%
-    dplyr::select(date, location_code, n, consult_with_influenza) %>%
+    dplyr::select(yrwk, location_code, n, consult_with_influenza) %>%
+    dplyr::group_by(location_code, yrwk) %>%
+    dplyr::summarize(n=sum(n), consult_with_influenza=sum(consult_with_influenza)) %>%
     dplyr::collect()
 
   setDT(d)
-  d[, date:= as.Date(date)]
-  setkey(d, location_code, date)
+  setkey(d, location_code, yrwk)
 
   d[,censor := ""]
   d[censor=="" & n>0 & n<5, censor := "N"]
   d[censor != "", n := 0]
 
   d[,cum_n := cumsum(n), by=.(location_code)]
+
+  ## for reordering the yrwk
+  d[, rank := 1:.N, by = .(location_code)]
 
   d_p <- fhidata::norway_population_b2020[year==2020,.(
     pop=sum(pop)
@@ -199,43 +187,7 @@ covid19_int_norsyss <- function(location_codes, config){
 }
 
 
-covid19_int_positive <- function(location_codes, config){
 
-
-  d <- pool %>%
-    dplyr::tbl("data_covid19_lab_by_time")%>%
-    dplyr::filter(location_code %in% !!location_codes) %>%
-    dplyr::filter(granularity_time=="day")%>%
-    dplyr::filter(date >= !!config$start_date) %>%
-    dplyr::select(date, location_code, pr100_pos) %>%
-    dplyr::collect()
-
-  setDT(d)
-  d[, date := as.Date(date)]
-  setnames(d, "pr100_pos", "n")
-  setkey(d, location_code, date)
-
-  d[,cum_n := cumsum(n), by=.(location_code)]
-
-  d_p <- fhidata::norway_population_b2020[year==2020,.(
-    pop=sum(pop)
-  ),keyby=.(location_code)]
-
-  d[
-    d_p,
-    on="location_code",
-    pop:=pop
-  ]
-
-  d[,pr1000_cum_n := 1000*cum_n/pop]
-
-
-  covid19_int_gen_plot(d = d,
-                       labs_title = "Title for the plot: Positive laboratorietester",
-                       labs_caption = "Extra info here..",
-                       labs_y = "pr. 1000 innbyggere")
-
-}
 
 
 covid19_int_gen_plot <- function(
@@ -243,23 +195,14 @@ covid19_int_gen_plot <- function(
                                  legend_position = "none",
                                  labs_title = NULL,
                                  labs_caption = NULL,
-                                 labs_y = NULL,
-                                 multiplier_min_y_censor = -0.13,
-                                 multiplier_min_y_end = -0.14,
-                                 multiplier_min_y_start = -0.175
+                                 labs_x = NULL,
+                                 labs_y = NULL
                                  ){
 
 
-  max_x_date <- max(d$date)
-  min_x_date <- min(d$date)
-  max_x_date_extra <- max_x_date + 10
-
-  ## Weekend
-  weekends <- get_free_days(
-      date_start = min_x_date,
-      date_end = max_x_date_extra
-    )
-  weekends <- data.frame(date = weekends)
+  max_x_date <- max(d$rank)
+  min_x_date <- min(d$rank)
+  max_x_date_extra <- max_x_date * 1.2
 
   ## areas names
   sub_data <- unique(d$location_code)
@@ -277,28 +220,19 @@ covid19_int_gen_plot <- function(
   ## plot
   max_y <- max(d$pr1000_cum_n)
   max_y_extra <- 1.05 * max_y
-  min_y_censor <- multiplier_min_y_censor*max_y
-  min_y_end <- multiplier_min_y_end*max_y
-  min_y_start <- multiplier_min_y_start*max_y
 
-  q <- ggplot(d, aes(x = date, y = pr1000_cum_n)) +
+  q <- ggplot(d, aes(x = yrwk, y = pr1000_cum_n)) +
     geom_line(aes(color = location_code, group = location_code), size = 2)
 
-  q <- q + scale_x_date(
-      "",
-      date_breaks = "2 days",
-      date_labels = "%d.%m"
-    )
-
-
   q <- q + fhiplot::theme_fhi_lines(
-    20, panel_on_top = T,
+    base_size = 20,
+    panel_on_top = FALSE,
     panel.grid.major.x = element_blank(),
     panel.grid.minor.x = element_blank()
   )
 
-
   q <- q + theme(legend.position = legend_position)
+
   q <- q + fhiplot::scale_color_fhi()
   q <- q + fhiplot::set_x_axis_vertical()
   q <- q + theme(legend.key.size = unit(1, "cm"))
@@ -306,59 +240,31 @@ covid19_int_gen_plot <- function(
 
   q <- q + labs(title = labs_title)
   q <- q + labs(caption = labs_caption)
-  q <- q + guides(guide_legend(nrow = 2))
+  q <- q + labs(x = labs_x, y = labs_y)
 
   q <-  q + annotate(geom = "rect",
-                     xmin = lubridate::as_date(max_x_date + 1, origin = lubridate::origin),
-                     xmax = lubridate::as_date(max_x_date + 10, origin = lubridate::origin),
-                     ymin = -Inf, ymax = Inf,
+                     xmin = max_x_date * 1.02,
+                     xmax = max_x_date * 1.3,
+                     ymin = -0.5, ymax = Inf, #still not able to cover the x-axis line?
            fill = "white")
 
-  q <- q + scale_y_continuous(name = labs_y)
 
   q <- q + geom_point(
-    data = subset(d, date == max(date)),
+    data = subset(d, yrwk == max(yrwk)),
     aes(color = location_code),
     size = 4,
     show.legend = FALSE
   )
+
   q <- q + ggrepel::geom_text_repel(
-    data = subset(d, date == max(date)),
+    data = subset(d, yrwk == max(yrwk)),
     mapping = aes(label = loc_name),
     hjust = 0,
     size = 7,
     direction = "y",
-    nudge_x = 2,
+    nudge_x = 0.5,
     show.legend = FALSE)
-
-  ## add weekends
-  q <- q + geom_segment(
-    data = weekends,
-    mapping = aes(x = date, xend = date),
-    y = min_y_start,
-    yend = min_y_end,
-    color = "red",
-    size = 1,
-    arrow = arrow(length = unit(0.1, "inches"))
-  )
 
   q
 
 }
-
-
-
-
-## covid19_tables <- c("data_covid19_msis_by_time_location",
-##                     "data_norsyss",
-##                     "data_covid19_lab_by_time")
-
-## location_codes <- c("norge", "municip0301")
-## select_var <- c("location_code", "date", "n")
-
-## dt <- pool %>% dplyr::tbl("data_covid19_msis_by_time_location") %>%
-##   dplyr::filter(granularity_time == "day") %>%
-##   dplyr::filter(location_code %in% !!location_codes) %>%
-##   dplyr::filter(date >= !!config$start_date) %>%
-##   dplyr::select(location_code, date, n) %>%
-##   dplyr::collect()
