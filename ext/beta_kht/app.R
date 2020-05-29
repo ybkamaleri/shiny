@@ -22,6 +22,7 @@ if (.Platform$OS.type == "windows"){
 
 source("global.R")
 source("no_data.R")
+source("covid19_interactive.R")
 source("covid19.R")
 source("covid19_modelling.R")
 source("norsyss.R")
@@ -129,6 +130,7 @@ server <- function(input, output, session) {
   #   }
   # )
 
+  callModule(covid19_interactive_server, "covid19_interactive", config = config)
   callModule(covid19_server, "covid19", config=config)
   callModule(covid19_modelling_server, "covid19_modelling", config=config)
 

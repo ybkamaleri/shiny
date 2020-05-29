@@ -1,0 +1,44 @@
+#button {
+  display: inline-block;
+  background-color: transparent;
+  width: 50px;
+  height: 50px;
+  text-align: center;
+  border: none;
+  position: fixed;
+  bottom: 40px;
+  right: 10px;
+  visibility: hidden;
+  z-index: 1000;
+  max-height:0;
+  -webkit-transition: all 0.5s ease-in-out;
+  transition: all 1s ease-in-out;
+}
+
+#button::after {
+  content: "\f102";
+  font-family: FontAwesome;
+  font-weight: bold;
+  font-style: normal;
+  font-size: 3em;
+  line-height: 50px;
+  color: #114;
+}
+#button:hover {
+  cursor: pointer;
+}
+
+#button.show {
+  opacity: 1;
+  visibility: visible;
+  max-height: 50px;
+}
+
+@media (min-width: 500px){
+  .content {
+    width: 50%;
+  }
+  #button {
+    margin: 10px;
+  }
+}
