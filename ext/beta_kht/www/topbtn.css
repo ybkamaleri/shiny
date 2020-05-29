@@ -1,40 +1,37 @@
 #button {
   display: inline-block;
-  background-color: #acc;
+  background-color: transparent;
   width: 50px;
   height: 50px;
   text-align: center;
   border: none;
-  border-radius: 45px;
   position: fixed;
-  bottom: 30px;
+  bottom: 40px;
   right: 10px;
-  transition: background-color .3s,
-    opacity .5s, visibility .5s;
-  opacity: 0;
   visibility: hidden;
   z-index: 1000;
+  max-height:0;
+  -webkit-transition: all 0.5s ease-in-out;
+  transition: all 1s ease-in-out;
 }
 
 #button::after {
-  content: "\f25a";
+  content: "\f102";
   font-family: FontAwesome;
-  font-weight: normal;
+  font-weight: bold;
   font-style: normal;
-  font-size: 2em;
+  font-size: 3em;
   line-height: 50px;
   color: #114;
 }
 #button:hover {
   cursor: pointer;
-  background-color: #aab;
 }
-#button:active {
-  background-color: #555;
-}
+
 #button.show {
   opacity: 1;
   visibility: visible;
+  max-height: 50px;
 }
 
 @media (min-width: 500px){
