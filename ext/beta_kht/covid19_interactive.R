@@ -143,7 +143,7 @@ covid19_int_msis <- function(location_codes, config){
 
 covid19_int_norsyss <- function(location_codes, config){
 
-  d <- pool %>% dplyr::tbl("data_norsyss") %>%
+  d <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
     dplyr::filter(location_code %in%!!location_codes)%>%
     dplyr::filter(granularity_time=="day")%>%
     dplyr::filter(tag_outcome %in% "covid19_vk_ote") %>%

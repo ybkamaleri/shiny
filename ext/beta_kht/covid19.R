@@ -37,7 +37,7 @@ covid19_ui <- function(id, config) {
 
       tabPanel("Interaktiv",
                covid19_interactive_ui("covid19_interactive", config)),
-      
+
       tabPanel(
         title="Oversikt",
         tagList(
@@ -916,7 +916,7 @@ covid19_norsyss_vs_msis_lab_daily <- function(
   d_left[, date:= as.Date(date)]
   setnames(d_left, "n", "value")
 
-  d_right <- pool %>% dplyr::tbl("data_norsyss") %>%
+  d_right <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
     dplyr::filter(location_code== !!location_code) %>%
     dplyr::filter(granularity_time=="day") %>%
     dplyr::filter(tag_outcome %in% "covid19_vk_ote") %>%
@@ -1011,7 +1011,7 @@ covid19_norsyss_vs_msis_daily <- function(
   d_left[, date:= as.Date(date)]
   setnames(d_left, "n", "value")
 
-  d_right <- pool %>% dplyr::tbl("data_norsyss") %>%
+  d_right <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
     dplyr::filter(location_code== !!location_code) %>%
     dplyr::filter(granularity_time=="day") %>%
     dplyr::filter(tag_outcome %in% "covid19_vk_ote") %>%
@@ -1086,7 +1086,7 @@ covid19_norsyss_vs_msis_weekly <- function(
   setDT(d_left)
   setnames(d_left, "n", "value")
 
-  d_right <- pool %>% dplyr::tbl("data_norsyss") %>%
+  d_right <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
     dplyr::filter(location_code== !!location_code) %>%
     dplyr::filter(granularity_time=="day") %>%
     dplyr::filter(tag_outcome %in% "covid19_vk_ote") %>%
@@ -1170,7 +1170,7 @@ covid19_overview_plot_national_syndromes_proportion_daily <- function(
   config
 ){
 
-  pd <- pool %>% dplyr::tbl("data_norsyss") %>%
+  pd <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
     dplyr::filter(tag_outcome %in% c(
       "covid19_vk_ote",
       "engstelig_luftveissykdom_ika_vk_ote",
@@ -1253,7 +1253,7 @@ covid19_overview_plot_national_syndromes_proportion_weekly <- function(
   config
 ){
 
-  pd <- pool %>% dplyr::tbl("data_norsyss") %>%
+  pd <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
     dplyr::filter(tag_outcome %in% c(
       "covid19_vk_ote",
       "engstelig_luftveissykdom_ika_vk_ote",
@@ -1356,7 +1356,7 @@ covid19_overview_plot_national_source_proportion_daily <- function(
   config
 ){
 
-  pd <- pool %>% dplyr::tbl("data_norsyss") %>%
+  pd <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
     dplyr::filter(tag_outcome %in% c(
       "covid19_k_o",
       "covid19_k_t",
@@ -1474,7 +1474,7 @@ covid19_overview_plot_national_source_proportion_weekly <- function(
   config
 ){
 
-  pd <- pool %>% dplyr::tbl("data_norsyss") %>%
+  pd <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
     dplyr::filter(tag_outcome %in% c(
       "covid19_k_o",
       "covid19_k_t",
@@ -1612,7 +1612,7 @@ covid19_overview_plot_national_age_burden_daily <- function(
   config
 ){
 
-  pd <- pool %>% dplyr::tbl("data_norsyss") %>%
+  pd <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
     dplyr::filter(date >= !!config$start_date) %>%
     dplyr::filter(tag_outcome == "covid19_vk_ote") %>%
     dplyr::filter(location_code== !!location_code) %>%
@@ -1687,7 +1687,7 @@ covid19_overview_plot_national_age_burden_weekly <- function(
   location_code,
   config
 ){
-  pd <- pool %>% dplyr::tbl("data_norsyss") %>%
+  pd <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
     dplyr::filter(date >= !!config$start_date) %>%
     dplyr::filter(tag_outcome == "covid19_vk_ote") %>%
     dplyr::filter(location_code== !!location_code) %>%
@@ -1782,7 +1782,7 @@ covid19_overview_plot_national_age_trends_daily <- function(
   location_code,
   config
 ){
-  pd <- pool %>% dplyr::tbl("data_norsyss") %>%
+  pd <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
     dplyr::filter(date >= !!config$start_date) %>%
     dplyr::filter(tag_outcome == "covid19_vk_ote") %>%
     dplyr::filter(location_code== !!location_code) %>%
@@ -1885,7 +1885,7 @@ covid19_overview_plot_national_age_trends_weekly <- function(
   location_code,
   config
 ){
-  pd <- pool %>% dplyr::tbl("data_norsyss") %>%
+  pd <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
     dplyr::filter(date >= !!config$start_date) %>%
     dplyr::filter(tag_outcome == "covid19_vk_ote") %>%
     dplyr::filter(location_code== !!location_code) %>%
@@ -2006,7 +2006,7 @@ covid19_overview_plot_county_proportion_weekly <- function(
 
   granularity_geo <- get_granularity_geo(location_code)
 
-  pd <- pool %>% dplyr::tbl("data_norsyss") %>%
+  pd <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
     dplyr::filter(tag_outcome %in% c(
       "covid19_vk_ote",
       "engstelig_luftveissykdom_ika_vk_ote"
@@ -2132,7 +2132,7 @@ covid19_overview_map_county_proportion <- function(
     location_codes <- get_dependent_location_codes(location_code = location_code)
 
     if(granularity_geo == "nation"){
-      d <- pool %>% dplyr::tbl("data_norsyss") %>%
+      d <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
         dplyr::filter(tag_outcome %in% c(
           "covid19_vk_ote",
           "engstelig_luftveissykdom_ika_vk_ote"
@@ -2142,7 +2142,7 @@ covid19_overview_map_county_proportion <- function(
         dplyr::filter(age == "total") %>%
         dplyr::collect()
     } else {
-      d <- pool %>% dplyr::tbl("data_norsyss") %>%
+      d <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
         dplyr::filter(tag_outcome %in% c(
           "covid19_vk_ote",
           "engstelig_luftveissykdom_ika_vk_ote"
@@ -2264,7 +2264,7 @@ covid19_overview_map_county_proportion_2 <- function(
   location_codes <- get_dependent_location_codes(location_code = location_code)
 
   if(granularity_geo == "nation"){
-    d <- pool %>% dplyr::tbl("data_norsyss") %>%
+    d <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
       dplyr::filter(tag_outcome %in% c(
         "covid19_vk_ote",
         "engstelig_luftveissykdom_ika_vk_ote"
@@ -2274,7 +2274,7 @@ covid19_overview_map_county_proportion_2 <- function(
       dplyr::filter(age == "total") %>%
       dplyr::collect()
   } else {
-    d <- pool %>% dplyr::tbl("data_norsyss") %>%
+    d <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
       dplyr::filter(tag_outcome %in% c(
         "covid19_vk_ote",
         "engstelig_luftveissykdom_ika_vk_ote"
