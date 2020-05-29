@@ -17,11 +17,11 @@ covid19_interactive_ui <- function(id, config){
 
     fluidRow(
       width = 12, align = "center",
-      selectizeInput(ns("int_input_location"), "Geografisk områder: ",
+      selectizeInput(ns("int_input_location"), "Geografiske omrÃ¥de: ",
                      choices = config$choices_location,
                      multiple = TRUE,
                      selected = NULL,
-                     options = list(placeholder = "Skrev områder du vil sammenligne her",
+                     options = list(placeholder = "Skriv omrÃ¥der du vil sammenligne her",
                                     maxItems = 10,
                                     onInitialize = I('function() {this.setValue("");}')
 
