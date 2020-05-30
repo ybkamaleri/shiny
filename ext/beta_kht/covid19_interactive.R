@@ -10,14 +10,14 @@ covid19_interactive_ui <- function(id, config){
     includeCSS("www/topbtn.css"),
     fluidRow(
       br(),
-      p("Dette er interaktiv side", br(),
-        "Bla... bla.. bla.."),
+      p("Under vil du se noen figurer der du kan sammenlikne forskjellige geografiske områder.", br(),
+        "Begynn å skriv navnet på ønsket kommune eller fylke så vil det automatisk komme opp alternativer."),
       br(),
       ),
 
     fluidRow(
       width = 12, align = "center",
-      selectizeInput(ns("int_input_location"), "Geografiske område: ",
+      selectizeInput(ns("int_input_location"), "Geografisk område: ",
                      choices = config$choices_location,
                      multiple = TRUE,
                      selected = NULL,
@@ -31,7 +31,7 @@ covid19_interactive_ui <- function(id, config){
 
     fluidRow(
       width = 12, align = "center",
-      actionButton(ns("reset_btn"), "Nullstille",
+      actionButton(ns("reset_btn"), "Nullstill",
                    icon = icon("redo"))
     ),
 
@@ -134,8 +134,8 @@ covid19_int_msis <- function(location_codes, config){
   d[,pr1000_cum_n := 1000*cum_n/pop]
 
   covid19_int_gen_plot(d = d,
-                       labs_title = "Title for the plot: msis data",
-                       labs_caption = "Extra info here..",
+                       labs_title = "Kummulativt antall tilfeller av covid-19\n Data fra MSIS",
+                       labs_caption = "År-ukenummer",
                        labs_y = "pr. 1000 innbyggere")
 
 }
@@ -180,8 +180,8 @@ covid19_int_norsyss <- function(location_codes, config){
 
 
   covid19_int_gen_plot(d = d,
-                       labs_title = "Title for the plot: norsyss data",
-                       labs_caption = "Extra info here..",
+                       labs_title = "Kummulativt antall konsultasjoner med mistenkt, sannsynlig eller bekreftet covid-19 (R991 og R992)\n Data fra NorSySS",
+                       labs_caption = "År-ukenummer",
                        labs_y = "pr. 1000 innbyggere")
 
 }
