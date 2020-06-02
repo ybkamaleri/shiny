@@ -147,7 +147,7 @@ covid19_int_norsyss <- function(location_codes, config){
     dplyr::filter(location_code %in%!!location_codes)%>%
     dplyr::filter(granularity_time=="day")%>%
     dplyr::filter(tag_outcome %in% "covid19_vk_ote") %>%
-    dplyr::filter(age=="total") %>%
+    dplyr::filter(age=="total") %>% # yusman, remove this
     dplyr::filter(date >= !!config$start_date) %>%
     dplyr::select(yrwk, location_code, n, consult_with_influenza) %>%
     dplyr::group_by(location_code, yrwk) %>%
@@ -155,13 +155,13 @@ covid19_int_norsyss <- function(location_codes, config){
     dplyr::collect()
 
   setDT(d)
-  setkey(d, location_code, yrwk)
+  setkey(d, location_code, age, yrwk)
 
   d[,censor := ""]
   d[censor=="" & n>0 & n<5, censor := "N"]
   d[censor != "", n := 0]
 
-  d[,cum_n := cumsum(n), by=.(location_code)]
+  d[,cum_n := cumsum(n), by=.(location_code, age)]
 
   ## for reordering the yrwk
   d[, rank := 1:.N, by = .(location_code)]
