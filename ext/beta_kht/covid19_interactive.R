@@ -30,9 +30,14 @@ covid19_interactive_ui <- function(id, config){
     ),
 
     fluidRow(
-      width = 12, align = "center",
+      column(
+        width = 6, align = "right",
+        checkboxInput(ns("cumulativ_chk"), "Kumulativ", value = FALSE)
+      ),
+      column(
+      width = 6, align = "left",
       actionButton(ns("reset_btn"), "Nullstill",
-                   icon = icon("redo"))
+                   icon = icon("redo")))
     ),
 
     br(),
