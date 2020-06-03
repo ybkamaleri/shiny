@@ -141,8 +141,14 @@ covid19_int_msis <- function(location_codes,
 
   d <- use_int_cumulative(d = d, cumulative = cumulative)
 
+  if (cumulative){
+    plotTitle = " Kummulativt antall tilfeller av covid-19\n Data fra MSIS"
+  } else {
+    plotTitle = " Antall tilfeller av covid-19\n Data fra MSIS"
+  }
+
   covid19_int_gen_plot(d = d,
-                       labs_title = "Kummulativt antall tilfeller av covid-19\n Data fra MSIS",
+                       labs_title = plotTitle,
                        labs_caption = "År-ukenummer",
                        labs_y = "pr. 1000 innbyggere",
                        cumulative = cumulative)
@@ -185,8 +191,14 @@ covid19_int_norsyss <- function(location_codes,
 
   d <- use_int_cumulative(d = d, cumulative = cumulative)
 
+  if (cumulative){
+    plotTitle = " Kummulativt antall konsultasjoner med mistenkt, sannsynlig eller bekreftet covid-19 (R991 og R992)\n Data fra NorSySS"
+  } else {
+    plotTitle = " Antall konsultasjoner med mistenkt, sannsynlig eller bekreftet covid-19 (R991 og R992)\n Data fra NorSySS"
+  }
+
   covid19_int_gen_plot(d = d,
-                       labs_title = "Kummulativt antall konsultasjoner med mistenkt, sannsynlig eller bekreftet covid-19 (R991 og R992)\n Data fra NorSySS",
+                       labs_title = ,
                        labs_caption = "År-ukenummer",
                        labs_y = "pr. 1000 innbyggere",
                        cumulative = cumulative)
