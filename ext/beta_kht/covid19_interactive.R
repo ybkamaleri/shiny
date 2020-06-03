@@ -32,7 +32,7 @@ covid19_interactive_ui <- function(id, config){
     fluidRow(
       column(
         width = 6, align = "right",
-        checkboxInput(ns("cumulativ_chk"), "Kumulativ", value = FALSE)
+        checkboxInput(ns("cumulative_chk"), "Kumulativ", value = FALSE)
       ),
       column(
       width = 6, align = "left",
@@ -81,11 +81,13 @@ covid19_interactive_server <- function(input, output, session, config){
   output$msis_plot <- renderCachedPlot({
 
     covid19_int_msis(location_codes = int_loc$locations,
-                     config = config)
+                     config = config,
+                     cumulative = input$cumulative_chk)
 
   }, cacheKeyExpr = {list(
     input$int_input_location,
     input$reset_btn,
+    input$cumulative_chk,
     dev_invalidate_cache
   )},
   res = 72
@@ -95,11 +97,13 @@ covid19_interactive_server <- function(input, output, session, config){
   output$norsyss_plot <- renderCachedPlot({
 
     covid19_int_norsyss(location_codes = int_loc$locations,
-                        config = config)
+                        config = config,
+                        cumulative = input$cumulative_chk)
 
   }, cacheKeyExpr = {list(
     input$int_input_location,
     input$reset_btn,
+    input$cumulative_chk,
     dev_invalidate_cache
   )},
   res = 72
@@ -110,7 +114,9 @@ covid19_interactive_server <- function(input, output, session, config){
 
 
 
-covid19_int_msis <- function(location_codes, config){
+covid19_int_msis <- function(location_codes,
+                             config,
+                             cumulative = FALSE){
 
   d <- pool %>% dplyr::tbl("data_covid19_msis_by_time_location") %>%
     dplyr::filter(granularity_time == "week") %>%
@@ -123,9 +129,6 @@ covid19_int_msis <- function(location_codes, config){
   setkey(d, location_code, yrwk)
   d[,cum_n := cumsum(n), by=.(location_code)]
 
-  ## for reordering the yrwk
-  d[, rank := 1:.N, by = .(location_code)]
-
   d_p <- fhidata::norway_population_b2020[year==2020,.(
     pop=sum(pop)
   ),keyby=.(location_code)]
@@ -136,7 +139,7 @@ covid19_int_msis <- function(location_codes, config){
     pop:=pop
   ]
 
-  d[,pr1000_cum_n := 1000*cum_n/pop]
+  d <- int_cumulative(d = d, cumulative = cumulative)
 
   covid19_int_gen_plot(d = d,
                        labs_title = "Kummulativt antall tilfeller av covid-19\n Data fra MSIS",
@@ -146,7 +149,9 @@ covid19_int_msis <- function(location_codes, config){
 }
 
 
-covid19_int_norsyss <- function(location_codes, config){
+covid19_int_norsyss <- function(location_codes,
+                                config,
+                                cumulative = FALSE){
 
   d <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
     dplyr::filter(location_code %in%!!location_codes)%>%
@@ -161,15 +166,11 @@ covid19_int_norsyss <- function(location_codes, config){
 
   setDT(d)
   setkey(d, location_code, age, yrwk)
+  d[,cum_n := cumsum(n), by=.(location_code, age)]
 
   d[,censor := ""]
   d[censor=="" & n>0 & n<5, censor := "N"]
   d[censor != "", n := 0]
-
-  d[,cum_n := cumsum(n), by=.(location_code, age)]
-
-  ## for reordering the yrwk
-  d[, rank := 1:.N, by = .(location_code)]
 
   d_p <- fhidata::norway_population_b2020[year==2020,.(
     pop=sum(pop)
@@ -181,8 +182,7 @@ covid19_int_norsyss <- function(location_codes, config){
     pop:=pop
   ]
 
-  d[,pr1000_cum_n := 1000*cum_n/pop]
-
+  d <- int_cumulative(d = d, cumulative = cumulative)
 
   covid19_int_gen_plot(d = d,
                        labs_title = "Kummulativt antall konsultasjoner med mistenkt, sannsynlig eller bekreftet covid-19 (R991 og R992)\n Data fra NorSySS",
@@ -192,6 +192,17 @@ covid19_int_norsyss <- function(location_codes, config){
 }
 
 
+int_cumulative <- function(d = NULL, cumulative = FALSE){
+
+   if (cumulative) {
+     d[, y_var := 1000 * cum_n / pop]
+   } else {
+     d[, y_var := 1000 * n / pop]
+   }
+
+  return(d)
+
+}
 
 
 
@@ -205,6 +216,8 @@ covid19_int_gen_plot <- function(
                                  ){
 
 
+  ## for reordering the yrwk
+  d[, rank := 1:.N, by = .(location_code)]
   max_x_date <- max(d$rank)
   min_x_date <- min(d$rank)
   min_x_date_extra <- min_x_date * 0.8
@@ -224,10 +237,10 @@ covid19_int_gen_plot <- function(
 
 
   ## plot
-  max_y <- max(d$pr1000_cum_n)
+  max_y <- max(d$y_var)
   max_y_extra <- 1.05 * max_y
 
-  q <- ggplot(d, aes(x = yrwk, y = pr1000_cum_n)) +
+  q <- ggplot(d, aes(x = yrwk, y = y_var)) +
     geom_line(aes(color = location_code, group = location_code), size = 2)
 
   q <- q + fhiplot::theme_fhi_lines(
