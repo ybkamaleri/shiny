@@ -139,12 +139,13 @@ covid19_int_msis <- function(location_codes,
     pop:=pop
   ]
 
-  d <- int_cumulative(d = d, cumulative = cumulative)
+  d <- use_int_cumulative(d = d, cumulative = cumulative)
 
   covid19_int_gen_plot(d = d,
                        labs_title = "Kummulativt antall tilfeller av covid-19\n Data fra MSIS",
                        labs_caption = "År-ukenummer",
-                       labs_y = "pr. 1000 innbyggere")
+                       labs_y = "pr. 1000 innbyggere",
+                       cumulative = cumulative)
 
 }
 
@@ -182,22 +183,23 @@ covid19_int_norsyss <- function(location_codes,
     pop:=pop
   ]
 
-  d <- int_cumulative(d = d, cumulative = cumulative)
+  d <- use_int_cumulative(d = d, cumulative = cumulative)
 
   covid19_int_gen_plot(d = d,
                        labs_title = "Kummulativt antall konsultasjoner med mistenkt, sannsynlig eller bekreftet covid-19 (R991 og R992)\n Data fra NorSySS",
                        labs_caption = "År-ukenummer",
-                       labs_y = "pr. 1000 innbyggere")
+                       labs_y = "pr. 1000 innbyggere",
+                       cumulative = cumulative)
 
 }
 
 
-int_cumulative <- function(d = NULL, cumulative = FALSE){
+use_int_cumulative <- function(d = NULL, cumulative = FALSE){
 
    if (cumulative) {
-     d[, y_var := 1000 * cum_n / pop]
+     d[, y_var := 1000 * cum_n / pop][]
    } else {
-     d[, y_var := 1000 * n / pop]
+     d[, y_var := 1000 * n / pop][]
    }
 
   return(d)
@@ -212,16 +214,26 @@ covid19_int_gen_plot <- function(
                                  labs_title = NULL,
                                  labs_caption = NULL,
                                  labs_x = NULL,
-                                 labs_y = NULL
+                                 labs_y = NULL,
+                                 cumulative = FALSE
                                  ){
 
-
   ## for reordering the yrwk
-  d[, rank := 1:.N, by = .(location_code)]
-  max_x_date <- max(d$rank)
-  min_x_date <- min(d$rank)
-  min_x_date_extra <- min_x_date * 0.8
-  max_x_date_extra <- max_x_date * 1.2
+    d[, rank := 1:.N, by = .(location_code)]
+    x_right <- max(d$rank)
+    x_left <- min(d$rank)
+
+  if (cumulative) {
+    x_left_extra <- x_left * 0.8
+    x_right_extra <- x_right * 1.2
+    x_min_ann <- x_right * 1.02
+    x_max_ann <- x_right * 1.3
+  }else{
+    x_left_extra <- x_left * -1.2
+    x_right_extra <- x_right * 1.02
+    x_min_ann <- x_left * -1.2
+    x_max_ann <- x_left * 0.98
+  }
 
   ## areas names
   sub_data <- unique(d$location_code)
@@ -243,6 +255,7 @@ covid19_int_gen_plot <- function(
   q <- ggplot(d, aes(x = yrwk, y = y_var)) +
     geom_line(aes(color = location_code, group = location_code), size = 2)
 
+
   q <- q + fhiplot::theme_fhi_lines(
     base_size = 20,
     panel_on_top = FALSE,
@@ -255,18 +268,17 @@ covid19_int_gen_plot <- function(
   q <- q + fhiplot::scale_color_fhi()
   q <- q + fhiplot::set_x_axis_vertical()
   q <- q + theme(legend.key.size = unit(1, "cm"))
-  q <- q + coord_cartesian(ylim=c(0, max_y_extra), xlim = c(min_x_date_extra, max_x_date_extra), clip="off", expand = F)
+  q <- q + coord_cartesian(ylim=c(0, max_y_extra), xlim = c(x_left_extra, x_right_extra), clip="off", expand = F)
 
   q <- q + labs(title = labs_title)
   q <- q + labs(caption = labs_caption)
   q <- q + labs(x = labs_x, y = labs_y)
 
   q <-  q + annotate(geom = "rect",
-                     xmin = max_x_date * 1.02,
-                     xmax = max_x_date * 1.3,
+                     xmin = x_min_ann,
+                     xmax = x_max_ann,
                      ymin = -0.5, ymax = Inf, #still not able to cover the x-axis line?
            fill = "white")
-
 
   q <- q + geom_point(
     data = subset(d, yrwk == max(yrwk)),
@@ -282,14 +294,34 @@ covid19_int_gen_plot <- function(
     show.legend = FALSE
   )
 
-  q <- q + ggrepel::geom_text_repel(
-    data = subset(d, yrwk == max(yrwk)),
-    mapping = aes(label = loc_name),
-    hjust = 0,
-    size = 7,
-    direction = "y",
-    nudge_x = 0.5,
-    show.legend = FALSE)
+  if (cumulative){
+    dt <- subset(d, yrwk = max(yrwk))
+  } else {
+    dt <- subset(d, yrwk = min(yrwk))
+  }
+
+
+  if (cumulative){
+    q <- q + ggrepel::geom_text_repel(
+      data = subset(d, yrwk == max(yrwk)),
+      mapping = aes(label = loc_name),
+      hjust = 0,
+      size = 6,
+      direction = "y",
+      nudge_x = 0.4,
+      segment.size = 0.3,
+      show.legend = FALSE)
+  }else{
+    q <- q + ggrepel::geom_text_repel(
+      data = subset(d, yrwk == min(yrwk)),
+      mapping = aes(label = loc_name),
+      hjust = 1,
+      size = 6,
+      direction = "y",
+      nudge_x = -0.4,
+      segment.size = 0.3,
+      show.legend = FALSE)
+  }
 
   q
 
