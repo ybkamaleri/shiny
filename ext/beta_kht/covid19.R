@@ -35,9 +35,6 @@ covid19_ui <- function(id, config) {
     tabsetPanel(
       id="covid19",
 
-      tabPanel("Interaktiv",
-               covid19_interactive_ui("covid19_interactive", config)),
-
       tabPanel(
         title="Oversikt",
         tagList(
@@ -311,10 +308,15 @@ covid19_ui <- function(id, config) {
           )
         )
       ),
+
+      tabPanel("Sammenlikning",
+               covid19_comparison_ui("covid19_comparison", config)),
+
       tabPanel(
         title="Modellering",
         covid19_modelling_ui("covid19_modelling", config=config)
       ),
+
       tabPanel(
         title="Informasjon",
         tagList(

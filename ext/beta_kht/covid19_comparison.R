@@ -1,6 +1,6 @@
 library(ggrepel)
 
-covid19_interactive_ui <- function(id, config){
+covid19_comparison_ui <- function(id, config){
 
   ns <- NS(id)
 
@@ -56,7 +56,7 @@ covid19_interactive_ui <- function(id, config){
 }
 
 
-covid19_interactive_server <- function(input, output, session, config){
+covid19_comparison_server <- function(input, output, session, config){
 
   int_loc <- reactiveValues()
 
@@ -134,8 +134,8 @@ covid19_int_msis <- function(location_codes, config){
   d[,pr1000_cum_n := 1000*cum_n/pop]
 
   covid19_int_gen_plot(d = d,
-                       labs_title = "Kummulativt antall tilfeller av covid-19\n Data fra MSIS",
-                       labs_caption = "År-ukenummer",
+                       labs_title = "Kummulativt antall tilfeller av covid-19\nData fra MSIS",
+                       labs_x = glue::glue("{fhi::nb$AA}r-ukenummer"),
                        labs_y = "pr. 1000 innbyggere")
 
 }
@@ -149,8 +149,8 @@ covid19_int_norsyss <- function(location_codes, config){
     dplyr::filter(tag_outcome %in% "covid19_vk_ote") %>%
     dplyr::filter(age=="total") %>% # yusman, remove this
     dplyr::filter(date >= !!config$start_date) %>%
-    dplyr::select(yrwk, location_code, n, consult_with_influenza) %>%
-    dplyr::group_by(location_code, yrwk) %>%
+    dplyr::select(yrwk, location_code, age, n, consult_with_influenza) %>%
+    dplyr::group_by(location_code, age, yrwk) %>%
     dplyr::summarize(n=sum(n), consult_with_influenza=sum(consult_with_influenza)) %>%
     dplyr::collect()
 
@@ -180,8 +180,8 @@ covid19_int_norsyss <- function(location_codes, config){
 
 
   covid19_int_gen_plot(d = d,
-                       labs_title = "Kummulativt antall konsultasjoner med mistenkt, sannsynlig eller bekreftet covid-19 (R991 og R992)\n Data fra NorSySS",
-                       labs_caption = "År-ukenummer",
+                       labs_title = "Kummulativt antall konsultasjoner med mistenkt, sannsynlig eller bekreftet covid-19 (R991 og R992)\nData fra NorSySS",
+                       labs_x = glue::glue("{fhi::nb$AA}r-ukenummer"),
                        labs_y = "pr. 1000 innbyggere")
 
 }
@@ -231,7 +231,8 @@ covid19_int_gen_plot <- function(
     panel.grid.major.x = element_blank(),
     panel.grid.minor.x = element_blank()
   )
-
+  formatter <- function(x) fhiplot::format_nor(x, digits = 1)
+  q <- q + scale_y_continuous(labels=formatter)
   q <- q + theme(legend.position = legend_position)
 
   q <- q + fhiplot::scale_color_fhi()
