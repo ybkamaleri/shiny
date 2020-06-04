@@ -277,7 +277,8 @@ covid19_int_gen_plot <- function(
 
   if(facet){
     q <- q + geom_line(aes(color = loc_name, group = loc_name), size = 1)
-    q <- q + facet_wrap( ~ age, ncol = 2)
+    q <- q + lemon::facet_rep_wrap( ~ age, repeat.tick.labels = "y")
+    ## q <- q + facet_wrap( ~ age, ncol = 2)
 
   }else{
     q <- q + geom_line(aes(color = loc_name, group = loc_name), size = 2)
