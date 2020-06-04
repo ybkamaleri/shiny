@@ -141,11 +141,10 @@ covid19_int_msis <- function(location_codes,
 
   d <- use_int_cumulative(d = d, cumulative = cumulative)
 
-  if (cumulative){
-    plotTitle = " Kummulativt antall tilfeller av covid-19\n Data fra MSIS"
-  } else {
-    plotTitle = " Antall tilfeller av covid-19\n Data fra MSIS"
-  }
+  plotTitle <- ifelse(cumulative,
+                      " Kummulativt antall tilfeller av covid-19\n Data fra MSIS",
+                      " Antall tilfeller av covid-19\n Data fra MSIS"
+                      )
 
   covid19_int_gen_plot(d = d,
                        labs_title = plotTitle,
@@ -193,11 +192,11 @@ covid19_int_norsyss <- function(location_codes,
 
   d <- use_int_cumulative(d = d, cumulative = cumulative)
 
-  if (cumulative){
-    plotTitle = " Kummulativt antall konsultasjoner med mistenkt, sannsynlig eller bekreftet covid-19 (R991 og R992)\n Data fra NorSySS"
-  } else {
-    plotTitle = " Antall konsultasjoner med mistenkt, sannsynlig eller bekreftet covid-19 (R991 og R992)\n Data fra NorSySS"
-  }
+
+  plotTitle <- ifelse(cumulative,
+                      " Kummulativt antall konsultasjoner med mistenkt, sannsynlig eller bekreftet covid-19 (R991 og R992)\n Data fra NorSySS",
+                      " Antall konsultasjoner med mistenkt, sannsynlig eller bekreftet covid-19 (R991 og R992)\n Data fra NorSySS"
+                      )
 
   covid19_int_gen_plot(d = d,
                        labs_title = plotTitle,
@@ -294,7 +293,6 @@ covid19_int_gen_plot <- function(
 
 
     if (cumulative){
-      dt <- subset(d, yrwk = max(yrwk))
       q <- q + ggrepel::geom_text_repel(
         data = subset(d, yrwk == max(yrwk)),
         mapping = aes(label = loc_name),
@@ -305,7 +303,7 @@ covid19_int_gen_plot <- function(
         segment.size = 0.3,
         show.legend = FALSE)
     }else{
-      dt <- subset(d, yrwk = min(yrwk))
+
       q <- q + ggrepel::geom_text_repel(
         data = subset(d, yrwk == min(yrwk)),
         mapping = aes(label = loc_name),
@@ -334,11 +332,8 @@ covid19_int_gen_plot <- function(
                  legend.key.size = unit(1, "cm"),
                  legend.title = element_blank())
 
-  if (facet) {
-    point_size = 1.5
-  }else{
-    point_size = 4
-  }
+
+  point_size <- ifelse(facet, 1.5, 4)
 
   q <- q + geom_point(
     data = subset(d, yrwk == max(yrwk)),
