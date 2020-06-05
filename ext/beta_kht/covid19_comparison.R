@@ -20,11 +20,10 @@ covid19_comparison_ui <- function(id, config){
       selectizeInput(ns("int_input_location"), "Geografisk område: ",
                      choices = config$choices_location,
                      multiple = TRUE,
-                     selected = NULL,
-                     options = list(placeholder = "Skriv områder du vil sammenligne her",
-                                    maxItems = 10,
-                                    onInitialize = I('function() {this.setValue("");}')
-
+                     selected = "norge",
+                     options = list(
+                       placeholder = "Skriv områder du vil sammenligne her",
+                       maxItems = 10
                      ),
                      size = "600px")
     ),
@@ -63,25 +62,19 @@ covid19_comparison_ui <- function(id, config){
 
 covid19_comparison_server <- function(input, output, session, config){
 
-  int_loc <- reactiveValues()
-
-  observe({
-    if (is.null(input$int_input_location)) {
-      int_loc$locations <- "norge"
-    } else {
-      int_loc$locations <- input$int_input_location
-    }
-  })
-
   observeEvent(input$reset_btn, {
-    int_loc$locations <- "norge"
-    reset("int_input_location")
+    updateSelectizeInput(
+      session,
+      "covid19_comparison-int_input_location",
+      selected = "norge"
+    )
   })
 
   output$msis_plot <- renderCachedPlot({
+    req(input$int_input_location)
 
     covid19_int_msis(
-      location_codes = int_loc$locations,
+      location_codes = input$int_input_location,
       cumulative = input$cumulative_chk,
       config = config
     )
@@ -97,9 +90,10 @@ covid19_comparison_server <- function(input, output, session, config){
 
 
   output$norsyss_plot <- renderCachedPlot({
+    req(input$int_input_location)
 
     covid19_int_norsyss(
-      location_codes = int_loc$locations,
+      location_codes = input$int_input_location,
       cumulative = input$cumulative_chk,
       config = config
     )
