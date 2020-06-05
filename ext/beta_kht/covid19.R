@@ -26,6 +26,7 @@ covid19_ui <- function(id, config) {
 
           "Under kan du velge blant to faner som gir deg forskjellig informasjon:", br(),
           "- ",strong("Oversikt")," fanen vil gi deg en rekke figurer, tabeller og kart hvor du kan velge det geografiske området du er interessert i", br(),
+          "- ",strong("Sammenlikning")," fanen vil gi deg figurer der du kan sammenlikne forskjellige geografiske områder", br(),
           "- ",strong("Modellering")," fanen vil gi deg beregninger fra FHIs spredningsmodell hvor du kan velge det geografiske området du er interessert i", br(),
           "- ",strong("Informasjon")," fanen gir deg litt mer informasjon om dataene vi bruker", br()
         )
