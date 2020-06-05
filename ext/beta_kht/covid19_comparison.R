@@ -32,11 +32,7 @@ covid19_comparison_ui <- function(id, config){
       column(
         width = 6, align = "right",
         checkboxInput(ns("cumulative_chk"), "Kumulativ", value = T)
-      ),
-      column(
-        width = 6, align = "left",
-        actionButton(ns("reset_btn"), "Nullstill",
-                     icon = icon("redo")))
+      )
     ),
 
     br(),
@@ -61,14 +57,7 @@ covid19_comparison_ui <- function(id, config){
 
 
 covid19_comparison_server <- function(input, output, session, config){
-
-  observeEvent(input$reset_btn, {
-    updateSelectizeInput(
-      session,
-      "covid19_comparison-int_input_location",
-      selected = "norge"
-    )
-  })
+  ns <- session$ns
 
   output$msis_plot <- renderCachedPlot({
     req(input$int_input_location)
