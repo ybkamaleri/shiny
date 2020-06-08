@@ -11,13 +11,7 @@ covid19_comparison_ui <- function(id, config){
     fluidRow(
       br(),
       p("Under vil du se noen figurer der du kan sammenlikne forskjellige geografiske områder.", br(),
-        "Begynn å skriv navnet på ønsket kommune eller fylke så vil det automatisk komme opp alternativer.",
-        " Trykk på det alternativet du ønsker.",
-        "Inkluder flere geografiske områder ved å begynne å skrive et nytt geografisk område og trykk på ønsket alternativ.",
-        " Du kan slette områder ved å trykke på navnet og deretter 'delete' eller 'backspace' (bakoverpil) på tastaturet ditt.", br(),
-        "Du ser en graf med kumulativt antall. Ved å trykke på 'Kumulativ' teksten under 'Geografisk område' boksen vil du kunne se insidensen per uke."
-        ),br(),
-
+        "Begynn å skriv navnet på ønsket kommune eller fylke så vil det automatisk komme opp alternativer."),
       br(),
       ),
 
