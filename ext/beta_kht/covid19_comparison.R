@@ -13,7 +13,7 @@ covid19_comparison_ui <- function(id, config){
         " Trykk på det alternativet du ønsker.",
         "Inkluder flere geografiske områder ved å begynne å skrive et nytt geografisk område og trykk på ønsket alternativ.",
         " Du kan slette områder ved å trykke på navnet og deretter 'delete' eller 'backspace' (bakoverpil) på tastaturet ditt.", br(),
-        "Du ser en graf med kumulativt antall. Ved å trykke på 'Kumulativ' teksten under 'Geografisk område' boksen vil du kunne se insidensen per uke."
+        ## "Du ser en graf med kumulativt antall. Ved å trykke på 'Kumulativ' teksten under 'Geografisk område' boksen vil du kunne se insidensen per uke."
         ),br(),
 
       br(),
@@ -31,13 +31,15 @@ covid19_comparison_ui <- function(id, config){
                      ),
                      size = "600px")
     ),
-
-    fluidRow(
-      column(
-        width = 6, align = "right",
-        checkboxInput(ns("cumulative_chk"), "Kumulativ", value = T)
-      )
-    ),
+    column(
+      width = 12, align = "center",
+      radioButtons(
+        inputId = ns("cumulative_chk"),
+        label = "Vis tallene som:",
+        choices = list("Kumulativ" = 1, "Insidens" = 2),
+        inline = TRUE,
+        selected = 1
+      )),
 
     br(),
     br(),
@@ -51,7 +53,14 @@ covid19_comparison_ui <- function(id, config){
 
     fluidRow(
       width = 12, align = "left",
-      shinycssloaders::withSpinner(plotOutput(ns("norsyss_plot"), height = "800px"))
+      shinycssloaders::withSpinner(plotOutput(ns("norsyss_total"), height = "800px"))
+    ),
+    br(),
+    br(),
+
+    fluidRow(
+      width = 12, align = "left",
+      shinycssloaders::withSpinner(plotOutput(ns("norsyss_age"), height = "800px"))
     ),
     br(),
     br(),
@@ -63,12 +72,19 @@ covid19_comparison_ui <- function(id, config){
 covid19_comparison_server <- function(input, output, session, config){
   ns <- session$ns
 
+  cumulativeTRUE  <- reactiveVal(1)
+
+  observeEvent(input$cumulative_chk, {
+    value <- input$cumulative_chk == 1
+    cumulativeTRUE(value)
+  })
+
   output$msis_plot <- renderCachedPlot({
     req(input$int_input_location)
 
     covid19_int_msis(
       location_codes = input$int_input_location,
-      cumulative = input$cumulative_chk,
+      cumulative = cumulativeTRUE(),
       config = config
     )
 
@@ -81,12 +97,31 @@ covid19_comparison_server <- function(input, output, session, config){
   res = 72
   )
 
-  output$norsyss_plot <- renderCachedPlot({
+  output$norsyss_total <- renderCachedPlot({
     req(input$int_input_location)
 
-    covid19_int_norsyss(
+    covid19_int_norsyss_total(
       location_codes = input$int_input_location,
-      cumulative = input$cumulative_chk,
+      cumulative = cumulativeTRUE(),
+      config = config
+    )
+
+  }, cacheKeyExpr = {list(
+    input$int_input_location,
+    input$cumulative_chk,
+    input$reset_btn,
+    dev_invalidate_cache
+  )},
+  res = 72
+  )
+
+
+  output$norsyss_age <- renderCachedPlot({
+    req(input$int_input_location)
+
+    covid19_int_norsyss_age(
+      location_codes = input$int_input_location,
+      cumulative = cumulativeTRUE(),
       config = config
     )
 
@@ -117,9 +152,6 @@ covid19_int_msis <- function(location_codes, cumulative, config){
   setkey(d, location_code, yrwk)
   d[,cum_n := cumsum(n), by=.(location_code)]
 
-  ## for reordering the yrwk
-  ## d[, rank := 1:.N, by = .(location_code)]
-
   d_p <- fhidata::norway_population_b2020[year==2020,.(
     pop=sum(pop)
   ),keyby=.(location_code)]
@@ -130,7 +162,6 @@ covid19_int_msis <- function(location_codes, cumulative, config){
     pop:=pop
   ]
 
-  ## d[,pr1000_cum_n := 1000*cum_n/pop]
 
   d <- use_int_cumulative(d = d, cumulative = cumulative)
 
@@ -149,9 +180,54 @@ covid19_int_msis <- function(location_codes, cumulative, config){
 }
 
 
-covid19_int_norsyss <- function(location_codes, cumulative, config){
+covid19_int_norsyss_total <- function(location_codes, cumulative, config){
 
-  d <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
+   d <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
+    dplyr::filter(location_code %in%!!location_codes)%>%
+    dplyr::filter(granularity_time=="day")%>%
+    dplyr::filter(tag_outcome %in% "covid19_vk_ote") %>%
+    dplyr::filter(age=="total") %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::select(yrwk, location_code, n, consult_with_influenza) %>%
+    dplyr::group_by(location_code, yrwk) %>%
+    dplyr::summarize(n=sum(n), consult_with_influenza=sum(consult_with_influenza)) %>%
+    dplyr::collect()
+
+  setDT(d)
+  setkey(d, location_code, yrwk)
+
+  d[,cum_n := cumsum(n), by=.(location_code)]
+
+  d_p <- fhidata::norway_population_b2020[year==2020,.(
+    pop=sum(pop)
+  ),keyby=.(location_code)]
+
+  d[
+    d_p,
+    on="location_code",
+    pop:=pop
+  ]
+
+  d <- use_int_cumulative(d = d, cumulative = cumulative)
+
+  plotTitle <- ifelse(cumulative,
+                      "Kummulativt antall tilfeller av covid-19\nData fra NorSySS",
+                      "Antall tilfeller av covid-19\nData fra NorSySS"
+  )
+
+  covid19_int_gen_plot(d = d,
+                       legend_position = "bottom",
+                       labs_title = plotTitle,
+                       labs_x = glue::glue("{fhi::nb$AA}r-ukenummer"),
+                       labs_y = "pr. 1 000 innbyggere",
+                       cumulative = cumulative)
+
+}
+
+
+covid19_int_norsyss_age <- function(location_codes, cumulative, config){
+
+d <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
     dplyr::filter(location_code %in%!!location_codes)%>%
     dplyr::filter(granularity_time=="day")%>%
     dplyr::filter(tag_outcome %in% "covid19_vk_ote") %>%
@@ -169,14 +245,13 @@ covid19_int_norsyss <- function(location_codes, cumulative, config){
     levels = c("total","0-4","5-14","15-19","20-29","30-64","65+"),
     labels = c("Totalt","0-4","5-14","15-19","20-29","30-64","65+")
     )]
+
   d[,censor := ""]
   d[censor=="" & n>0 & n<5, censor := "N"]
   d[censor != "", n := 0]
 
   d[,cum_n := cumsum(n), by=.(location_code, age)]
 
-  ## for reordering the yrwk
-  ## d[, rank := 1:.N, by = .(location_code)]
 
   d_p <- fhidata::norway_population_b2020[year==2020]
   d_p[, age := fancycut::fancycut(
@@ -190,7 +265,7 @@ covid19_int_norsyss <- function(location_codes, cumulative, config){
   )]
   d_p_x <- copy(d_p)
   d_p_x[,age:="Totalt"]
-  d_p <- rbind(d_p, d_p_x)
+  d_p <- rbindlist(list(d_p, d_p_x))
   d_p <- d_p[
   ,.(
     pop=sum(pop)
@@ -202,8 +277,6 @@ covid19_int_norsyss <- function(location_codes, cumulative, config){
     pop:=pop
   ]
 
-  ## use function use_int_cumulative
-  ## d[,pr1000_cum_n := 1000*cum_n/pop]
 
   d <- use_int_cumulative(d = d, cumulative = cumulative)
 
@@ -222,6 +295,7 @@ covid19_int_norsyss <- function(location_codes, cumulative, config){
                        facet = TRUE)
 
 }
+
 
 
 use_int_cumulative <- function(d = NULL, cumulative = FALSE){
@@ -304,26 +378,6 @@ covid19_int_gen_plot <- function(
     q <- q + coord_cartesian(ylim=c(0, max_y_extra),
                              xlim = c(x_left_extra, x_right_extra),
                              clip="off", expand = F)
-
-    ## if (cumulative){
-    ##   q <-  q + annotate(geom = "rect",
-    ##                      xmin = x_min_ann,
-    ##                      xmax = x_max_ann,
-    ##                      ymin = -0.5, ymax = Inf, #still not able to cover the x-axis line?
-    ##                      fill = "white"
-    ##                      )
-
-    ##   q <- q + ggrepel::geom_text_repel(
-    ##     data = subset(d, yrwk == max(yrwk)),
-    ##     mapping = aes(label = loc_name),
-    ##     hjust = 0,
-    ##     size = 6,
-    ##     direction = "y",
-    ##     nudge_x = 0.5,
-    ##     segment.size = 0.3,
-    ##     show.legend = FALSE
-    ##     )
-    ## }
 
     q <- q + fhiplot::theme_fhi_lines(
       base_size = 20,
