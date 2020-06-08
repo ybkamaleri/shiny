@@ -1,5 +1,3 @@
-library(ggrepel)
-
 covid19_comparison_ui <- function(id, config){
 
   ns <- NS(id)
@@ -83,7 +81,6 @@ covid19_comparison_server <- function(input, output, session, config){
   res = 72
   )
 
-
   output$norsyss_plot <- renderCachedPlot({
     req(input$int_input_location)
 
@@ -121,7 +118,7 @@ covid19_int_msis <- function(location_codes, cumulative, config){
   d[,cum_n := cumsum(n), by=.(location_code)]
 
   ## for reordering the yrwk
-  d[, rank := 1:.N, by = .(location_code)]
+  ## d[, rank := 1:.N, by = .(location_code)]
 
   d_p <- fhidata::norway_population_b2020[year==2020,.(
     pop=sum(pop)
@@ -133,7 +130,7 @@ covid19_int_msis <- function(location_codes, cumulative, config){
     pop:=pop
   ]
 
-  d[,pr1000_cum_n := 1000*cum_n/pop]
+  ## d[,pr1000_cum_n := 1000*cum_n/pop]
 
   d <- use_int_cumulative(d = d, cumulative = cumulative)
 
@@ -143,7 +140,7 @@ covid19_int_msis <- function(location_codes, cumulative, config){
   )
 
   covid19_int_gen_plot(d = d,
-                       legend_position = ifelse(cumulative,"none","bottom"),
+                       legend_position = "bottom",
                        labs_title = plotTitle,
                        labs_x = glue::glue("{fhi::nb$AA}r-ukenummer"),
                        labs_y = "pr. 1 000 innbyggere",
@@ -179,7 +176,7 @@ covid19_int_norsyss <- function(location_codes, cumulative, config){
   d[,cum_n := cumsum(n), by=.(location_code, age)]
 
   ## for reordering the yrwk
-  d[, rank := 1:.N, by = .(location_code)]
+  ## d[, rank := 1:.N, by = .(location_code)]
 
   d_p <- fhidata::norway_population_b2020[year==2020]
   d_p[, age := fancycut::fancycut(
@@ -205,7 +202,8 @@ covid19_int_norsyss <- function(location_codes, cumulative, config){
     pop:=pop
   ]
 
-  d[,pr1000_cum_n := 1000*cum_n/pop]
+  ## use function use_int_cumulative
+  ## d[,pr1000_cum_n := 1000*cum_n/pop]
 
   d <- use_int_cumulative(d = d, cumulative = cumulative)
 
@@ -262,7 +260,7 @@ covid19_int_gen_plot <- function(
 
   if (cumulative) {
     x_left_extra <- x_left * 0.8
-    x_right_extra <- x_right * 1.2
+    x_right_extra <- x_right * 1.02
     x_min_ann <- x_right * 1.02
     x_max_ann <- x_right * 1.3
   }else{
@@ -307,25 +305,25 @@ covid19_int_gen_plot <- function(
                              xlim = c(x_left_extra, x_right_extra),
                              clip="off", expand = F)
 
-    if (cumulative){
-      q <-  q + annotate(geom = "rect",
-                         xmin = x_min_ann,
-                         xmax = x_max_ann,
-                         ymin = -0.5, ymax = Inf, #still not able to cover the x-axis line?
-                         fill = "white"
-                         )
+    ## if (cumulative){
+    ##   q <-  q + annotate(geom = "rect",
+    ##                      xmin = x_min_ann,
+    ##                      xmax = x_max_ann,
+    ##                      ymin = -0.5, ymax = Inf, #still not able to cover the x-axis line?
+    ##                      fill = "white"
+    ##                      )
 
-      q <- q + ggrepel::geom_text_repel(
-        data = subset(d, yrwk == max(yrwk)),
-        mapping = aes(label = loc_name),
-        hjust = 0,
-        size = 6,
-        direction = "y",
-        nudge_x = 0.5,
-        segment.size = 0.3,
-        show.legend = FALSE
-        )
-    }
+    ##   q <- q + ggrepel::geom_text_repel(
+    ##     data = subset(d, yrwk == max(yrwk)),
+    ##     mapping = aes(label = loc_name),
+    ##     hjust = 0,
+    ##     size = 6,
+    ##     direction = "y",
+    ##     nudge_x = 0.5,
+    ##     segment.size = 0.3,
+    ##     show.legend = FALSE
+    ##     )
+    ## }
 
     q <- q + fhiplot::theme_fhi_lines(
       base_size = 20,
