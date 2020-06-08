@@ -53,7 +53,7 @@ DBI::dbExecute(pool, glue::glue({"USE {db_config$db};"}))
 config_update_dates <- function(config){
   config$start_date_norsyss_standard_weekly <- as.Date("2018-01-01")
   config$start_date <- as.Date("2020-03-09")
-  val <- pool %>% dplyr::tbl("data_norsyss") %>%
+  val <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
     dplyr::summarize(date = max(date)) %>%
     dplyr::collect()
   config$max_date_uncertain <- as.Date(val$date[1])
@@ -75,7 +75,7 @@ config$small_location_codes <- unique(fhidata::norway_population_b2020[,.(pop=su
 
 config_update_dates(config = config)
 
-x <- pool %>% dplyr::tbl("data_norsyss") %>%
+x <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
   dplyr::distinct(tag_outcome) %>%
   dplyr::collect()
 
