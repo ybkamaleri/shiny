@@ -166,8 +166,8 @@ covid19_int_msis <- function(location_codes, cumulative, config){
   d <- use_int_cumulative(d = d, cumulative = cumulative)
 
   plotTitle <- ifelse(cumulative,
-                      "Kummulativt antall tilfeller av covid-19\nData fra MSIS",
-                      "Antall tilfeller av covid-19\nData fra MSIS"
+                      "Kummulativt antall tilfeller av covid-19\n- Data fra MSIS",
+                      "Antall tilfeller av covid-19\n- Data fra MSIS"
   )
 
   covid19_int_gen_plot(d = d,
@@ -211,8 +211,8 @@ covid19_int_norsyss_total <- function(location_codes, cumulative, config){
   d <- use_int_cumulative(d = d, cumulative = cumulative)
 
   plotTitle <- ifelse(cumulative,
-                      "Kummulativt antall tilfeller av covid-19\nData fra NorSySS",
-                      "Antall tilfeller av covid-19\nData fra NorSySS"
+                      "Kummulativt antall konsultasjoner med mistenkt, sannsynlig eller\nbekreftet covid-19 (R991 og R992)\n- Data fra NorSySS",
+                      "Antall konsultasjoner med mistenkt, sannsynlig eller\nbekreftet covid-19 (R991 og R992)\n- Data fra NorSySS"
   )
 
   covid19_int_gen_plot(d = d,
@@ -280,11 +280,11 @@ d <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
 
   d <- use_int_cumulative(d = d, cumulative = cumulative)
 
-
   plotTitle <- ifelse(cumulative,
-                      "Kummulativt antall konsultasjoner med mistenkt, sannsynlig eller bekreftet covid-19 (R991 og R992)\nData fra NorSySS",
-                      "Antall konsultasjoner med mistenkt, sannsynlig eller bekreftet covid-19 (R991 og R992)\nData fra NorSySS"
+                      "Kummulativt antall konsultasjoner med mistenkt, sannsynlig eller\nbekreftet covid-19 (R991 og R992)\n- Data fra NorSySS",
+                      "Antall konsultasjoner med mistenkt, sannsynlig eller\nbekreftet covid-19 (R991 og R992)\n- Data fra NorSySS"
   )
+
 
   covid19_int_gen_plot(d = d,
                        labs_title = plotTitle,
