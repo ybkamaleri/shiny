@@ -80,12 +80,13 @@ x <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
   dplyr::collect()
 
 # choices_location_code
-x_choices <- fhidata::norway_locations_long_b2020[-1]
+x_choices <- fhidata::norway_locations_long_b2020
 setorder(x_choices,location_code)
 x_choices <- rbind(
-  x_choices[location_code=="norge"],
-  x_choices[stringr::str_detect(location_code, "^county")],
-  x_choices[stringr::str_detect(location_code, "^municip")]
+  x_choices[granularity_geo=="nation"],
+  x_choices[granularity_geo=="county"],
+  x_choices[granularity_geo=="municip"],
+  x_choices[granularity_geo=="ward"]
 )
 
 x_choices[
@@ -94,16 +95,27 @@ x_choices[
   county_name := county_name
   ]
 
-x_choices[stringr::str_detect(location_code, "^county"), location_name := paste0(location_name, " (fylke)")]
-x_choices[stringr::str_detect(location_code, "^municip"), location_name := paste0(location_name, " (kommune i ", county_name,")")]
+x_choices[
+  fhidata::norway_locations_ward_b2020,
+  on="location_code==ward_code",
+  municip_name := municip_name
+  ]
 
-choices_location <- x_choices$location_code
-names(choices_location) <- x_choices$location_name
+x_choices[granularity_geo== "county", location_name := paste0(location_name, " (fylke)")]
+x_choices[granularity_geo== "municip", location_name := paste0(location_name, " (kommune i ", county_name,")")]
+x_choices[granularity_geo== "ward", location_name := paste0(location_name, " (bydel i ", municip_name,")")]
 
-config$choices_location <- choices_location
+choices_location_with_ward <- x_choices$location_code
+names(choices_location_with_ward) <- x_choices$location_name
 
-choices_location_daily <- x_choices[is.na(county_name)]$location_code
-names(choices_location_daily) <- x_choices[is.na(county_name)]$location_name
+choices_location_without_ward <- x_choices[granularity_geo %in% c("nation","county","municip")]$location_code
+names(choices_location_without_ward) <- x_choices[granularity_geo %in% c("nation","county","municip")]$location_name
+
+config$choices_location_with_ward <- choices_location_with_ward
+config$choices_location_without_ward <- choices_location_without_ward
+
+choices_location_daily <- x_choices[granularity_geo %in% c("nation","county")]$location_code
+names(choices_location_daily) <- x_choices[granularity_geo %in% c("nation","county")]$location_name
 config$choices_location_daily <- choices_location_daily
 
 config$choices_norsyss_tag <- list(
@@ -119,6 +131,8 @@ get_granularity_geo <- function(location_code){
     granularity_geo <- "county"
   } else if(stringr::str_detect(location_code, "^municip")){
     granularity_geo <- "municip"
+  } else if(stringr::str_detect(location_code, "^ward")){
+    granularity_geo <- "ward"
   }
   shiny::req(granularity_geo)
   return(granularity_geo)
@@ -127,13 +141,27 @@ get_granularity_geo <- function(location_code){
 get_dependent_location_codes <- function(location_code){
   granularity_geo <- get_granularity_geo(location_code = location_code)
 
-  if(granularity_geo == "nation"){
+  if(location_code %in% c("county03", "municip0301")){
+    location_codes <- unique(c("county03", "municip0301", fhidata::norway_locations_ward_b2020[municip_code=="municip0301"]$ward_code))
+  } else if(granularity_geo == "nation"){
     location_codes <- c("norge",unique(fhidata::norway_locations_b2020[,.(county_code)])$county_code)
   } else if(granularity_geo == "county"){
     location_codes <- c(location_code, fhidata::norway_locations_b2020[county_code==location_code]$municip_code)
   } else if(granularity_geo == "municip"){
-    x_county_code <- fhidata::norway_locations_b2020[municip_code==location_code]$county_code
-    location_codes <- unique(c(location_code, fhidata::norway_locations_b2020[county_code==x_county_code]$municip_code))
+    # this is a municip with ward
+    if(location_code %in% c("municip0301")){ #fhidata::norway_locations_b2020$municip_code){
+      location_codes <- unique(c(location_code, fhidata::norway_locations_ward_b2020[municip_code==location_code]$ward_code))
+    } else {
+      x_county_code <- fhidata::norway_locations_b2020[municip_code==location_code]$county_code
+      location_codes <- unique(c(location_code, fhidata::norway_locations_b2020[county_code==x_county_code]$municip_code))
+    }
+  } else if(granularity_geo == "ward"){
+    x_municip_code <- fhidata::norway_locations_ward_b2020[ward_code==location_code]$municip_code
+    location_codes <- unique(c(
+      location_code,
+      fhidata::norway_locations_ward_b2020[municip_code==x_municip_code]$ward_code,
+      x_municip_code
+    ))
   }
 
   return(location_codes)
