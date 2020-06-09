@@ -597,7 +597,7 @@ covid19_server <- function(input, output, session, config) {
     req(input$covid_location_code)
 
     location_codes <- get_dependent_location_codes(location_code = input$covid_location_code)
-    height <- round(250 + 150*ceiling(length(location_codes)/3))
+    height <- round(250 + 180*ceiling(length(location_codes)/3))
     height <- max(600, height)
     height <- paste0(height,"px")
     shinycssloaders::withSpinner(plotOutput(ns("overview_plot_county_proportion"), height = height))
