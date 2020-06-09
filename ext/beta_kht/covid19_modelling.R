@@ -643,7 +643,7 @@ plot_covid19_modelling_generic <- function(est,
                        fill = fhiplot::base_color, alpha = 0.5)
   q <- q + geom_line(aes_string(y = est_value), color = fhiplot::base_color, size = 1.5)
   q <- q + lemon::facet_rep_wrap(vars(location_name),
-                                 repeat.tick.labels = "y",
+                                 repeat.tick.labels = TRUE,
                                  scales = "free_y",
                                  ncol = 3)
 

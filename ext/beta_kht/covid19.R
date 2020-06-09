@@ -93,6 +93,7 @@ covid19_ui <- function(id, config) {
             )
           ),
 
+          # fig 1 ----
           fluidRow(
             fluidRow(
               column(
@@ -115,6 +116,7 @@ covid19_ui <- function(id, config) {
               )
             ),
 
+            # fig 2 ----
             fluidRow(
               column(
                 width=12, align="left",
@@ -143,6 +145,7 @@ covid19_ui <- function(id, config) {
             )
           ),
 
+          # fig 3 ----
           fluidRow(
             column(
               width=12, align="left",
@@ -179,6 +182,7 @@ covid19_ui <- function(id, config) {
             )
           ),
 
+          # fig 4 ----
           fluidRow(
             column(
               width=12, align="left",
@@ -207,6 +211,7 @@ covid19_ui <- function(id, config) {
             )
           ),
 
+          # fig 5 ----
           fluidRow(
             column(
               width=12, align="left",
@@ -234,6 +239,7 @@ covid19_ui <- function(id, config) {
             )
           ),
 
+          # fig 6 ----
           fluidRow(
             column(
               width=12, align="left",
@@ -254,11 +260,13 @@ covid19_ui <- function(id, config) {
               p(
                  ),
               uiOutput(ns("overview_ui_county_proportion")),
+              #plotOutput(ns("overview_plot_county_proportion"), height="800px"),
               br()
               #shinycssloaders::withSpinnerplotOutput(ns("overview_plot_county_proportion"), height = "900px")
             )
           ),
 
+          # fig 7 ----
           fluidRow(
             column(
               width=12, align="left",
@@ -284,6 +292,7 @@ covid19_ui <- function(id, config) {
             )
           ),
 
+          # fig 8 ----
           fluidRow(
             column(
               width=12, align="left",
@@ -494,6 +503,7 @@ covid19_ui <- function(id, config) {
 covid19_server <- function(input, output, session, config) {
   #width <-  as.numeric(input$dimension[1])
 
+  # fig 1 ----
   norsyss_vs_msis_list <- reactive({
 
       covid19_norsyss_vs_msis(
@@ -536,6 +546,7 @@ covid19_server <- function(input, output, session, config) {
   res = 72
   )
 
+  # fig 2 ----
   output$overview_plot_national_source_proportion <- renderCachedPlot({
     req(input$covid_location_code)
 
@@ -550,6 +561,7 @@ covid19_server <- function(input, output, session, config) {
   res = 72
   )
 
+  # fig 3 ----
   output$overview_plot_national_age_burden <- renderCachedPlot({
     req(input$covid_location_code)
 
@@ -564,6 +576,7 @@ covid19_server <- function(input, output, session, config) {
   res = 72
   )
 
+  # fig 4 ----
   output$overview_plot_national_age_trends <- renderCachedPlot({
     req(input$covid_location_code)
 
@@ -578,6 +591,7 @@ covid19_server <- function(input, output, session, config) {
   res = 72
   )
 
+  # fig 5 ----
   output$overview_plot_county_proportion <- renderCachedPlot({
     req(input$covid_location_code)
 
@@ -592,6 +606,7 @@ covid19_server <- function(input, output, session, config) {
   res = 72
   )
 
+  # fig 6 ----
   output$overview_ui_county_proportion <- renderUI({
     ns <- session$ns
     req(input$covid_location_code)
@@ -603,6 +618,7 @@ covid19_server <- function(input, output, session, config) {
     shinycssloaders::withSpinner(plotOutput(ns("overview_plot_county_proportion"), height = height))
   })
 
+  # fig 7 ----
   output$overview_map_county_proportion <- renderCachedPlot({
 
     covid19_overview_map_county_proportion(
@@ -616,7 +632,7 @@ covid19_server <- function(input, output, session, config) {
   res = 72
   )
 
-
+  # fig 8 ----
   output$overview_map_county_proportion_2 <- renderCachedPlot({
 
     covid19_overview_map_county_proportion_2(
@@ -2077,6 +2093,7 @@ covid19_overview_plot_county_proportion_weekly <- function(
   max_y <- max(c(max_y,5))
   min_y_censor <- 0.01*max_y
 
+  #pd <- pd[location_code %in% c("county03","ward030115")]
   q <- ggplot(pd, aes(x=yrwk, y=andel))
   #q <- q + geom_col(mapping = aes(fill=name_outcome), position = "dodge", width=0.8)
   q <- q + geom_line(mapping = aes(color=name_outcome, group=name_outcome), lwd=2)
@@ -2095,9 +2112,11 @@ covid19_overview_plot_county_proportion_weekly <- function(
     )
   }
   if(granularity_geo %in% c("nation", "ward") | location_code %in% c("county03","municip0301")){
-    q <- q + lemon::facet_rep_wrap(~location_name, repeat.tick.labels = "y", ncol=3)
+    #q <- q + lemon::facet_rep_wrap(~location_name, repeat.tick.labels = "y", ncol=3)
+    q <- q + facet_wrap(~location_name, ncol=3)
   } else {
-    q <- q + lemon::facet_rep_wrap(~location_name, repeat.tick.labels = "y", ncol=3, scales="free_y")
+    #q <- q + lemon::facet_rep_wrap(~location_name, repeat.tick.labels = "y", ncol=3, scales="free_y")
+    q <- q + facet_wrap(~location_name, ncol=3, scales = "free")
   }
   q <- q + scale_y_continuous(
     "Andel",
@@ -2121,6 +2140,8 @@ covid19_overview_plot_county_proportion_weekly <- function(
                                       panel.grid.minor.y = element_blank()
     )
   }
+  q <- q + annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf)
+  q <- q + annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf)
   q <- q + fhiplot::set_x_axis_vertical()
   q <- q + theme(legend.key.size = unit(1, "cm"))
   q <- q + theme(legend.position="bottom")

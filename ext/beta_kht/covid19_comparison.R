@@ -232,6 +232,7 @@ d <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
     dplyr::filter(granularity_time=="day")%>%
     dplyr::filter(tag_outcome %in% "covid19_vk_ote") %>%
     dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::filter(!age %in% "total") %>%
     dplyr::select(yrwk, location_code, age, n, consult_with_influenza) %>%
     dplyr::group_by(location_code, age, yrwk) %>%
     dplyr::summarize(n=sum(n), consult_with_influenza=sum(consult_with_influenza)) %>%
@@ -242,8 +243,8 @@ d <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
 
   d[, age:=factor(
     age,
-    levels = c("total","0-4","5-14","15-19","20-29","30-64","65+"),
-    labels = c("Totalt","0-4","5-14","15-19","20-29","30-64","65+")
+    levels = c("0-4","5-14","15-19","20-29","30-64","65+"),
+    labels = c("0-4","5-14","15-19","20-29","30-64","65+")
     )]
 
   d[,censor := ""]
@@ -363,7 +364,8 @@ covid19_int_gen_plot <- function(
 
   if(facet){
     q <- q + geom_line(aes(color = loc_name, group = loc_name), size = 2)
-    q <- q + lemon::facet_rep_wrap( ~ age, repeat.tick.labels = "y")
+    q <- q + lemon::facet_rep_wrap( ~ age, repeat.tick.labels = TRUE)
+    #q <- q + facet_wrap( ~ age, scales="free_x")
 
     q <- q + fhiplot::theme_fhi_lines(
       base_size = 20,
@@ -372,6 +374,8 @@ covid19_int_gen_plot <- function(
       panel.grid.minor.x = element_blank(),
       panel.grid.minor.y = element_blank()
     )
+    #q <- q + annotate("segment", x=-Inf, xend=Inf, y=-Inf, yend=-Inf)
+    #q <- q + annotate("segment", x=-Inf, xend=-Inf, y=-Inf, yend=Inf)
 
   }else{
     q <- q + geom_line(aes(color = loc_name, group = loc_name), size = 2)
@@ -398,6 +402,7 @@ covid19_int_gen_plot <- function(
     labels=formatter,
     expand = expand_scale(mult = c(0, 0.1))
   )
+  q <- q + expand_limits(y = 0)
   q <- q + theme(legend.position = legend_position,
                  legend.key.size = unit(1, "cm"),
                  legend.title = element_blank())
