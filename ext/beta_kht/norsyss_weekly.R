@@ -51,7 +51,7 @@ norsyss_weekly_ui <- function(id, config) {
         selectizeInput(
           inputId = ns("norsyss_weekly_location_code"),
           label = "Geografisk område",
-          choices = config$choices_location,
+          choices = config$choices_location_with_ward,
           selected = "norge",
           multiple = FALSE,
           options = NULL,

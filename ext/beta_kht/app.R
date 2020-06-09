@@ -73,13 +73,13 @@ server <- function(input, output, session) {
   observe({
     query <- parseQueryString(session$clientData$url_search)
     selected <- config$choices_location[1]
-    if (!is.null(query[['location_code']])) if(query[['location_code']] %in% fhidata::norway_locations_long_b2020$location_code){
+    if (!is.null(query[['location_code']])) if(query[['location_code']] %in% fhidata::norway_locations_long_ward_b2020$location_code){
       selected <- query[['location_code']]
     }
     updateSelectizeInput(
       session,
       "covid19-covid_location_code",
-      choices=config$choices_location,
+      choices=config$choices_location_with_ward,
       selected = selected
     )
   }, priority=10000)

@@ -56,7 +56,7 @@ norsyss_overview_ui <- function(id, config) {
         selectizeInput(
           inputId = ns("norsyss_location_code"),
           label = "Geografisk område",
-          choices = config$choices_location,
+          choices = config$choices_location_with_ward,
           selected = "norge",
           multiple = FALSE,
           options = NULL,
@@ -402,7 +402,7 @@ plot_barometer_age <- function(
   q2 <- q
 
   title_text <- glue::glue(
-    "{names(config$choices_location)[config$choices_location==location_code]}\n",
+    "{names(config$choices_location_with_ward)[config$choices_location_with_ward==location_code]}\n",
     "{names(config$choices_norsyss_tag)[config$choices_norsyss_tag==tag_outcome]}\n",
   )
   title <- cowplot::ggdraw() +
@@ -418,7 +418,7 @@ plot_barometer_age <- function(
       # so title is aligned with left edge of first plot
       plot.margin = margin(0, 0, 0, 0)
     )
-  if(granularity_geo=="municip"){
+  if(granularity_geo %in% c("municip","ward")){
     retval <- q1
 
     retval <- cowplot::plot_grid(
@@ -694,7 +694,7 @@ plot_trends_multiple <- function(tag_outcome, location_code, config){
   pd3[, plot_u1 := 0]
   pd3[, plot_u2 := n_baseline_thresholdu1 - n_baseline_thresholdu0]
 
-  if(granularity_geo != "municip"){
+  if(granularity_geo %in% c("nation","county")){
     pd4 <- copy(pdday)
     pd4[,type:="Daglig eksess"]
     pd4[,plot_n := pmax(0, n - n_baseline_thresholdu0)]
@@ -727,7 +727,7 @@ plot_trends_multiple <- function(tag_outcome, location_code, config){
     title <- cowplot::ggdraw() +
       cowplot::draw_label(
         glue::glue(
-          "{names(config$choices_location)[config$choices_location==location_code]}\n",
+          "{names(config$choices_location_with_ward)[config$choices_location_with_ward==location_code]}\n",
           "{names(config$choices_norsyss_tag)[config$choices_norsyss_tag==tag_outcome]}"
         ),
         fontface = 'bold',
@@ -755,7 +755,7 @@ plot_trends_multiple <- function(tag_outcome, location_code, config){
     title <- cowplot::ggdraw() +
       cowplot::draw_label(
         glue::glue(
-          "{names(config$choices_location)[config$choices_location==location_code]}\n",
+          "{names(config$choices_location_with_ward)[config$choices_location_with_ward==location_code]}\n",
           "{names(config$choices_norsyss_tag)[config$choices_norsyss_tag==tag_outcome]}"
         ),
         fontface = 'bold',

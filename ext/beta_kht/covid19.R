@@ -80,7 +80,7 @@ covid19_ui <- function(id, config) {
               selectizeInput(
                 inputId = ns("covid_location_code"),
                 label = "Geografisk område",
-                #choices = config$choices_location,
+                #choices = config$choices_location_with_ward,
                 #selected = "norge",
                 choices = NULL,
                 selected = NULL,
@@ -521,8 +521,6 @@ covid19_server <- function(input, output, session, config) {
       writexl::write_xlsx(norsyss_vs_msis_list()$pd_xl, file)
     }
   )
-  ## ----
-
 
   output$overview_plot_national_syndromes_proportion <- renderCachedPlot({
     req(input$covid_location_code)
@@ -828,7 +826,7 @@ covid19_plot_single <- function(
   if(granularity_time=="day"){
     q <- q + scale_x_date(
       "",
-      date_breaks = "2 days",
+      date_breaks = "7 days",
       date_labels = "%d.%m"
     )
   } else {
@@ -914,7 +912,7 @@ make_table_generic <- function(...) {
 
 }
 
-
+# fig 1 ----
 covid19_norsyss_vs_msis_lab_daily <- function(
   location_code,
   config
@@ -982,7 +980,7 @@ covid19_norsyss_vs_msis_lab_daily <- function(
     labs_left = "Antall tilfeller meldt til MSIS",
     labs_right = "Andel NorSySS konsultasjoner\n og andel positive laboratorietester\n",
     labs_title = glue::glue(
-      "{names(config$choices_location)[config$choices_location==location_code]}\n",
+      "{names(config$choices_location_with_ward)[config$choices_location_with_ward==location_code]}\n",
       "Antall covid-19 meldinger til MSIS og andel konsultasjoner for \n",
       "covid-19 (mistenkt, sannsynlig eller bekreftet) på legekontor og legevakt\n",
       "Data fra NorSySS og MSIS"
@@ -1064,7 +1062,7 @@ covid19_norsyss_vs_msis_daily <- function(
     labs_left = "Antall tilfeller meldt til MSIS",
     labs_right = "Andel NorSySS konsultasjoner\n",
     labs_title = glue::glue(
-      "{names(config$choices_location)[config$choices_location==location_code]}\n",
+      "{names(config$choices_location_with_ward)[config$choices_location_with_ward==location_code]}\n",
       "Antall covid-19 meldinger til MSIS og andel konsultasjoner for\n",
       "covid-19 (mistenkt, sannsynlig eller bekreftet) på legekontor og legevakt\n",
       "Data fra NorSySS og MSIS"
@@ -1140,7 +1138,7 @@ covid19_norsyss_vs_msis_weekly <- function(
     labs_left = "Antall tilfeller meldt til MSIS",
     labs_right = "Andel NorSySS konsultasjoner\n",
     labs_title = glue::glue(
-      "{names(config$choices_location)[config$choices_location==location_code]}\n",
+      "{names(config$choices_location_with_ward)[config$choices_location_with_ward==location_code]}\n",
       "Antall covid-19 meldinger til MSIS og andel konsultasjoner for\n",
       "covid-19 (mistenkt, sannsynlig eller bekreftet) på legekontor og legevakt\n",
       "Data fra NorSySS og MSIS"
@@ -1161,7 +1159,7 @@ covid19_norsyss_vs_msis_weekly <- function(
   list(pd_plot = pd_plot, pd_xl = pd_xl)
 }
 
-
+# fig 2 ----
 covid19_overview_plot_national_syndromes_proportion <- function(
   location_code,
   config
@@ -1245,7 +1243,7 @@ covid19_overview_plot_national_syndromes_proportion_daily <- function(
     labs_left = "Andel",
     labs_right = NULL,
     labs_title = glue::glue(
-      "{names(config$choices_location)[config$choices_location==location_code]}\n",
+      "{names(config$choices_location_with_ward)[config$choices_location_with_ward==location_code]}\n",
       "Andel konsultasjoner med forskjellig luftveisagens\n",
       "Data fra NorSySS"
     ),
@@ -1330,7 +1328,7 @@ covid19_overview_plot_national_syndromes_proportion_weekly <- function(
     labs_left = "Andel",
     labs_right = NULL,
     labs_title = glue::glue(
-      "{names(config$choices_location)[config$choices_location==location_code]}\n",
+      "{names(config$choices_location_with_ward)[config$choices_location_with_ward==location_code]}\n",
       "Andel konsultasjoner med forskjellig luftveisagens\n",
       "Data fra NorSySS"
     ),
@@ -1348,6 +1346,7 @@ covid19_overview_plot_national_syndromes_proportion_weekly <- function(
   )
 }
 
+# fig 3 ----
 covid19_overview_plot_national_source_proportion <- function(
   location_code,
   config
@@ -1463,7 +1462,7 @@ covid19_overview_plot_national_source_proportion_daily <- function(
     labs_left = "Antall",
     labs_right = "Andel",
     labs_title = glue::glue(
-      "{names(config$choices_location)[config$choices_location==location_code]}\n",
+      "{names(config$choices_location_with_ward)[config$choices_location_with_ward==location_code]}\n",
       "Antall konsultasjoner for covid-19 fordelt på type konsultasjon\n",
       "samt andel konsultasjoner for covid-19\n",
       "Data fra NorSySS"
@@ -1582,7 +1581,7 @@ covid19_overview_plot_national_source_proportion_weekly <- function(
     labs_left = "Antall",
     labs_right = "Andel",
     labs_title = glue::glue(
-      "{names(config$choices_location)[config$choices_location==location_code]}\n",
+      "{names(config$choices_location_with_ward)[config$choices_location_with_ward==location_code]}\n",
       "Antall konsultasjoner for covid-19 fordelt på type konsultasjon\n",
       "samt andel konsultasjoner for covid-19\n",
       "Data fra NorSySS"
@@ -1602,6 +1601,7 @@ covid19_overview_plot_national_source_proportion_weekly <- function(
   )
 }
 
+# fig 4 ----
 covid19_overview_plot_national_age_burden <- function(
   location_code,
   config
@@ -1678,7 +1678,7 @@ covid19_overview_plot_national_age_burden_daily <- function(
     labs_left = "Andel",
     labs_right = NULL,
     labs_title = glue::glue(
-      "{names(config$choices_location)[config$choices_location==location_code]}\n",
+      "{names(config$choices_location_with_ward)[config$choices_location_with_ward==location_code]}\n",
       "Andel konsultasjoner med covid-19 (mistenkt, sannsynlig eller bekreftet) fordelt på aldersgruppe\n",
       "Data fra NorSySS"
     ),
@@ -1754,7 +1754,7 @@ covid19_overview_plot_national_age_burden_weekly <- function(
     labs_left = "Andel",
     labs_right = NULL,
     labs_title = glue::glue(
-      "{names(config$choices_location)[config$choices_location==location_code]}\n",
+      "{names(config$choices_location_with_ward)[config$choices_location_with_ward==location_code]}\n",
       "Andel konsultasjoner med covid-19 (mistenkt, sannsynlig eller bekreftet) fordelt på aldersgruppe\n",
       "Data fra NorSySS"
     ),
@@ -1773,6 +1773,7 @@ covid19_overview_plot_national_age_burden_weekly <- function(
   )
 }
 
+# fig 5 ----
 covid19_overview_plot_national_age_trends <- function(
   location_code,
   config
@@ -1871,7 +1872,7 @@ covid19_overview_plot_national_age_trends_daily <- function(
   q <- q + expand_limits(y = 0)
   q <- q + scale_x_date(
     NULL,
-    date_breaks = "4 days",
+    date_breaks = "7 days",
     date_labels = "%d.%m"
   )
   q <- q + lemon::facet_rep_wrap(~age, repeat.tick.labels = "all", ncol=3)
@@ -1882,7 +1883,7 @@ covid19_overview_plot_national_age_trends_daily <- function(
   q <- q + fhiplot::set_x_axis_vertical()
   q <- q + theme(legend.key.size = unit(1, "cm"))
   q <- q + labs(title = glue::glue(
-    "{names(config$choices_location)[config$choices_location==location_code]}\n",
+    "{names(config$choices_location_with_ward)[config$choices_location_with_ward==location_code]}\n",
     "Andel konsultasjoner med covid-19 (mistenkt, sannsynlig eller bekreftet) fordelt på aldersgrupper\n",
     "Data fra NorSySS"
   ))
@@ -1981,7 +1982,7 @@ covid19_overview_plot_national_age_trends_weekly <- function(
   q <- q + fhiplot::set_x_axis_vertical()
   q <- q + theme(legend.key.size = unit(1, "cm"))
   q <- q + labs(title = glue::glue(
-    "{names(config$choices_location)[config$choices_location==location_code]}\n",
+    "{names(config$choices_location_with_ward)[config$choices_location_with_ward==location_code]}\n",
     "Andel konsultasjoner med covid-19 (mistenkt, sannsynlig eller bekreftet) fordelt på aldersgrupper\n",
     "Data fra NorSySS"
   ))
@@ -1994,6 +1995,7 @@ covid19_overview_plot_national_age_trends_weekly <- function(
   q
 }
 
+# fig 6 ----
 covid19_overview_plot_county_proportion <- function(
   location_code,
   config
@@ -2092,7 +2094,7 @@ covid19_overview_plot_county_proportion_weekly <- function(
       color="red"
     )
   }
-  if(granularity_geo=="nation"){
+  if(granularity_geo %in% c("nation", "ward") | location_code %in% c("county03","municip0301")){
     q <- q + lemon::facet_rep_wrap(~location_name, repeat.tick.labels = "y", ncol=3)
   } else {
     q <- q + lemon::facet_rep_wrap(~location_name, repeat.tick.labels = "y", ncol=3, scales="free_y")
@@ -2137,6 +2139,7 @@ covid19_overview_plot_county_proportion_weekly <- function(
   q
 }
 
+# fig 7 ----
 covid19_overview_map_county_proportion <- function(
   location_code,
   config
@@ -2145,7 +2148,7 @@ covid19_overview_map_county_proportion <- function(
     granularity_geo <- get_granularity_geo(location_code = location_code)
     location_codes <- get_dependent_location_codes(location_code = location_code)
 
-    if(granularity_geo == "nation"){
+    if(granularity_geo %in% c("nation")){
       d <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
         dplyr::filter(tag_outcome %in% c(
           "covid19_vk_ote",
@@ -2257,7 +2260,7 @@ covid19_overview_map_county_proportion <- function(
     q <- q + scale_color_manual(NULL, values="red")
     q <- q + guides(fill = guide_legend(order=1), color = guide_legend(order=2))
     q <- q + labs(title = glue::glue(
-      "{names(config$choices_location)[config$choices_location==location_code]}\n",
+      "{names(config$choices_location_with_ward)[config$choices_location_with_ward==location_code]}\n",
       "Kumulativt antall konsultasjoner f.o.m {format(config$start_date,'%d.%m.%Y')} t.o.m {format(config$max_date_uncertain,'%d.%m.%Y')}\n",
       "Data fra NorSySS\n\n"
     ))
@@ -2267,8 +2270,7 @@ covid19_overview_map_county_proportion <- function(
     q
 }
 
-
-
+# fig 8 ----
 covid19_overview_map_county_proportion_2 <- function(
   location_code,
   config
@@ -2404,7 +2406,7 @@ covid19_overview_map_county_proportion_2 <- function(
   q <- q + scale_color_manual(NULL, values="red")
   q <- q + guides(fill = guide_legend(order=1), color = guide_legend(order=2))
   q <- q + labs(title = glue::glue(
-    "{names(config$choices_location)[config$choices_location==location_code]}\n",
+    "{names(config$choices_location_with_ward)[config$choices_location_with_ward==location_code]}\n",
     "Andel konsultasjoner f.o.m {format(config$start_date,'%d.%m.%Y')} t.o.m {format(config$max_date_uncertain,'%d.%m.%Y')}\n",
     "Data fra NorSySS\n\n"
   ))

@@ -20,9 +20,10 @@ covid19_comparison_ui <- function(id, config){
       ),
 
     fluidRow(
+      column(
       width = 12, align = "center",
       selectizeInput(ns("int_input_location"), "Geografisk område: ",
-                     choices = config$choices_location,
+                     choices = config$choices_location_without_ward,
                      multiple = TRUE,
                      selected = "norge",
                      options = list(
@@ -30,19 +31,18 @@ covid19_comparison_ui <- function(id, config){
                        maxItems = 10
                      ),
                      size = "600px")
+      ),
+      column(
+        width = 12, align = "center",
+        radioButtons(
+          inputId = ns("cumulative_chk"),
+          label = "Vis tallene som:",
+          choices = list("Kumulativ" = 1, "Insidens" = 2),
+          inline = TRUE,
+          selected = 1
+        )),
+      br(),br(),br()
     ),
-    column(
-      width = 12, align = "center",
-      radioButtons(
-        inputId = ns("cumulative_chk"),
-        label = "Vis tallene som:",
-        choices = list("Kumulativ" = 1, "Insidens" = 2),
-        inline = TRUE,
-        selected = 1
-      )),
-
-    br(),
-    br(),
 
     fluidRow(
       width = 12, align = "left",
@@ -344,7 +344,7 @@ covid19_int_gen_plot <- function(
 
   ## areas names
   sub_data <- unique(d$location_code)
-  sub_location <- config$choices_location[config$choices_location %in% sub_data]
+  sub_location <- config$choices_location_without_ward[config$choices_location_without_ward %in% sub_data]
   df_location <- stack(sub_location)
   setDT(df_location)
 
