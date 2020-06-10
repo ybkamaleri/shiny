@@ -50,7 +50,17 @@ if(db_config$driver %in% c("ODBC Driver 17 for SQL Server")){
 }
 DBI::dbExecute(pool, glue::glue({"USE {db_config$db};"}))
 
-config <- list()
+config_update_dates <- function(config){
+  config$start_date_norsyss_standard_weekly <- as.Date("2018-01-01")
+  config$start_date <- as.Date("2020-03-09")
+  val <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
+    dplyr::summarize(date = max(date)) %>%
+    dplyr::collect()
+  config$max_date_uncertain <- as.Date(val$date[1])
+  config$min_date_uncertain <- config$max_date_uncertain-6
+}
+
+config <- new.env()
 config$ages <- list(
   "total",
   "0-4",
@@ -63,16 +73,8 @@ config$ages <- list(
 
 config$small_location_codes <- unique(fhidata::norway_population_b2020[,.(pop=sum(pop)),keyby=.(year,location_code)][pop<500]$location_code)
 
-# fixing dates
-config$start_date_norsyss_standard_weekly <- as.Date("2018-01-01")
-config$start_date <- as.Date("2020-03-09")
-val <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
-  dplyr::summarize(date = max(date)) %>%
-  dplyr::collect()
-config$max_date_uncertain <- as.Date(val$date[1])
-config$min_date_uncertain <- config$max_date_uncertain-6
+config_update_dates(config = config)
 
-# getting tag_outcomes
 x <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
   dplyr::distinct(tag_outcome) %>%
   dplyr::collect()
