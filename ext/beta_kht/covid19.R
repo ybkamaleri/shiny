@@ -2169,7 +2169,9 @@ covid19_overview_map_county_proportion <- function(
     granularity_geo <- get_granularity_geo(location_code = location_code)
     location_codes <- get_dependent_location_codes(location_code = location_code)
 
-    if(granularity_geo %in% c("nation")){
+    if(granularity_geo %in% c("ward")){
+      return(no_data())
+    } else if(granularity_geo %in% c("nation")){
       d <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
         dplyr::filter(tag_outcome %in% c(
           "covid19_vk_ote",
@@ -2300,7 +2302,9 @@ covid19_overview_map_county_proportion_2 <- function(
   granularity_geo <- get_granularity_geo(location_code = location_code)
   location_codes <- get_dependent_location_codes(location_code = location_code)
 
-  if(granularity_geo == "nation"){
+  if(granularity_geo %in% c("ward")){
+    return(no_data())
+  } else if(granularity_geo == "nation"){
     d <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
       dplyr::filter(tag_outcome %in% c(
         "covid19_vk_ote",
