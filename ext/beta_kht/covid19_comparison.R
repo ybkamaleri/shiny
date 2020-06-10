@@ -37,7 +37,7 @@ covid19_comparison_ui <- function(id, config){
         radioButtons(
           inputId = ns("cumulative_chk"),
           label = "Vis tallene som:",
-          choices = list("Kumulativ" = 1, "Insidens" = 2),
+          choices = list("Insidens" = 0, "Kumulativ" = 1),
           inline = TRUE,
           selected = 1
         )),
@@ -74,10 +74,11 @@ covid19_comparison_server <- function(input, output, session, config){
 
   output$msis_plot <- renderCachedPlot({
     req(input$int_input_location)
+    req(input$cumulative_chk)
 
     covid19_int_msis(
       location_codes = input$int_input_location,
-      cumulative = input$cumulative_chk,
+      cumulative = input$cumulative_chk=="1",
       config = config
     )
 
@@ -92,10 +93,11 @@ covid19_comparison_server <- function(input, output, session, config){
 
   output$norsyss_total <- renderCachedPlot({
     req(input$int_input_location)
+    req(input$cumulative_chk)
 
     covid19_int_norsyss_total(
       location_codes = input$int_input_location,
-      cumulative = input$cumulative_chk,
+      cumulative = input$cumulative_chk=="1",
       config = config
     )
 
@@ -111,10 +113,11 @@ covid19_comparison_server <- function(input, output, session, config){
 
   output$norsyss_age <- renderCachedPlot({
     req(input$int_input_location)
+    req(input$cumulative_chk)
 
     covid19_int_norsyss_age(
       location_codes = input$int_input_location,
-      cumulative = input$cumulative_chk,
+      cumulative = input$cumulative_chk=="1",
       config = config
     )
 
@@ -133,7 +136,6 @@ covid19_comparison_server <- function(input, output, session, config){
 
 
 covid19_int_msis <- function(location_codes, cumulative, config){
-
   d <- pool %>% dplyr::tbl("data_covid19_msis_by_time_location") %>%
     dplyr::filter(granularity_time == "week") %>%
     dplyr::filter(location_code %in% !!location_codes) %>%
