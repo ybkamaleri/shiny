@@ -68,7 +68,9 @@ covid19_ui <- function(id, config) {
                 "tillegg til en oversikt over resten av kommunene i fylket. Kommunedataene er aggregert på ukesnivå.",
                 "Vær oppmerksom på at noen kommuner har veldig få konsultasjoner,",
                 "derfor vil ikke trendene kunne brukes på en god måte.",
-                "Kommuner med under 500 innbyggere vil mangle aldersdelte figurer pga anonymitet.", br(), br(),
+                "Kommuner med under 500 innbyggere vil mangle aldersdelte figurer pga anonymitet.", br(),
+                strong("Bydel:"), " Gir en oversikt over den valgte bydelen.",
+                " Vi har foreløpig kun bydelene i Oslo og NorSySS data, men vi jobber for å inkludere flere data også for dette geografiske nivået.", br(),
                 br(),br(),br()
               )
             )
