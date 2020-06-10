@@ -56,7 +56,7 @@ metrics_table_main <- function(
   config = config
 ){
 
-  yrwks <- fhi::isoyearweek(lubridate::today()-0:8*7)
+  yrwks <- fhi::isoyearweek(lubridate::today()-0:6*6)
 
   d <- pool %>% dplyr::tbl("results_covid19_metrics") %>%
     dplyr::filter(granularity_time == "week") %>%
@@ -134,7 +134,7 @@ metrics_table_main <- function(
 
   font_size <- formattable::formatter(
     "span",
-    style="font-size:10px;"
+    style="font-size:14px;"
   )
 
   ft <- formattable::formattable(
