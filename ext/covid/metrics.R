@@ -26,15 +26,28 @@ metrics_ui <- function(id, config) {
       tabPanel(
         title="Hoved",
         tagList(
+          fluidRow(
+            column(
+              width=12, align="center",
+              selectizeInput(
+                inputId = ns("xxxx"),
+                label = "Geografisk område",
+                choices = list("Norge"),
+                selected = "norge",
+                multiple = FALSE,
+                options = NULL,
+                width = "400px"
+              )
+            ),
+            br(),br(),br()
+          ),
 
           # fig 1 ----
           fluidRow(
-            fluidRow(
-              column(
-                width=12, align="left",
-                p(
-                  formattable::formattableOutput(ns("metrics_tab_main"), height="800px"),
-                )
+            column(
+              width=12, align="left",
+              p(
+                formattable::formattableOutput(ns("metrics_tab_main"), height="800px"),
               )
             )
           )
@@ -64,7 +77,7 @@ metrics_table_main <- function(
     dplyr::filter(yrwk %in% yrwks) %>%
     dplyr::filter(tag_outcome %in% c(
       "n_hospital_main_cause",
-      "n",
+      "n_msis",
       "n_lab_tested",
       "pr100_lab_pos",
       "n_norsyss",
@@ -80,7 +93,7 @@ metrics_table_main <- function(
     tag_outcome,
     levels = c(
       "n_hospital_main_cause",
-      "n",
+      "n_msis",
       "n_lab_tested",
       "pr100_lab_pos",
       "n_norsyss",
@@ -99,7 +112,8 @@ metrics_table_main <- function(
   )]
   d <- dcast.data.table(
     d,
-    tag_outcome ~ yrwk
+    tag_outcome ~ yrwk,
+    fill="-"
   )
   d[, Kilde := c(
       "Beredt C19",
