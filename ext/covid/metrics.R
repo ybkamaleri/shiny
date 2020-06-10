@@ -136,6 +136,6 @@ metrics_table_main <- function(
     tab,
     align = c(rep("l",3),rep("c", ncol(tab) - 3))
   )
-  ft <- ft::fontsize(ft, size = 9, part = "body")
+  ft <- formattable::fontsize(ft, size = 9, part = "body")
   ft
 }
