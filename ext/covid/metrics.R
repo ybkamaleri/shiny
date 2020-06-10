@@ -132,8 +132,14 @@ metrics_table_main <- function(
 
   tab <- d
 
+  font_size <- formattable::formatter(
+    "span",
+    style="font-size:10px;"
+  )
+
   ft <- formattable::formattable(
     tab,
+    list(~font_size),
     align = c(rep("l",3),rep("c", ncol(tab) - 3))
   )
   ft <- formattable::fontsize(ft, size = 9, part = "body")
