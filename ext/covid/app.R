@@ -51,7 +51,7 @@ ui <- function(request){
                id = "navbar",
                title = div(img(id="logo",src="fhi.svg", height="40px"), "Sykdomspulsen for kommunehelsetjenesten"),
 
-               tabPanel("Metrics",
+               tabPanel("Indikatorer",
                         value="metrics",
                         metrics_ui("metrics", config=config)
                ),
