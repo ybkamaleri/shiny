@@ -103,7 +103,7 @@ covid19_ui <- function(id, config) {
                 strong("Tabell 1"),
                 " I tabellen vil det kunne være noen celler uten tall, men med 'IK'. Disse dataene er her ikke tilgjengelige på det valgte geografiske nivået.",
                 " Se mer informasjon i 'Informasjon' fanen.",
-                br(),br(),
+                br(),br()
               )
             )
           ),
