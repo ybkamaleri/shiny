@@ -95,41 +95,70 @@ covid19_ui <- function(id, config) {
             )
           ),
 
+          # tab 1 ----
+          fluidRow(
+            column(
+              width=12, align="left",
+              p(
+                strong("Tabell 1")," viser antall covid-19 meldinger ",
+                "til MSIS (blå søyler) sammenstilt med andel konsultasjoner ",
+                "for covid-19 (mistenkt, sannsynlig eller bekreftet) på ",
+                "legekontor og legevakt gjennom NorSySS (rød linje) og andel positive laboratorietester (kun på Norgesnivå).",
+                "Denne figuren kan gi en ",
+                "oversikt over trendene i forhold til hverandre.",
+                br(),
+                "Du kan laste ned en tabell for denne figuren.",
+                " I tabellen vil det kunne være noen celler uten tall. Dette er sensurerte data.",
+                " Se mer informasjon om sensurerte data i 'Informasjon' fanen.",
+                br(),br(),
+              )
+            )
+          ),
+
+          fluidRow(
+            column(
+              width=12, align="left",
+              p(
+                formattable::formattableOutput(ns("overview_metrics"), height="800px")
+              )
+            )
+          ),
+
           # fig 1 ----
           fluidRow(
-            fluidRow(
-              column(
-                width=12, align="left",
-                p(
-                  strong("Figur 1")," viser antall covid-19 meldinger ",
-                  "til MSIS (blå søyler) sammenstilt med andel konsultasjoner ",
-                  "for covid-19 (mistenkt, sannsynlig eller bekreftet) på ",
-                  "legekontor og legevakt gjennom NorSySS (rød linje) og andel positive laboratorietester (kun på Norgesnivå).",
-                  "Denne figuren kan gi en ",
-                  "oversikt over trendene i forhold til hverandre.",
-                  br(),
-                  "Du kan laste ned en tabell for denne figuren.",
-                  " I tabellen vil det kunne være noen celler uten tall. Dette er sensurerte data.",
-                  " Se mer informasjon om sensurerte data i 'Informasjon' fanen.",
-                  br(),
-                  downloadButton(ns("download_xls"), "Last ned tabell", class = "knappe"),
-                  tags$head(tags$style(".knappe{background-color:#add8e6;} .knappe{color: #111;}")),
-                )
-              )
-            ),
-
-            # fig 2 ----
-            fluidRow(
-              column(
-                width=12, align="left",
+            column(
+              width=12, align="left",
+              p(
+                strong("Figur 1")," viser antall covid-19 meldinger ",
+                "til MSIS (blå søyler) sammenstilt med andel konsultasjoner ",
+                "for covid-19 (mistenkt, sannsynlig eller bekreftet) på ",
+                "legekontor og legevakt gjennom NorSySS (rød linje) og andel positive laboratorietester (kun på Norgesnivå).",
+                "Denne figuren kan gi en ",
+                "oversikt over trendene i forhold til hverandre.",
                 br(),
-                p(
-                  ),
-                shinycssloaders::withSpinner(plotOutput(ns("overview_norsyss_vs_msis"), height = "700px")),
-                br()
+                "Du kan laste ned en tabell for denne figuren.",
+                " I tabellen vil det kunne være noen celler uten tall. Dette er sensurerte data.",
+                " Se mer informasjon om sensurerte data i 'Informasjon' fanen.",
+                br(),
+                downloadButton(ns("download_xls"), "Last ned tabell", class = "knappe"),
+                tags$head(tags$style(".knappe{background-color:#add8e6;} .knappe{color: #111;}")),
               )
-            ),
+            )
+          ),
 
+          fluidRow(
+            column(
+              width=12, align="left",
+              br(),
+              p(
+                ),
+              shinycssloaders::withSpinner(plotOutput(ns("overview_norsyss_vs_msis"), height = "700px")),
+              br()
+            )
+          ),
+
+          # fig 2 ----
+          fluidRow(
             column(
               width=12, align="left",
 
@@ -147,7 +176,6 @@ covid19_ui <- function(id, config) {
             )
           ),
 
-          # fig 3 ----
           fluidRow(
             column(
               width=12, align="left",
@@ -157,6 +185,7 @@ covid19_ui <- function(id, config) {
             )
           ),
 
+          # fig 3 ----
           fluidRow(
             column(
               width=12, align="left",
@@ -505,6 +534,13 @@ covid19_ui <- function(id, config) {
 covid19_server <- function(input, output, session, config) {
   #width <-  as.numeric(input$dimension[1])
 
+  # tab 1 ----
+  output$overview_metrics <- formattable::renderFormattable({
+    req(input$covid_location_code)
+
+    overview_metrics_table_main(location_code = input$covid_location_code)
+  })
+
   # fig 1 ----
   norsyss_vs_msis_list <- reactive({
 
@@ -648,8 +684,106 @@ covid19_server <- function(input, output, session, config) {
   res = 72
   )
 
-
+  # priority ----
+  outputOptions(output, "overview_metrics", priority = 200)
   outputOptions(output, "overview_norsyss_vs_msis", priority = 100)
+}
+
+
+overview_metrics_table_main <- function(
+  location_code = "norge",
+  config = config
+){
+
+  yrwks <- fhi::isoyearweek(lubridate::today()-0:6*6)
+
+  d <- pool %>% dplyr::tbl("results_covid19_metrics") %>%
+    dplyr::filter(granularity_time == "week") %>%
+    dplyr::filter(location_code== !!location_code) %>%
+    dplyr::filter(yrwk %in% yrwks) %>%
+    dplyr::filter(tag_outcome %in% c(
+      "n_hospital_main_cause",
+      "n_msis",
+      "n_lab_tested",
+      "pr100_lab_pos",
+      "n_norsyss",
+      "pr100_norsyss",
+      "pr100_sr_symptoms"
+    )) %>%
+    dplyr::select(yrwk, tag_outcome, formatted, censor) %>%
+    dplyr::collect()
+  setDT(d)
+  d[censor==T, formatted:="*"]
+
+  d[, tag_outcome := factor(
+    tag_outcome,
+    levels = c(
+      "n_hospital_main_cause",
+      "n_msis",
+      "n_lab_tested",
+      "pr100_lab_pos",
+      "n_norsyss",
+      "pr100_norsyss",
+      "pr100_sr_symptoms"
+    ),
+    labels = c(
+      "Nye sykehusinnleggelser for covid-19",
+      "Nye tilfeller av covid-19",
+      "Testede for covid-19",
+      "Andel positive blant testede",
+      "Legekonsultasjoner for covid-19 (1)",
+      "Legekonsultasjoner for covid-19 (2)",
+      "Relevante symptomer"
+    )
+  )]
+  d <- dcast.data.table(
+    d,
+    tag_outcome ~ yrwk,
+    fill="-",
+    value.var = "formatted"
+  )
+  d[, Kilde := c(
+    "NoPaR",
+    "MSIS",
+    "MSIS",
+    "MSIS",
+    "NorSySS",
+    "NorSySS",
+    "Symptometeret"
+  )
+  ]
+
+  d[, Benevning := c(
+    "Antall",
+    "Antall",
+    "Antall",
+    "Andel (%) av testede",
+    "Antall",
+    "Andel (%) av alle konsultasjoner",
+    "Andel av respondenter"
+  )
+  ]
+
+  setnames(d,"tag_outcome", "Indikator")
+  setcolorder(d, c(
+    "Indikator",
+    "Kilde",
+    "Benevning"
+  ))
+
+  tab <- d
+
+  font_size <- formattable::formatter(
+    "span",
+    style="font-size:14px;"
+  )
+
+  ft <- formattable::formattable(
+    tab,
+    list(~font_size),
+    align = c(rep("l",3),rep("c", ncol(tab) - 3))
+  )
+  ft
 }
 
 covid19_plot_single <- function(
