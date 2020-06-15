@@ -100,16 +100,9 @@ covid19_ui <- function(id, config) {
             column(
               width=12, align="left",
               p(
-                strong("Tabell 1")," viser antall covid-19 meldinger ",
-                "til MSIS (blå søyler) sammenstilt med andel konsultasjoner ",
-                "for covid-19 (mistenkt, sannsynlig eller bekreftet) på ",
-                "legekontor og legevakt gjennom NorSySS (rød linje) og andel positive laboratorietester (kun på Norgesnivå).",
-                "Denne figuren kan gi en ",
-                "oversikt over trendene i forhold til hverandre.",
-                br(),
-                "Du kan laste ned en tabell for denne figuren.",
-                " I tabellen vil det kunne være noen celler uten tall. Dette er sensurerte data.",
-                " Se mer informasjon om sensurerte data i 'Informasjon' fanen.",
+                strong("Tabell 1"),
+                " I tabellen vil det kunne være noen celler uten tall, men med 'IK'. Disse dataene er her ikke tilgjengelige på det valgte geografiske nivået.",
+                " Se mer informasjon i 'Informasjon' fanen.",
                 br(),br(),
               )
             )
