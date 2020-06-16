@@ -10,21 +10,7 @@ covid19_ui <- function(id, config) {
           id="toptext",
           strong("Informasjonen som finnes på denne siden er anonym, men er ment for kommuneleger fordi det krever kunnskap for å tolke disse på riktig måte. Dette er ikke ment som en offisiell statistikk."),br(),br(),
 
-          "Formålet med denne siden er å gi en ",
-          "oversikt over covid-19 epidemien ",
-          "til bruk i kommuneoverlegens daglige arbeid. ",br(),
-
-          "Gi gjerne tilbakemeldinger og ønskede endringer via",
-          strong("sykdomspulsen@fhi.no"), br(), br(),
-
-          "I covid-19 overvåkningen bruker vi NorSySS, MSIS og laboratoriedatabasen.",
-          "NorSySS dataene blir oppdatert hver morgen.",
-          "MSIS og laboratorie dataene blir oppdatert ca kl 13 hver ukedag, i helger og på helligdager blir de foreløpig ikke oppdatert.",
-          "Det er noe forsinkelse i alle dataene, derfor ",
-          "kan figurene endre seg etter hvert.",
-          "Mer informasjon om dataene finner du i 'Informasjon' fanen under.", br(),br(),
-
-          "Under kan du velge blant to faner som gir deg forskjellig informasjon:", br(),
+          "Under kan du velge blant fire faner som gir deg forskjellig informasjon:", br(),
           "- ",strong("Oversikt")," fanen vil gi deg en rekke figurer, tabeller og kart hvor du kan velge det geografiske området du er interessert i", br(),
           "- ",strong("Sammenlikning")," fanen vil gi deg figurer der du kan sammenlikne forskjellige geografiske områder", br(),
           "- ",strong("Modellering")," fanen vil gi deg beregninger fra FHIs spredningsmodell hvor du kan velge det geografiske området du er interessert i", br(),
@@ -47,7 +33,7 @@ covid19_ui <- function(id, config) {
                 strong("Under vil du se en rekke figurer, kart og tabeller som gir ",
                 "en oversikt over det geografiske området du velger i ",
                 "nedtrekksmenyen under. Du kan begynne å skrive navnet ",
-                "på ønsket fylke eller kommune så vil det automatisk komme ",
+                "på ønsket fylke, kommune eller bydel i Oslo så vil det automatisk komme ",
                 "opp alternativer."),
                  br(), br(),
 
@@ -58,20 +44,8 @@ covid19_ui <- function(id, config) {
                 " mellom 1 og 4 konsultasjoner i nevneren for NorSySS.",
                 "Røde stiplede vertikale linjer i figuren indikerer at det",
                 "ikke er rapportert noen konsultasjoner på denne datoen for dette geografiske området.",
-                br(), br(),
+                br(), br()
 
-                strong("Norge:"), " Gir en oversikt over Norge i tillegg til oversikt ",
-                "over alle fylkene. De nasjonale dataene er aggregert på dagsnivå.", br(),
-                strong("Fylke:"), " Gir en oversikt over det valgte fylket i tillegg ",
-                "til en oversikt over alle kommunene i dette fylket. Fylkesdataene er aggregert på dagsnivå.", br(),
-                strong("Kommune:"), " Gir en oversikt over den valgte kommunen i ",
-                "tillegg til en oversikt over resten av kommunene i fylket. Kommunedataene er aggregert på ukesnivå.",
-                "Vær oppmerksom på at noen kommuner har veldig få konsultasjoner,",
-                "derfor vil ikke trendene kunne brukes på en god måte.",
-                "Kommuner med under 500 innbyggere vil mangle aldersdelte figurer pga anonymitet.", br(),
-                strong("Bydel:"), " Gir en oversikt over den valgte bydelen.",
-                " Vi har foreløpig kun bydelene i Oslo og NorSySS data, men vi jobber for å inkludere flere data også for dette geografiske nivået.", br(),
-                br(),br(),br()
               )
             )
           ),
@@ -101,8 +75,9 @@ covid19_ui <- function(id, config) {
               width=12, align="left",
               p(
                 strong("Tabell 1"),
-                " I tabellen vil det kunne være noen celler uten tall, men med 'IK'. Disse dataene er her ikke tilgjengelige på det valgte geografiske nivået.",
-                " Se mer informasjon i 'Informasjon' fanen.",
+               "viser en oversikt over covid-19 med forskjellige indikatorer.", br(),
+                 " I tabellen vil det kunne være noen celler uten tall, men med betegnelsen 'IK'.",
+                 " Disse dataene er foreløpig ikke tilgjengelige på det valgte geografiske nivået.",
                 br(),br()
               )
             )
@@ -363,10 +338,12 @@ covid19_ui <- function(id, config) {
               width=12, align="left",
 
               p(
-                strong("Vi får data til covid-19 overvåkingen via NorSySS, MSIS og laboratoriedatabasen"),br(), br(),
+                strong("I covid-19 overvåkingen bruker vi data fra NorSySS, MSIS, MSIS laboratoriedatabasen,",
+                " NoPaR, Symptometeret og fra modelleringsgruppa på FHI"),br(), br(),
 
                 strong("NorSySS"),
                 "er forkortelsen for Norwegian Syndromic Surveillance System som er en del av Sykdomspulsen.", br(),
+                "NorSySS dataene blir oppdatert hver morgen.",br(),
                 "Dette er et overvåkningssystem basert på diagnosekoder (ICPC-2 koder) satt på legekontor og legevakt i hele Norge.",
                 "Diagnosekodene sendes ",
                 "til Helsedirektoratet som en del av legenes refusjonskrav ",
@@ -399,33 +376,41 @@ covid19_ui <- function(id, config) {
                  br(), br(),
 
                 strong("MSIS"),
-                "er det nasjonale overvåkingssystemet for smittsomme sykdommer. ",
+                "er det nasjonale overvåkingssystemet for smittsomme sykdommer. ", br(),
+                "MSIS blir oppdatert på nettsiden ca kl 13 hver ukedag, i helger og på helligdager blir de foreløpig ikke oppdatert.",br(),
                 "Koronavirus med utbruddspotensiale ble definert som ny meldepliktig sykdom ",
                 "i MSIS fra 31.01.2020. Både leger og laboratorier som påviser sykdommen skal ",
                 "melde tilfellet til MSIS. Tallene gir en indikasjon på aktiviteten av covid-19, ",
                 "men angir ikke nøyaktig antall covid-19 smittede i befolkningen.", br(), br(),
 
                 strong("MSIS laboratoriedatabasen"),
-                "brukes for laboratoriedata.",
+                "brukes for laboratoriedata.", br(),
+                "MSIS laboratoriedataene blir oppdatert på nettsiden ca kl 13 hver ukedag, i helger og på helligdager blir de foreløpig ikke oppdatert.",br(),
                 "Elektroniske kopisvar går direkte fra laboratoriene inn til MSIS laboratoriedatabase.",
                 "Tallene oppgjøres på antall personer som testes og ikke antall analyser.",
                 "En person kan ha fått utført mer enn en analyse for covid-19.",
                 "Antall testet og andel positive funn blant de testede påvirkes av endringer i testkriterier.",
                 br(), br(),
 
+                strong("NoPaR"),
+                " er forkortelsen for Norsk pandemiregister som er benevnelsen på den delen av",
+                "Norsk intensiv- og pandemiregister som omhandler pandemipasienter.",br(),
+                "NoPaR blir oppdatert på nettsiden ca kl 13 hver ukedag, i helger og på helligdager blir de foreløpig ikke oppdatert.",
+                br(), br(),
+
+                strong("Modelleringsdataene"),
+                "blir utarbeidet av en modelleringsgruppe på FHI.",br(),
+                "Dataene blir oppdatert på nettsiden en gang i uken",
+                br(), br(),
+
                 strong("Informasjon om dataene i covid-19 overvåkingen:"), br(),
-                "- På nasjonalt og fylkesnivå",
-                "vil figuren vise data per dag (dag.måned).",
-                "På kommunenivå vil figuren vise data per uke (år-ukenummer).",br(),
+
                  "- Geografisk område basert på stedet for legekonsultasjon, ikke pasientens bosted.", br(),
                  "- Dersom du har valgt en av kommunene uten legevakt eller legekontor vil det vises",
                  " figurer med røde stiplede vertikale linjer fordi vi ikke har data.",
                 "Personene som bor i kommuner uten lege og legevakt benytter legekontor",
                 "og legevakt i andre kommuner.", br(),
-                 "- Kommuner med under 500 innbyggere vil mangle aldersdelte figurer",
-                 " og det vil stå «ikke noe data å vise på dette geografiske nivået» isteden pga anonymitetshensyn.", br(),
-                 "- Vær oppmerksom på at noen kommuner har veldig få konsultasjoner,",
-                "derfor vil ikke trendene kunne brukes på en god måte.",  br(),
+
                 "- Konsultasjoner med telefon, legekontakt og e-konsultasjon er samlet i alle figurene",
                 "bortsett fra figur 3 der de vises hver for seg.", br(),
                 "- Konsultasjoner på både legekontor og legevakt er samlet i alle figurene",
@@ -448,6 +433,23 @@ covid19_ui <- function(id, config) {
                 "- Nedlastbare tabeller vil vise åpne celler (ingen tall) dersom dataene er sensurert.",
                 " Disse dataene følger samme regler som beskrevet over når det gjelder sensur.",
                 br(), br(),
+
+                strong("Geografisk område:"), br(),
+                strong("Norge:"), " Gir en oversikt over Norge i tillegg til oversikt ",
+                "over alle fylkene. De nasjonale dataene er aggregert på dagsnivå.", br(),
+                strong("Fylke:"), " Gir en oversikt over det valgte fylket i tillegg ",
+                "til en oversikt over alle kommunene i dette fylket. Fylkesdataene er aggregert på dagsnivå.", br(),
+                strong("Kommune:"), " Gir en oversikt over den valgte kommunen i ",
+                "tillegg til en oversikt over resten av kommunene i fylket. Kommunedataene er aggregert på ukesnivå.",
+                "- Kommuner med under 500 innbyggere vil mangle aldersdelte figurer",
+                " og det vil stå «ikke noe data å vise på dette geografiske nivået» isteden pga anonymitetshensyn.", br(),
+                "Vær oppmerksom på at noen kommuner har veldig få konsultasjoner,",
+                "derfor vil ikke trendene kunne brukes på en god måte.",
+                "Kommuner med under 500 innbyggere vil mangle aldersdelte figurer pga anonymitet.", br(),
+                strong("Bydel:"), " Gir en oversikt over den valgte bydelen.",
+                " Vi har foreløpig kun bydelene i Oslo og NorSySS data, men vi jobber for å inkludere flere data også for dette geografiske nivået.",
+                br(),br(),
+
 
                 strong("Luftvei diagnosekoder (samlet) inneholder:"), br(),
                 "- R01: Smerte luftveier", br(),
