@@ -86,9 +86,12 @@ covid19_ui <- function(id, config) {
           fluidRow(
             column(
               width=12, align="left",
+              downloadButton(ns("download_indicator"), "Last ned tabell", class = "knappe"), 
               p(
                 formattable::formattableOutput(ns("overview_metrics"), height="800px")
-              )
+              ),
+              hr(style = "height:2px; border-color:#808080;"),
+              br()
             )
           ),
 
@@ -108,6 +111,7 @@ covid19_ui <- function(id, config) {
                 " I tabellen vil det kunne være noen celler uten tall. Dette er sensurerte data.",
                 " Se mer informasjon om sensurerte data i 'Informasjon' fanen.",
                 br(),
+                br(), 
                 downloadButton(ns("download_xls"), "Last ned tabell", class = "knappe"),
                 tags$head(tags$style(".knappe{background-color:#add8e6;} .knappe{color: #111;}")),
               )
@@ -530,12 +534,26 @@ covid19_server <- function(input, output, session, config) {
   #width <-  as.numeric(input$dimension[1])
 
   # tab 1 ----
+  metrics_ind <- reactive({
+
+     overview_metrics_table_main(location_code = input$covid_location_code)
+
+  })
+  
   output$overview_metrics <- formattable::renderFormattable({
     req(input$covid_location_code)
-
-    overview_metrics_table_main(location_code = input$covid_location_code)
+    metrics_ind()$ft
   })
 
+  output$download_indicator <- downloadHandler(
+
+    filename = function(){ paste0("covid19_indikator_", lubridate::today(), ".xlsx")},
+    content = function(file){
+      writexl::write_xlsx(metrics_ind()$d, file)
+    }
+  )
+
+  
   # fig 1 ----
   norsyss_vs_msis_list <- reactive({
 
@@ -779,6 +797,8 @@ overview_metrics_table_main <- function(
     align = c(rep("l",3),rep("c", ncol(tab) - 3))
   )
   ft
+
+  list(ft = ft, d = d)
 }
 
 covid19_plot_single <- function(
