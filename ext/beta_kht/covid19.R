@@ -11,10 +11,10 @@ covid19_ui <- function(id, config) {
           strong("Informasjonen som finnes på denne siden er anonym, men er ment for kommuneleger fordi det krever kunnskap for å tolke disse på riktig måte. Dette er ikke ment som en offisiell statistikk."),br(),br(),
 
           "Under kan du velge blant fire faner som gir deg forskjellig informasjon:", br(),
-          "- ",strong("Oversikt")," fanen vil gi deg en rekke figurer, tabeller og kart hvor du kan velge det geografiske området du er interessert i", br(),
-          "- ",strong("Sammenlikning")," fanen vil gi deg figurer der du kan sammenlikne forskjellige geografiske områder", br(),
-          "- ",strong("Modellering")," fanen vil gi deg beregninger fra FHIs spredningsmodell hvor du kan velge det geografiske området du er interessert i", br(),
-          "- ",strong("Informasjon")," fanen gir deg litt mer informasjon om dataene vi bruker", br()
+          "- ",strong("Oversikt")," fanen gir deg en oversiktstabell og en rekke figurer og kart.", br(),
+          "- ",strong("Sammenlikning")," fanen gir deg figurer der du kan sammenlikne forskjellige kommuner eller fylker.", br(),
+          "- ",strong("Modellering")," fanen gir deg figurer og tabeller med data fra FHIs epidemimodell.", br(),
+          "- ",strong("Informasjon")," fanen gir deg informasjon om dataene vi bruker på nettsiden.", br()
         )
       )
     ),
@@ -35,16 +35,8 @@ covid19_ui <- function(id, config) {
                 "nedtrekksmenyen under. Du kan begynne å skrive navnet ",
                 "på ønsket fylke, kommune eller bydel i Oslo så vil det automatisk komme ",
                 "opp alternativer."),
-                 br(), br(),
+                 br(), br()
 
-                "De røde pilene på x-aksen under figuren indikerer helger og helligdager. ",
-                "Det er som regel færre konsultasjoner hos lege og legevakt i helger og ",
-                "helligdager enn på hverdager.",
-                "En rød stjerne (*) på x-aksen under figuren indikerer at det er",
-                " mellom 1 og 4 konsultasjoner i nevneren for NorSySS.",
-                "Røde stiplede vertikale linjer i figuren indikerer at det",
-                "ikke er rapportert noen konsultasjoner på denne datoen for dette geografiske området.",
-                br(), br()
 
               )
             )
@@ -86,7 +78,7 @@ covid19_ui <- function(id, config) {
           fluidRow(
             column(
               width=12, align="left",
-              downloadButton(ns("download_indicator"), "Last ned tabell", class = "knappe"), 
+              downloadButton(ns("download_indicator"), "Last ned tabell", class = "knappe"),
               p(
                 formattable::formattableOutput(ns("overview_metrics"), height="800px")
               ),
@@ -111,7 +103,7 @@ covid19_ui <- function(id, config) {
                 " I tabellen vil det kunne være noen celler uten tall. Dette er sensurerte data.",
                 " Se mer informasjon om sensurerte data i 'Informasjon' fanen.",
                 br(),
-                br(), 
+                br(),
                 downloadButton(ns("download_xls"), "Last ned tabell", class = "knappe"),
                 tags$head(tags$style(".knappe{background-color:#add8e6;} .knappe{color: #111;}")),
               )
@@ -347,84 +339,70 @@ covid19_ui <- function(id, config) {
 
                 strong("NorSySS"),
                 "er forkortelsen for Norwegian Syndromic Surveillance System som er en del av Sykdomspulsen.", br(),
-                "NorSySS dataene blir oppdatert hver morgen.",br(),
-                "Dette er et overvåkningssystem basert på diagnosekoder (ICPC-2 koder) satt på legekontor og legevakt i hele Norge.",
+                "- NorSySS dataene blir oppdatert hver morgen.",br(),
+                "- Dette er et overvåkningssystem basert på diagnosekoder (ICPC-2 koder) satt på legekontor og legevakt i hele Norge.",
                 "Diagnosekodene sendes ",
                 "til Helsedirektoratet som en del av legenes refusjonskrav ",
                 "(KUHR-systemet). Folkehelseinstituttet mottar daglig ",
-                "oppdatert KUHR-data til NorSySS. Dataene er ",
-                "anonyme når vi mottar dem, uten pasientidentifikasjon, ",
-                "men med informasjon om kjønn, aldersgruppe, konsultasjonsdato ",
-                "og sted for konsultasjon.", br(),
-                "For å overvåke covid-19 epidemien har vi valgt å følge ",
-                "ekstra nøye med på tre ICPC-2 diagnosekoder i primærhelsetjenesten:",br(),
-
-                strong("- R991: Covid-19 (mistenkt eller bekreftet)"), " ble opprettet 06.03.2020, men endret til ",
-                br(),
-                strong("- R991: Covid-19 (mistenkt/sannsynlig) og R992: Covid-19 (bekreftet)"), " 04.05.2020. ",
-                "For å få mest mulig enhetlig data for hele tidsperioden viser vi R991 og R992 samlet for tiden",
-                "etter 04.05.2020. Vi vurderer å endre dette etterhvert.",br(),
-                "De kliniske tegnene på covid-19 er akutt luftveisinfeksjon med ",
-                "symptomer som feber, hoste og kortpustethet. Det er sesong ",
-                "for vanlig forkjølelse og influensa som også kan gi slike ",
-                "symptomer. Vi ønsker derfor å påpeke at covid-19 diagnosen ",
-                "i denne sammenheng ikke nødvendigvis er koronavirus, ",
-                "men overvåkningen kan gi en oversikt over utbredelse og ",
-                "hvor stort press det er på primærhelsetjenesten.",br(),
-                strong("- R27: Engstelig for sykdom i luftveiene IKA"), " ble anbefalt ",
-                "brukt av referansegruppen for primærmedisinsk kodeverk i ",
-                "Direktoratet for e-helse og Legeforeningen 13.03.2020. ",
-                "Denne koden skal brukes ved sykmelding/konsultasjon/kontakt ",
-                "vedrørende covid-19, med unntak av bekreftet/mistenkt ",
-                "koronavirus-sykdom (https://fastlegen.no/artikkel/diagnosekoder-ved-Covid-19). ",
-                 br(), br(),
+                "oppdatert KUHR-data til NorSySS. Innsending av KUHR data fra legekontot og legevakt kan være mer enn 14 dager forsinket.",br(),
+                " Dersom det for noen datoer ikke er registrert noen konsultasjoner fra et geografisk område",
+                "vil dette vises som røde stiplede linjer i figurene.", br(),
+                "- Antallet konsultasjoner er vanligvis lavere i helger, ferier og på helligdager. ",
+                "Dette er spesielt tydelig rundt jul/nyttår og påske, men også i ",
+                "sommerferieukene.", br(),
+                "- Det geografiske området i NorSySS dataene er basert på stedet for legekonsultasjon.",
+                "Bortsett fra bydelsdata, der er geografisk område basert på pasientens bosted.",br(),
+                "- Mer informasjon om NorSySS dataene kan du se lenger ned på denne siden.",br(),br(),
 
                 strong("MSIS"),
                 "er det nasjonale overvåkingssystemet for smittsomme sykdommer. ", br(),
-                "MSIS blir oppdatert på nettsiden ca kl 13 hver ukedag, i helger og på helligdager blir de foreløpig ikke oppdatert.",br(),
-                "Koronavirus med utbruddspotensiale ble definert som ny meldepliktig sykdom ",
+                "- MSIS blir oppdatert på nettsiden ca kl 13 hver ukedag, i helger og på helligdager blir de foreløpig ikke oppdatert.",br(),
+                "- Koronavirus med utbruddspotensiale ble definert som ny meldepliktig sykdom ",
                 "i MSIS fra 31.01.2020. Både leger og laboratorier som påviser sykdommen skal ",
-                "melde tilfellet til MSIS. Tallene gir en indikasjon på aktiviteten av covid-19, ",
-                "men angir ikke nøyaktig antall covid-19 smittede i befolkningen.", br(), br(),
+                "melde tilfellet til MSIS.",
+                "- Tallene gir en indikasjon på aktiviteten av covid-19, ",
+                "men angir ikke nøyaktig antall covid-19 smittede i befolkningen.", br(),
+                "- Det geografiske området i MSIS dataene er basert på stedet for pasientens bosted.", br(),br(),
 
                 strong("MSIS laboratoriedatabasen"),
                 "brukes for laboratoriedata.", br(),
-                "MSIS laboratoriedataene blir oppdatert på nettsiden ca kl 13 hver ukedag, i helger og på helligdager blir de foreløpig ikke oppdatert.",br(),
-                "Elektroniske kopisvar går direkte fra laboratoriene inn til MSIS laboratoriedatabase.",
-                "Tallene oppgjøres på antall personer som testes og ikke antall analyser.",
-                "En person kan ha fått utført mer enn en analyse for covid-19.",
-                "Antall testet og andel positive funn blant de testede påvirkes av endringer i testkriterier.",
-                br(), br(),
+                "- MSIS laboratoriedataene blir oppdatert på nettsiden ca kl 13 hver ukedag, i helger og på helligdager blir de foreløpig ikke oppdatert.",br(),
+                "- Elektroniske kopisvar går direkte fra laboratoriene inn til MSIS laboratoriedatabase.",
+                "- Tallene oppgjøres på antall personer som testes og ikke antall analyser.",
+                " En person kan ha fått utført mer enn en analyse for covid-19.",
+                "- Antall testet og andel positive funn blant de testede påvirkes av endringer i testkriterier.",
+                br(),
+                "- Det geografiske området i MSIS laboratoriedataene er basert på stedet for pasientens bosted.", br(),br(),
 
                 strong("NoPaR"),
                 " er forkortelsen for Norsk pandemiregister som er benevnelsen på den delen av",
                 "Norsk intensiv- og pandemiregister som omhandler pandemipasienter.",br(),
-                "NoPaR blir oppdatert på nettsiden ca kl 13 hver ukedag, i helger og på helligdager blir de foreløpig ikke oppdatert.",
-                br(), br(),
+                "- NoPaR blir oppdatert på nettsiden ca kl 13 hver ukedag, i helger og på helligdager blir de foreløpig ikke oppdatert.",
+                br(),
+                "- NoPaR har foreløpig kun data på lansdnivå.", br(),br(),
+
+                strong("Symptometeret"),
+                " er resultater fra innmelding til 'Meld fra ved mistanke om koronavirus',",
+                " en tjeneste for alle innbyggere for selvrapportering av symptomer som kan skyldes koronavirus.",
+                "- Symptometeret blir oppdatert på nettsiden ca kl 13 hver ukedag, i helger og på helligdager blir de foreløpig ikke oppdatert.",
+                br(),
+                "- Symptometeret har foreløpig kun data på lansdnivå.", br(),br(),
 
                 strong("Modelleringsdataene"),
-                "blir utarbeidet av en modelleringsgruppe på FHI.",br(),
-                "Dataene blir oppdatert på nettsiden en gang i uken",
+                "blir utarbeidet av modelleringsgruppa på FHI.",br(),
+                "- Dataene blir oppdatert på nettsiden en gang i uken",
                 br(), br(),
 
-                strong("Informasjon om dataene i covid-19 overvåkingen:"), br(),
 
-                 "- Geografisk område basert på stedet for legekonsultasjon, ikke pasientens bosted.", br(),
-                 "- Dersom du har valgt en av kommunene uten legevakt eller legekontor vil det vises",
-                 " figurer med røde stiplede vertikale linjer fordi vi ikke har data.",
-                "Personene som bor i kommuner uten lege og legevakt benytter legekontor",
-                "og legevakt i andre kommuner.", br(),
-
-                "- Konsultasjoner med telefon, legekontakt og e-konsultasjon er samlet i alle figurene",
-                "bortsett fra figur 3 der de vises hver for seg.", br(),
-                "- Konsultasjoner på både legekontor og legevakt er samlet i alle figurene",
-                "bortsett fra figur 3 der de vises hver for seg.", br(),
-                "- Røde piler på x-aksen under figuren indikerer helger og helligdager.",
-                " Det er som regel færre konsultasjoner hos lege og legevakt i helger og helligdager enn på hverdager.", br(),
-                  "- Det kan være mer enn 14 dager forsinkelse i dataene da de kommer fra KUHR systemet.",
-                  "Dersom det for noen datoer ikke er registrert noen konsultasjoner fra et geografisk område",
-                  "vil dette vises som røde stiplede linjer i figurene.", br(),
-                br(),
+                 strong("Informasjon om figurene i covid-19 overvåkingen:"), br(),
+                 strong("- Røde piler"), "på x-aksen under figuren indikerer helger og helligdager.",
+                  " Det er som regel færre konsultasjoner hos lege og legevakt i helger og helligdager enn på hverdager.", br(),
+                strong("- Røde stiplede vertikale linjer")," indikerer at vi ikke har data for det geografiske område på denne datoen.", br(),
+                 "- For NorSySS data kan dette være fordi det er forsinkelser i KUHR systmet og det ikke har kommet inn noen data enda",
+                 " eller du har valgt en av kommunene uten legevakt eller legekontor.",
+                 " Personer som bor i kommuner uten legekontor og legevakt benytter seg av dette ",
+                 "i andre kommuner.", br(),
+                strong("- Rød * "), " indikerer sensurerte data. Se mer informasjon om dette under.", br(), br(),
 
                 strong("Sensurerte data:"), br(),
                  "- Ved 1-4 konsultasjoner i nevneren vil dataene bli sensurert,",
@@ -449,13 +427,59 @@ covid19_ui <- function(id, config) {
                 " og det vil stå «ikke noe data å vise på dette geografiske nivået» isteden pga anonymitetshensyn.", br(),
                 "Vær oppmerksom på at noen kommuner har veldig få konsultasjoner,",
                 "derfor vil ikke trendene kunne brukes på en god måte.",
-                "Kommuner med under 500 innbyggere vil mangle aldersdelte figurer pga anonymitet.", br(),
                 strong("Bydel:"), " Gir en oversikt over den valgte bydelen.",
                 " Vi har foreløpig kun bydelene i Oslo og NorSySS data, men vi jobber for å inkludere flere data også for dette geografiske nivået.",
-                br(),br(),
+                br(),
+                strong("- NorSySS"), " data er basert på stedet for legekonsultasjon.",
+                 " Bortsett fra bydelsdata, der er geografisk område basert på pasientens bosted.",br(),
+                strong("- MSIS data"), " er basert på stedet for pasientens bosted.", br(),
+                strong("- MSIS laboratoriedata"), " er basert på stedet for pasientens bosted.", br(),
+                strong("- NoPaR")," har foreløpig kun data på lansdnivå.", br(),
+                strong("- Symptometeret"), " har foreløpig ingen data.", br(),br(),
+
+                 strong("Kommunereformen:"), "Kommuner som har blitt slått sammen og fått ",
+                "et nytt navn vil ikke finnes i oversiktene. Kommuner som har ",
+                "blitt slått sammen med en annen kommune men beholdt navnet ",
+                "vil vises i oversiktene, og beregningene tar hensyn til ",
+                "sammenslåingen. Det samme gjelder sammenslåtte kommuner ",
+                "som får nytt kommunenavn.", br(), br(),
 
 
-                strong("Luftvei diagnosekoder (samlet) inneholder:"), br(),
+                strong("Mer informasjon om NorSySS dataene:"),
+                "- Dataene fra KUHR systmet er anonyme når vi mottar dem, uten pasientidentifikasjon, ",
+                "men med informasjon om kjønn, aldersgruppe, konsultasjonsdato ",
+                "og sted for konsultasjon.", br(),
+                "- For å overvåke covid-19 epidemien har vi valgt å følge ",
+                "ekstra nøye med på tre ICPC-2 diagnosekoder i primærhelsetjenesten:",br(),
+                strong("- R991: Covid-19 (mistenkt eller bekreftet)"), " ble opprettet 06.03.2020, men endret til ",
+                br(),
+                strong("- R991: Covid-19 (mistenkt/sannsynlig) og R992: Covid-19 (bekreftet)"), " 04.05.2020. ",
+                "For å få mest mulig enhetlig data for hele tidsperioden viser vi R991 og R992 samlet for tiden",
+                "etter 04.05.2020. Vi vurderer å endre dette etterhvert.",br(),
+                "De kliniske tegnene på covid-19 er akutt luftveisinfeksjon med ",
+                "symptomer som feber, hoste og kortpustethet. Det er sesong ",
+                "for vanlig forkjølelse og influensa som også kan gi slike ",
+                "symptomer. Vi ønsker derfor å påpeke at covid-19 diagnosen ",
+                "i denne sammenheng ikke nødvendigvis er koronavirus, ",
+                "men overvåkningen kan gi en oversikt over utbredelse og ",
+                "hvor stort press det er på primærhelsetjenesten.",br(),
+                strong("- R27: Engstelig for sykdom i luftveiene IKA"), " ble anbefalt ",
+                "brukt av referansegruppen for primærmedisinsk kodeverk i ",
+                "Direktoratet for e-helse og Legeforeningen 13.03.2020. ",
+                "Denne koden skal brukes ved sykmelding/konsultasjon/kontakt ",
+                "vedrørende covid-19, med unntak av bekreftet/mistenkt ",
+                "koronavirus-sykdom (https://fastlegen.no/artikkel/diagnosekoder-ved-Covid-19). ",
+                 br(), br(),
+
+                strong("Type NorSySS konsultasjon:"),br(),
+                "- Konsultasjoner med telefon, legekontakt og e-konsultasjon er samlet i alle figurene med NorSySS data",
+                "bortsett fra figur 3 der de vises hver for seg.", br(),
+                strong("Oppmøte"), " inkluderer takstkodene: 2ad, 2ak, 2fk, 11ak, 11ad", br(),
+                strong("Telefonkonsultasjon"), " inkluderer takstkodenene: 1ad, 1ak, 1bd, 1bk, 1h, 1g", br(),
+                strong("e-konsultasjon"), " inkluderer takstkodene: 1be, 2ae", br(), br(),
+
+
+                strong("Luftvei diagnosekoder (samlet) i NorSySS inneholder:"), br(),
                 "- R01: Smerte luftveier", br(),
                 "- R02: Kortpustethet/dyspne", br(),
                 "- R03: Piping i brystet", br(),
@@ -482,35 +506,20 @@ covid19_ui <- function(id, config) {
                 "- R991: Covid-19 (mistenkt/sannsynlig)", br(),
                 "- R992: Covid-19 (bekreftet)", br(), br(),
 
-                "Overvåkingen av covid-19 er noe annerledes enn NorSySS ",
-                "overvåkingen i Sykdomspulsen. Siden diagnosekoden covid-19 ",
+                "Overvåkingen av covid-19 er noe annerledes enn det du kan se i NorSySS fanen.",
+                " Siden diagnosekoden covid-19 ",
                 "(mistenkt eller bekreftet) ble implementert 06. mars har ",
                 "vi ikke mulighet til å gjøre regresjonsanalyser som for ",
                 "de andre diagnosekodene da vi ikke har data bakover i tid ",
                 "(regresjonsanalysene i NorSySS inkluderer 5 år bakover i tid).", br(), br(),
 
-                "Antallet konsultasjoner er lavere i helger, ferier og på helligdager. ",
-                "Dette er spesielt tydelig rundt jul/nyttår og påske, men også i ",
-                "sommerferieukene.", br(), br(),
-
-                strong("Kommunereformen:"), "Kommuner som har blitt slått sammen og fått ",
-                "et nytt navn vil ikke finnes i oversiktene. Kommuner som har ",
-                "blitt slått sammen med en annen kommune men beholdt navnet ",
-                "vil vises i oversiktene, og beregningene tar hensyn til ",
-                "sammenslåingen. Det samme gjelder sammenslåtte kommuner ",
-                "som får nytt kommunenavn.", br(), br(),
-
-                strong("Interkommunalt samarbeid om legekontor/legevakt: "),
+                strong("Interkommunalt samarbeid om legekontor/legevakt (NorSySS data): "),
                 "I NorSyss er geografisk område basert på stedet for ",
                 "legekonsultasjon, ikke pasientens bosted. Derfor vil ",
                 "legekontorets/legevaktens postadresse si hvilken kommune ",
                 "som vises i NorSyss De andre kommunene som er med på ",
-                "det interkommunale samarbeidet vil ikke har noe data.", br(), br(),
+                "det interkommunale samarbeidet vil ikke har noe data.", br(),br(), br(),
 
-                strong("Type konsultasjon:"),br(),
-                strong("Oppmøte"), " inkluderer takstkodene: 2ad, 2ak, 2fk, 11ak, 11ad", br(),
-                strong("Telefonkonsultasjon"), " inkluderer takstkodenene: 1ad, 1ak, 1bd, 1bk, 1h, 1g", br(),
-                strong("e-konsultasjon"), " inkluderer takstkodene: 1be, 2ae", br(), br(),br(),
 
 
                 strong("Ved tekniske feil, spørsmål eller tilbakemeldinger "),
@@ -539,7 +548,7 @@ covid19_server <- function(input, output, session, config) {
      overview_metrics_table_main(location_code = input$covid_location_code)
 
   })
-  
+
   output$overview_metrics <- formattable::renderFormattable({
     req(input$covid_location_code)
     metrics_ind()$ft
@@ -553,7 +562,7 @@ covid19_server <- function(input, output, session, config) {
     }
   )
 
-  
+
   # fig 1 ----
   norsyss_vs_msis_list <- reactive({
 
@@ -744,8 +753,8 @@ overview_metrics_table_main <- function(
       "Nye tilfeller av covid-19",
       "Testede for covid-19",
       "Andel positive blant testede",
-      "Legekonsultasjoner for covid-19 (1)",
-      "Legekonsultasjoner for covid-19 (2)",
+      "Legekonsultasjoner for covid-19",
+      "Andel legekonsultasjoner",
       "Relevante symptomer"
     )
   )]
