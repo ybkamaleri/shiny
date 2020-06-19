@@ -70,6 +70,9 @@ covid19_ui <- function(id, config) {
               p(
                 strong("Tabell 1"),
                "viser en oversikt over covid-19 med forskjellige indikatorer.", br(),
+               "NoPaR står for Norsk Pandemiregister, MSIS står for det nasjonale overvåkningssystemet for smittsomme sykdommer,",
+               " MSIS lab står for MSIS laboratoriedatabasen, NorSySS står for konsultasjoner på legekontor og legevakt, Symtometeret står for innbyggerne selvrapportering.",
+               " Mer informasjon om de forskjellige datakildene finner du i 'informasjon' fanen.",
                  " I tabellen vil det kunne være noen celler uten tall, men med betegnelsen 'IK'.",
                  " Disse dataene er foreløpig ikke tilgjengelige på det valgte geografiske nivået.",
                 br(),br()
@@ -453,7 +456,7 @@ covid19_ui <- function(id, config) {
                 "De statistiske beregningene tar hensyn til endringene", br(), br(),
 
 
-                strong("Mer informasjon om NorSySS dataene:"),
+                strong("Mer informasjon om NorSySS dataene:"),br(),
                 "- Dataene fra KUHR systmet er anonyme når vi mottar dem, uten pasientidentifikasjon, ",
                 "men med informasjon om kjønn, aldersgruppe, konsultasjonsdato ",
                 "og sted for konsultasjon.", br(),
@@ -775,8 +778,8 @@ overview_metrics_table_main <- function(
   d[, Kilde := c(
     "NoPaR",
     "MSIS",
-    "MSIS",
-    "MSIS",
+    "MSIS lab",
+    "MSIS lab",
     "NorSySS",
     "NorSySS",
     "Symptometeret"
