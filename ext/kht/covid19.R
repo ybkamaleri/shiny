@@ -1312,6 +1312,7 @@ covid19_norsyss_vs_msis_lab_weekly <- function(
   d_third <- d_third[,.(
     pr100_pos = 100*sum(n_pos)/sum(n_pos+n_neg)
   ),keyby=.(yrwk)]
+  d_third[is.nan(pr100_pos), pr100_pos := 0]
   setnames(d_third, "pr100_pos", "value")
 
   d_right[,censor := ""]
