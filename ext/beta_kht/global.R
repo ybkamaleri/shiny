@@ -8,7 +8,7 @@ format_nor_perc <- function(x) paste0(fhiplot::format_nor(x, digits=1),"%")
 
 db_config <- list(
   driver = Sys.getenv("DB_DRIVER", "Sql Server"),
-  server = Sys.getenv("DB_SERVER", "dm-prod"),
+  server = Sys.getenv("DB_SERVER", "dm-test"),
   db = Sys.getenv("DB_DB", "Sykdomspulsen_surv"),
   port = as.integer(Sys.getenv("DB_PORT", 1433)),
   user = Sys.getenv("DB_USER", "root"),
