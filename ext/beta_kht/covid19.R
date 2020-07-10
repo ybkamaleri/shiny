@@ -326,7 +326,7 @@ covid19_ui <- function(id, config) {
         title="Modellering",
         covid19_modelling_ui("covid19_modelling", config=config)
       ),
-
+      # Informasjon fanen ----
       tabPanel(
         title="Informasjon",
         tagList(
@@ -1171,9 +1171,10 @@ covid19_norsyss_vs_msis_lab_daily <- function(
     labs_right = "Andel NorSySS konsultasjoner\n og andel positive laboratorietester\n",
     labs_title = glue::glue(
       "{names(config$choices_location_with_ward)[config$choices_location_with_ward==location_code]}\n",
-      "Antall covid-19 meldinger til MSIS og andel konsultasjoner for \n",
+      "Antall covid-19 meldinger til MSIS,\n",
+      "andel positive laboratorietester og andel konsultasjoner for \n",
       "covid-19 (mistenkt, sannsynlig eller bekreftet) på legekontor og legevakt\n",
-      "Data fra NorSySS og MSIS"
+      "Data fra NorSySS, MSIS og MSIS laboratoriedatabasen"
     ),
     labs_caption = glue::glue(
       "Røde piler på x-aksen viser helger og helligdager. Røde * på x-aksen viser sensurerte data\n",
