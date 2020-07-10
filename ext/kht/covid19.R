@@ -70,9 +70,7 @@ covid19_ui <- function(id, config) {
               p(
                 strong("Tabell 1"),
                "viser en oversikt over covid-19 med forskjellige indikatorer.", br(),
-
                " NoPaR står for Norsk Pandemiregister, MSIS står for det nasjonale overvåkningssystemet for smittsomme sykdommer,",
-          
                " MSIS lab står for MSIS laboratoriedatabasen, NorSySS står for konsultasjoner på legekontor og legevakt, Symtometeret står for innbyggerne selvrapportering.",
                " Mer informasjon om de forskjellige datakildene finner du i 'informasjon' fanen.",
                  " I tabellen vil det kunne være noen celler uten tall, men med betegnelsen 'IK'.",
@@ -328,7 +326,7 @@ covid19_ui <- function(id, config) {
         title="Modellering",
         covid19_modelling_ui("covid19_modelling", config=config)
       ),
-
+      # Informasjon fanen ----
       tabPanel(
         title="Informasjon",
         tagList(
@@ -371,10 +369,7 @@ covid19_ui <- function(id, config) {
                 "men angir ikke nøyaktig antall covid-19 smittede i befolkningen.", br(),
                 "- Antall tilfeller vises for den kommunen pasienten er Folkeregisterregistrert i,",
                 " det kan derfor være diskrepans i tallene de enkelte kommunene har i sine oversikter og det som fremkommer i MSIS.", br(),
-
-                "- Bakveisidentifisering eller forsøk på rekonstruksjon av identitet på dataene er ikke tillatt.",br(),
-                "- Ved publisering skal det opplyses om at Folkehelseinstituttet og MSIS er leverandør av data.",
-
+                "- Bakveisidentifisering eller forsøk på rekonstruksjon av identitet på dataene er ikke tillatt.",
                 br(),br(),
 
                 strong("MSIS laboratoriedatabasen"),
@@ -387,10 +382,7 @@ covid19_ui <- function(id, config) {
                 br(),
                 "- Antall testede vises for den kommunen pasienten er Folkeregisterregistrert i,",
                 " det kan derfor være diskrepans i tallene de enkelte kommunene har i sine oversikter og det som fremkommer i MSIS laboratoriedatabasen.", br(),
-
-                "- Bakveisidentifisering eller forsøk på rekonstruksjon av identitet på dataene er ikke tillatt.",br(),
-                "- Ved publisering skal det opplyses om at Folkehelseinstituttet og MSIS er leverandør av data.",
-
+                "- Bakveisidentifisering eller forsøk på rekonstruksjon av identitet på dataene er ikke tillatt.",
                 br(),br(),
 
                 strong("NoPaR"),
@@ -1179,9 +1171,10 @@ covid19_norsyss_vs_msis_lab_daily <- function(
     labs_right = "Andel NorSySS konsultasjoner\n og andel positive laboratorietester\n",
     labs_title = glue::glue(
       "{names(config$choices_location_with_ward)[config$choices_location_with_ward==location_code]}\n",
-      "Antall covid-19 meldinger til MSIS og andel konsultasjoner for \n",
+      "Antall covid-19 meldinger til MSIS,\n",
+      "andel positive laboratorietester og andel konsultasjoner for \n",
       "covid-19 (mistenkt, sannsynlig eller bekreftet) på legekontor og legevakt\n",
-      "Data fra NorSySS og MSIS"
+      "Data fra NorSySS, MSIS og MSIS laboratoriedatabasen"
     ),
     labs_caption = glue::glue(
       "Røde piler på x-aksen viser helger og helligdager. Røde * på x-aksen viser sensurerte data\n",
