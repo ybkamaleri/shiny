@@ -70,7 +70,7 @@ covid19_ui <- function(id, config) {
               p(
                 strong("Tabell 1"),
                "viser en oversikt over covid-19 med forskjellige indikatorer.", br(),
-               "NoPaR står for Norsk Pandemiregister, MSIS står for det nasjonale overvåkningssystemet for smittsomme sykdommer,",
+               " NoPaR står for Norsk Pandemiregister, MSIS står for det nasjonale overvåkningssystemet for smittsomme sykdommer,",
                " MSIS lab står for MSIS laboratoriedatabasen, NorSySS står for konsultasjoner på legekontor og legevakt, Symtometeret står for innbyggerne selvrapportering.",
                " Mer informasjon om de forskjellige datakildene finner du i 'informasjon' fanen.",
                  " I tabellen vil det kunne være noen celler uten tall, men med betegnelsen 'IK'.",
@@ -100,7 +100,7 @@ covid19_ui <- function(id, config) {
                 strong("Figur 1")," viser antall covid-19 meldinger ",
                 "til MSIS (blå søyler) sammenstilt med andel konsultasjoner ",
                 "for covid-19 (mistenkt, sannsynlig eller bekreftet) på ",
-                "legekontor og legevakt gjennom NorSySS (rød linje) og andel positive laboratorietester (kun på Norgesnivå).",
+                "legekontor og legevakt gjennom NorSySS (rød linje) og andel positive laboratorietester (blå linje).",
                 "Denne figuren kan gi en ",
                 "oversikt over trendene i forhold til hverandre.",
                 br(),
@@ -326,7 +326,7 @@ covid19_ui <- function(id, config) {
         title="Modellering",
         covid19_modelling_ui("covid19_modelling", config=config)
       ),
-
+      # Informasjon fanen ----
       tabPanel(
         title="Informasjon",
         tagList(
@@ -369,8 +369,7 @@ covid19_ui <- function(id, config) {
                 "men angir ikke nøyaktig antall covid-19 smittede i befolkningen.", br(),
                 "- Antall tilfeller vises for den kommunen pasienten er Folkeregisterregistrert i,",
                 " det kan derfor være diskrepans i tallene de enkelte kommunene har i sine oversikter og det som fremkommer i MSIS.", br(),
-                "- Bakveisidentifisering eller forsøk på rekonstruksjon av identitet på dataene er ikke tillatt.",br(),
-                "- Ved publisering skal det opplyses om at Folkehelseinstituttet og MSIS er leverandør av data.",
+                "- Bakveisidentifisering eller forsøk på rekonstruksjon av identitet på dataene er ikke tillatt.",
                 br(),br(),
 
                 strong("MSIS laboratoriedatabasen"),
@@ -383,23 +382,23 @@ covid19_ui <- function(id, config) {
                 br(),
                 "- Antall testede vises for den kommunen pasienten er Folkeregisterregistrert i,",
                 " det kan derfor være diskrepans i tallene de enkelte kommunene har i sine oversikter og det som fremkommer i MSIS laboratoriedatabasen.", br(),
-                "- Bakveisidentifisering eller forsøk på rekonstruksjon av identitet på dataene er ikke tillatt.",br(),
-                "- Ved publisering skal det opplyses om at Folkehelseinstituttet og MSIS er leverandør av data.",
+                "- Bakveisidentifisering eller forsøk på rekonstruksjon av identitet på dataene er ikke tillatt.",
                 br(),br(),
 
                 strong("NoPaR"),
                 " er forkortelsen for Norsk pandemiregister som er benevnelsen på den delen av",
                 "Norsk intensiv- og pandemiregister som omhandler pandemipasienter.",br(),
-                "- NoPaR blir oppdatert på nettsiden ca kl 13 hver ukedag, i helger og på helligdager blir de foreløpig ikke oppdatert.",
-                br(),
-                "- NoPaR har foreløpig kun data på lansdnivå.", br(),br(),
+                "NoPaR data viser innleggelser der covid-19 var hovedårsak til innleggelsen.",br(),
+                "- NoPaR blir oppdatert på nettsiden ca kl 13 hver ukedag, i helger og på helligdager blir de foreløpig ikke oppdatert.",br(),
+                "- Vi har foreløpig kun NoPaR data på landsnivå på denne nettsiden.", br(),br(),
+
 
                 strong("Symptometeret"),
                 " er resultater fra innmelding til 'Meld fra ved mistanke om koronavirus',",
                 " en tjeneste for alle innbyggere for selvrapportering av symptomer som kan skyldes koronavirus.",
                 "- Symptometeret blir oppdatert på nettsiden ca kl 13 hver ukedag, i helger og på helligdager blir de foreløpig ikke oppdatert.",
                 br(),
-                "- Symptometeret har foreløpig kun data på lansdnivå.", br(),br(),
+                "- Vi har foreløpig ingen data fra Symptometeret på denne nettsiden. Men jobber med saken.", br(),br(),
 
                 strong("Modelleringsdataene"),
                 "blir utarbeidet av modelleringsgruppa på FHI.",br(),
@@ -855,6 +854,7 @@ covid19_plot_single <- function(
   } else {
     setnames(d_left,"yrwk","time")
     if(!is.null(d_right)) setnames(d_right,"yrwk","time")
+    if(!is.null(d_third)) setnames(d_third, "yrwk", "time")
   }
 
   if(type_left=="col"){
@@ -1045,30 +1045,6 @@ covid19_plot_single <- function(
 }
 
 
-covid19_norsyss_vs_msis <- function(
-  location_code,
-  config
-){
-  if(get_granularity_geo(location_code) == "nation"){
-    covid19_norsyss_vs_msis_lab_daily(
-      location_code = location_code,
-      config = config
-    )
-  } else if(get_granularity_geo(location_code) == "county") {
-    covid19_norsyss_vs_msis_daily(
-      location_code = location_code,
-      config = config
-    )
-  } else {
-    covid19_norsyss_vs_msis_weekly(
-      location_code = location_code,
-      config = config
-    )
-  }
-}
-
-
-
 ## Create table
 make_table_generic <- function(...) {
   ## the order MUST be d_left, d_right, d_third
@@ -1100,6 +1076,33 @@ make_table_generic <- function(...) {
 }
 
 # fig 1 ----
+covid19_norsyss_vs_msis <- function(
+  location_code,
+  config
+){
+  if(get_granularity_geo(location_code) == "nation"){
+    covid19_norsyss_vs_msis_lab_daily(
+      location_code = location_code,
+      config = config
+    )
+  } else if(get_granularity_geo(location_code) == "county") {
+    covid19_norsyss_vs_msis_lab_daily(
+      location_code = location_code,
+      config = config
+    )
+  } else if(get_granularity_geo(location_code) == "municip") {
+    covid19_norsyss_vs_msis_lab_weekly(
+      location_code = location_code,
+      config = config
+    )
+  } else {
+    covid19_norsyss_vs_msis_weekly(
+      location_code = location_code,
+      config = config
+    )
+  }
+}
+
 covid19_norsyss_vs_msis_lab_daily <- function(
   location_code,
   config
@@ -1128,7 +1131,7 @@ covid19_norsyss_vs_msis_lab_daily <- function(
 
 
   d_third <- pool %>%
-    dplyr::tbl("data_covid19_lab_by_time") %>%
+    dplyr::tbl("data_covid19_lab_by_time_location") %>%
     dplyr::filter(location_code== !!location_code) %>%
     dplyr::filter(granularity_time=="day") %>%
     dplyr::filter(date >= !!config$start_date) %>%
@@ -1168,9 +1171,10 @@ covid19_norsyss_vs_msis_lab_daily <- function(
     labs_right = "Andel NorSySS konsultasjoner\n og andel positive laboratorietester\n",
     labs_title = glue::glue(
       "{names(config$choices_location_with_ward)[config$choices_location_with_ward==location_code]}\n",
-      "Antall covid-19 meldinger til MSIS og andel konsultasjoner for \n",
+      "Antall covid-19 meldinger til MSIS,\n",
+      "andel positive laboratorietester og andel konsultasjoner for \n",
       "covid-19 (mistenkt, sannsynlig eller bekreftet) på legekontor og legevakt\n",
-      "Data fra NorSySS og MSIS"
+      "Data fra NorSySS, MSIS og MSIS laboratoriedatabasen"
     ),
     labs_caption = glue::glue(
       "Røde piler på x-aksen viser helger og helligdager. Røde * på x-aksen viser sensurerte data\n",
@@ -1270,6 +1274,102 @@ covid19_norsyss_vs_msis_daily <- function(
   list(pd_plot = pd_plot, pd_xl = pd_xl)
 }
 
+covid19_norsyss_vs_msis_lab_weekly <- function(
+  location_code,
+  config
+){
+
+  d_left <- pool %>% dplyr::tbl("data_covid19_msis_by_time_location") %>%
+    dplyr::filter(granularity_time == "week") %>%
+    dplyr::filter(location_code== !!location_code) %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::select(yrwk, n) %>%
+    dplyr::collect()
+  setDT(d_left)
+  setnames(d_left, "n", "value")
+
+  d_right <- pool %>% dplyr::tbl("data_norsyss_recent") %>%
+    dplyr::filter(location_code== !!location_code) %>%
+    dplyr::filter(granularity_time=="day") %>%
+    dplyr::filter(tag_outcome %in% "covid19_vk_ote") %>%
+    dplyr::filter(age=="total") %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::select(yrwk, n, consult_with_influenza) %>%
+    dplyr::group_by(yrwk) %>%
+    dplyr::summarize(n=sum(n), consult_with_influenza=sum(consult_with_influenza)) %>%
+    dplyr::collect()
+  setDT(d_right)
+
+  d_third <- pool %>%
+    dplyr::tbl("data_covid19_lab_by_time_location") %>%
+    dplyr::filter(location_code== !!location_code) %>%
+    dplyr::filter(granularity_time=="day") %>%
+    dplyr::filter(date >= !!config$start_date) %>%
+    dplyr::select(yrwk, n_neg, n_pos) %>%
+    dplyr::collect()
+  setDT(d_third)
+
+  d_third <- d_third[,.(
+    pr100_pos = 100*sum(n_pos)/sum(n_pos+n_neg)
+  ),keyby=.(yrwk)]
+  d_third[is.nan(pr100_pos), pr100_pos := 0]
+  setnames(d_third, "pr100_pos", "value")
+
+  d_right[,censor := ""]
+  d_right[censor=="" & n>0 & n<5, censor := "N"]
+  d_right[censor != "", n := 0]
+
+  d_right[, value := 100* n / consult_with_influenza]
+  d_right[is.nan(value), value := 0]
+  d_right[value>60, value := 60]
+  d_right[, no_data := consult_with_influenza==0]
+  d_right[,consult_with_influenza := NULL]
+
+
+  ## Create table
+  pd_xl <- make_table_generic(d_left, d_right, d_third)
+
+  ## Create plot
+  censored <- d_right[censor!=""]$yrwk
+  no_data <- d_right[no_data==T]$yrwk
+
+  pd_plot <- covid19_plot_single(
+    granularity_time = "week",
+    d_left = d_left,
+    d_right = d_right,
+    d_third = d_third,
+    censored = censored,
+    no_data = no_data,
+    type_left="col",
+    labs_left = "Antall tilfeller meldt til MSIS",
+    labs_right = "Andel NorSySS konsultasjoner\n og andel positive laboratorietester\n",
+    labs_title = glue::glue(
+      "{names(config$choices_location_with_ward)[config$choices_location_with_ward==location_code]}\n",
+      "Antall covid-19 meldinger til MSIS og andel konsultasjoner for\n",
+      "covid-19 (mistenkt, sannsynlig eller bekreftet) på legekontor og legevakt\n",
+      "Data fra NorSySS og MSIS"
+    ),
+    labs_caption = glue::glue(
+      "\nRøde * på x-aksen viser sensurerte data\n",
+      "Søylene skal leses av på venstre side, den røde linjen skal leses av på høyre side\n",
+      "Nevneren på andelen er totalt antall konsultasjoner per dato i valgt geografisk område\n",
+      "Røde stiplede vertikale linjer på figuren betyr at ingen konsultasjoner er rapportert på disse datoene\n",
+      "Folkehelseinstituttet, {format(lubridate::today(),'%d.%m.%Y')}"
+    ),
+    right_legend_labs = c(
+      "Andel NorSySS konsultasjoner",
+      "Andel positive laboratorietester",
+      "Antall tilfeller meldt til MSIS"
+    ),
+    right_legend_direction = -1,
+    multiplier_min_y_censor = -0.2,
+    multiplier_min_y_end = -0.14,
+    multiplier_min_y_start = -0.175,
+    left_labels = fhiplot::format_nor
+  )
+
+  list(pd_plot = pd_plot, pd_xl = pd_xl)
+}
 
 covid19_norsyss_vs_msis_weekly <- function(
   location_code,
